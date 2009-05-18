@@ -1,5 +1,6 @@
 package de.fraunhofer.fit.photocompass.model;
 
+// TODO make this model active so it updates the photos displaying views
 public class ApplicationModel {
 
     private static ApplicationModel _instance;
