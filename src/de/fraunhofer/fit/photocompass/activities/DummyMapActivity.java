@@ -13,14 +13,12 @@ import android.util.Log;
 import android.view.Window;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
-import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
 import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
-import de.fraunhofer.fit.photocompass.views.PhotosView;
 
 public class DummyMapActivity extends Activity {
 
@@ -93,15 +91,15 @@ public class DummyMapActivity extends Activity {
     
     private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
-		private float _azimuth;
+		private float _yaw;
 		private float _pitch;
 		private float _roll;
     	
-        public void onOrientationEvent(float azimuth, float pitch, float roll) {
+        public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
 	    	
-	    	if (azimuth == _azimuth && pitch == _pitch && roll == _roll) return; // values have not changed
-	    	_azimuth = azimuth;
+	    	if (yaw == _yaw && pitch == _pitch && roll == _roll) return; // values have not changed
+	    	_yaw = yaw;
 	    	_pitch = pitch;
 	    	_roll = roll;
             

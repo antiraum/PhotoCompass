@@ -1,6 +1,8 @@
 package de.fraunhofer.fit.photocompass;
 
 import android.app.Application;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
+import de.fraunhofer.fit.photocompass.model.Photos;
 
 public class PhotoCompassApplication extends Application {
 	
@@ -10,6 +12,14 @@ public class PhotoCompassApplication extends Application {
     // activity constants
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
+    
+    public PhotoCompassApplication() {
+    	super();
+    	
+    	// initialize models
+    	ApplicationModel.getInstance();
+    	Photos.getInstance();
+    }
     
     // returns the activity constant for a roll value from the orientation sensor
     public static int getActivityForRoll(float roll) {

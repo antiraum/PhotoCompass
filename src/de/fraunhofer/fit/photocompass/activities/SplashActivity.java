@@ -49,7 +49,7 @@ public class SplashActivity extends Activity {
     
     private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
     	
-        public void onOrientationEvent(float azimuth, float pitch, float roll) {
+        public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // splash activity is in the process of finishing, we don't need to do anything here

@@ -36,7 +36,7 @@ public class OrientationService extends Service {
 
 		public void onSensorChanged(int sensor, float[] values) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged");
-//	    	Log.i(PhotoCompassApplication.LOG_TAG, "OrientationService: azimuth = "+_azimuth+", pitch = "+_pitch+", roll = "+_roll);
+//	    	Log.i(PhotoCompassApplication.LOG_TAG, "OrientationService: yaw = "+_yaw+", pitch = "+_pitch+", roll = "+_roll);
 			
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();

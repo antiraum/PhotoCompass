@@ -1,10 +1,13 @@
 package de.fraunhofer.fit.photocompass.activities;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -13,8 +16,9 @@ import android.util.Log;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.R;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
+import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
 import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
@@ -29,6 +33,10 @@ public class FinderActivity extends Activity {
 
 	FinderActivity finderActivity;
     
+	private double _currentLat;
+	private double _currentLng;
+	private float _currentYaw;
+	
     private PhotosView _photosView;
 
     private ILocationService _locationService;
@@ -65,10 +73,12 @@ public class FinderActivity extends Activity {
         public void onLocationEvent(double latitude, double longitude, double altitude) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from location service");
             
-            // get location
+	    	// update variables
+	    	_currentLat = latitude;
+	    	_currentLng = longitude;
             
             // update photo view
-	    	// TODO
+	    	_updatePhotoView();
         }
     };
 
@@ -98,15 +108,15 @@ public class FinderActivity extends Activity {
     
     private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
-		private float _azimuth;
+		private float _yaw;
 		private float _pitch;
 		private float _roll;
     	
-        public void onOrientationEvent(float azimuth, float pitch, float roll) {
+        public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from orientation service");
 	    	
-	    	if (azimuth == _azimuth && pitch == _pitch && roll == _roll) return; // values have not changed
-	    	_azimuth = azimuth;
+	    	if (yaw == _yaw && pitch == _pitch && roll == _roll) return; // values have not changed
+	    	_yaw = yaw;
 	    	_pitch = pitch;
 	    	_roll = roll;
             
@@ -118,11 +128,11 @@ public class FinderActivity extends Activity {
 	    		startActivity(new Intent(finderActivity, DummyMapActivity.class));
 	    	}
             
-            // update photo views
-	    	_photosView.setPhotos(Photos.getInstance().getPhotos());
-//	    	// TODO
-//        	photosScrollView.setMValues(values);
-//            photosScrollView.invalidate();
+	    	// update variables
+	    	_currentYaw = _yaw;
+            
+            // update photo view
+	    	_updatePhotoView();
         }
     };
     
@@ -219,5 +229,23 @@ public class FinderActivity extends Activity {
     	}
         
         super.onStop();
+    }
+    
+    /**
+     * Updates the photo view based on the current location and orientation parameters.
+     */
+    private void _updatePhotoView() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
+    	
+    	// dummy values
+    	// TODO make this proper
+    	_currentLat = Location.convert("50:43:12.59"); // B-IT
+    	_currentLng = Location.convert("7:7:16.2"); // B-IT
+    	
+    	List<Photo> photos = Photos.getInstance().getPhotos(_currentLat, _currentLng, _currentYaw,
+    														ApplicationModel.getInstance().getMaxDistance(),
+    												 		ApplicationModel.getInstance().getMinAge(),
+    												 		ApplicationModel.getInstance().getMaxAge());
+    	_photosView.setPhotos(photos);
     }
 }

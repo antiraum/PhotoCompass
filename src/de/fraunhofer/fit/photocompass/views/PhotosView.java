@@ -1,54 +1,61 @@
 package de.fraunhofer.fit.photocompass.views;
 
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.AbsoluteLayout;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
-import de.fraunhofer.fit.photocompass.model.data.PhotoLayout;
-import de.fraunhofer.fit.photocompass.model.data.PhotoLayoutComparator;
+import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
 public class PhotosView extends AbsoluteLayout {
 	
-	private static final int MAX_PHOTO_HEIGHT = 200;
+	private static final int MIN_PHOTO_HEIGHT = 50;
+	private static int MAX_PHOTO_HEIGHT;
 	private Context _context;
 
 	public PhotosView(Context context) {
         super(context);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView");
+
+        MAX_PHOTO_HEIGHT = (int) Math.round(0.8 * getHeight()); // 80 percent of view height
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: MAX_PHOTO_HEIGHT = "+MAX_PHOTO_HEIGHT);
+        
         _context = context;
 	}
 	
-	public void setPhotos(LinkedList<Photo> photos) {
-
-        int screenHeight = 240; // TODO not hard coded (canvas.getHeight())
-        int statusbarHeight = 25; // TODO not hard coded
+	public void setPhotos(List<Photo> photos) {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: setPhotos");
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photos.size = "+photos.size());
         
         // calculate the photo sizes and positions
-        TreeMap<PhotoLayout, Photo> photoLayouts = new TreeMap<PhotoLayout, Photo>(new PhotoLayoutComparator());
+        Map<PhotoMetrics, Photo> photosMap = new HashMap<PhotoMetrics, Photo>();
         for (Photo photo : photos) {
-	        int photoHeight = (int)(MAX_PHOTO_HEIGHT * photo.getDistance(0f, 0f));
-	        int photoWidth = photoHeight / 4 * 3;
-	        int photoX = (int)(4 * photo.getAngle(0f, 0f));
-	        int photoY = statusbarHeight + (screenHeight - photoHeight) / 2;
-	        photoLayouts.put(new PhotoLayout(photoX, photoY, photoWidth, photoHeight), photo);
+	        int photoHeight = (int) (MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
+	        											(1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
+	        int photoWidth = photoHeight / 4 * 3; // TODO make this right (xScale = yScale)
+	        int photoX = (int) Math.round(((AbsoluteLayout) getParent()).getWidth() * 360 / photo.getDirection());
+	        int photoY = (getWidth() - photoHeight) / 2;
+	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
         }
         
         // add photo views
-        for (Map.Entry<PhotoLayout, Photo> photoLayout : photoLayouts.entrySet()) {
-	        PhotoView pView = new PhotoView(_context, photoLayout.getValue().getResourceId());
-	        pView.setLayoutParams(photoLayout.getKey().getAbsoluteLayoutParams());
-	        addView(pView);
+        for (Map.Entry<PhotoMetrics, Photo> photoEntry : photosMap.entrySet()) {
+	        PhotoView photoView = new PhotoView(_context, photoEntry.getValue().getResourceId());
+	        photoView.setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
+	        addView(photoView);
         }
         
         // add photo border views
-        for (PhotoLayout photoLayout : photoLayouts.keySet()) {
-	        PhotoBorderView pbView = new PhotoBorderView(_context, photoLayout.getWidth(), photoLayout.getHeight());
-	        pbView.setLayoutParams(photoLayout.getAbsoluteLayoutParams());
-	        addView(pbView);
+        for (PhotoMetrics photoMetrics : photosMap.keySet()) {
+	        PhotoBorderView photoBorderView = new PhotoBorderView(_context, photoMetrics.getWidth(), photoMetrics.getHeight());
+	        photoBorderView.setLayoutParams(photoMetrics.getAbsoluteLayoutParams());
+	        addView(photoBorderView);
         }
 	}
-	
 }

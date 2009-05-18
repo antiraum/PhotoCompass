@@ -2,14 +2,14 @@ package de.fraunhofer.fit.photocompass.model.data;
 
 import android.widget.AbsoluteLayout.LayoutParams;
 
-public class PhotoLayout {
+public class PhotoMetrics {
 
 	private int _x;
 	private int _y;
 	private int _width;
 	private int _height;
 	
-	public PhotoLayout(int x, int y, int width, int height) {
+	public PhotoMetrics(int x, int y, int width, int height) {
 		_x = x;
 		_y = y;
 		_width = width;

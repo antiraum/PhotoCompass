@@ -71,6 +71,7 @@ public class PhotoMapActivity extends MapActivity {
             // get location
             
             // update map view
+//	    	mapLocations.add(new MapLocation(”North Beach”,37.799800872802734,-122.40699768066406));
         }
     };
     

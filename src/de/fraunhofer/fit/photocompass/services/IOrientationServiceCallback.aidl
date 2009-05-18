@@ -8,5 +8,5 @@ interface IOrientationServiceCallback {
     /**
      * Called when the service has a new value.
      */
-    void onOrientationEvent(float azimuth, float pitch, float roll);
+    void onOrientationEvent(float yaw, float pitch, float roll);
 }
