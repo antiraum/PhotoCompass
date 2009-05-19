@@ -93,7 +93,7 @@ public class Photo {
 	 * @return Age of the photo in ... (maybe minutes or seconds)
 	 */
 	public int getAge() {
-		// TODO 
+		// FIXME 
 		return 24 * 60;
 	}
 }

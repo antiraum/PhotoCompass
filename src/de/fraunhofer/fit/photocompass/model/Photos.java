@@ -68,7 +68,7 @@ public class Photos {
     		}
     		if (photo.getDirection() < yaw - PhotosView.PHOTO_VIEW_DEGREES / 2 ||
     			photo.getDirection() > yaw + PhotosView.PHOTO_VIEW_DEGREES / 2) {
-//    			// TODO have a proper model witch directions are in the viewing direction (depending on the distance) (see also PhotosView class)
+//    			// FIXME have a proper model witch directions are in the viewing direction (depending on the distance) (see also PhotosView class)
     			// photo is not in viewing direction
     	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo not in viewing direction: photo.getDirection() = "+photo.getDirection()+", yaw = "+yaw);
     	    	continue;

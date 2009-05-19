@@ -159,7 +159,7 @@ public class FinderActivity extends Activity {
         // initialize views
         FinderView finderView = new FinderView(this);
         Display display = getWindowManager().getDefaultDisplay();
-        int statusbarHeight = 25; // TODO no hardcoded values
+        int statusbarHeight = 25; // FIXME no hardcoded values
         _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - statusbarHeight);
         ControlsView controlsView = new ControlsView(this);
 

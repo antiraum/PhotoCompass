@@ -17,7 +17,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
 public class PhotosView extends AbsoluteLayout {
 	
-	// TODO create a proper model for this (see also Photos class)
+	// FIXME create a proper model for this (see also Photos class)
 	public static final int PHOTO_VIEW_DEGREES = 40; // degrees out of 360 that are visible from one point
 	
 	private static final int MIN_PHOTO_HEIGHT = 50;
@@ -78,7 +78,7 @@ public class PhotosView extends AbsoluteLayout {
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
         	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
-	        int photoWidth = photoHeight / 4 * 3; // TODO make this right (xScale = yScale)
+	        int photoWidth = photoHeight / 4 * 3; // FIXME make this right (xScale = yScale)
 	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_DEGREES / 2) / PHOTO_VIEW_DEGREES);
 	        int photoY = (_viewMaxHeight - photoHeight) / 2;
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
