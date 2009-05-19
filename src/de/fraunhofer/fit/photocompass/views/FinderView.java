@@ -30,7 +30,7 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
         try {
         	_camera.setPreviewDisplay(holder);
         } catch (Exception e) {
-        	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: setting camera preview display failed");
+        	Log.e(PhotoCompassApplication.LOG_TAG, "FinderView: setting camera preview display failed");
         }
     }
 

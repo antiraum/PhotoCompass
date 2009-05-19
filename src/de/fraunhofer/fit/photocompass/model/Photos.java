@@ -52,7 +52,7 @@ public class Photos {
      * @return List of Photos (sorted in order farthest to nearest)
      */
     public List<Photo> getPhotos(double lat, double lng, float yaw, float maxDistance, int minAge, int maxAge) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: getPhotos");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: getPhotos");
     	
     	List<Photo> results = new ArrayList<Photo>(); 
     	

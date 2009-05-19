@@ -66,7 +66,7 @@ public class PhotoMapActivity extends MapActivity {
     private ILocationServiceCallback _locationServiceCallback = new ILocationServiceCallback.Stub() {
     	
         public void onLocationEvent(double latitude, double longitude, double altitude) {
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from location service");
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from location service");
             
             // get location
             

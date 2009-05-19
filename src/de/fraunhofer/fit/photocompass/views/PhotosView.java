@@ -38,7 +38,6 @@ public class PhotosView extends AbsoluteLayout {
         _viewMaxHeight = viewMaxHeight;
 
         MAX_PHOTO_HEIGHT = (int) Math.round(0.65 * _viewMaxHeight); // 80 percent of view height
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: MAX_PHOTO_HEIGHT = "+MAX_PHOTO_HEIGHT);
     	
 //    	_photoViews = new HashMap<Integer, PhotoView>();
 //    	_photoBorderViews = new ArrayList<PhotoBorderView>();
@@ -51,8 +50,8 @@ public class PhotosView extends AbsoluteLayout {
 	 * @param yaw Current viewing direction
 	 */
 	public void setPhotos(List<Photo> photos, float yaw) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: setPhotos");
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photos.size = "+photos.size());
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: setPhotos");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photos.size = "+photos.size());
     	
     	// remove all views
     	removeAllViews();
@@ -77,12 +76,12 @@ public class PhotosView extends AbsoluteLayout {
         for (Photo photo : photos) {
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
-        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
 	        int photoWidth = photoHeight / 4 * 3; // FIXME make this right (xScale = yScale)
 	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_DEGREES / 2) / PHOTO_VIEW_DEGREES);
 	        int photoY = (_viewMaxHeight - photoHeight) / 2;
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
-        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
         }
         
         // add photo views

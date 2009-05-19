@@ -75,7 +75,7 @@ public class FinderActivity extends Activity {
     private ILocationServiceCallback _locationServiceCallback = new ILocationServiceCallback.Stub() {
     	
         public void onLocationEvent(double latitude, double longitude, double altitude) {
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from location service");
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from location service");
             
 	    	// update variables
 	    	_currentLat = latitude;
@@ -263,7 +263,7 @@ public class FinderActivity extends Activity {
      * Updates the photo view based on the current location and orientation parameters.
      */
     private void _updatePhotoView() {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
     	
     	// dummy values
     	// TODO make this proper

@@ -56,7 +56,7 @@ public class DummyMapActivity extends Activity {
     private ILocationServiceCallback _locationServiceCallback = new ILocationServiceCallback.Stub() {
     	
         public void onLocationEvent(double latitude, double longitude, double altitude) {
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from location service");
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from location service");
             
             // get location
             

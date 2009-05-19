@@ -40,7 +40,7 @@ public class LocationService extends Service {
 		
 		public void onLocationChanged(Location location) {
 			if (location == null) return;
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
 			
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();

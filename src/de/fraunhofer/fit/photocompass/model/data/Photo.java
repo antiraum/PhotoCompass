@@ -50,7 +50,7 @@ public class Photo {
 		_lastUpdateLat = lat;
 		_lastUpdateLng = lng;
 
-    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection");
 		
 		// distance calculation
 		float[] results = new float[1];
