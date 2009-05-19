@@ -31,16 +31,29 @@ public class OrientationService extends Service {
 
 	private SensorManager _sensorManager;
 	private SensorListener _sensorListener = new SensorListener() {
+		
+		private float _yaw, _pitch, _roll;
 
 		public void onSensorChanged(int sensor, float[] values) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged");
-//	    	Log.i(PhotoCompassApplication.LOG_TAG, "OrientationService: yaw = "+_yaw+", pitch = "+_pitch+", roll = "+_roll);
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: yaw = "+values[0]+", pitch = "+values[1]+", roll = "+values[2]);
+			
+			_yaw = values[0];
+			// the values are exchanged on the G1, so we have to switch between these code blocks
+	        /* begin sensor simulator code */
+//			_pitch = values[1];
+//			_roll = values[2];
+	        /* end sensor simulator code */
+	        /* begin real sensor code */
+			_pitch = values[2];
+			_roll = values[1];
+	        /* end real sensor code */
 			
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
-	                remoteCallbacks.getBroadcastItem(i).onOrientationEvent(values[0], values[1], values[2]);
+	                remoteCallbacks.getBroadcastItem(i).onOrientationEvent(_yaw, _pitch, _roll);
 	            } catch (DeadObjectException e) {
 	                // the RemoteCallbackList will take care of removing the dead object
 	            } catch (RemoteException e) {
