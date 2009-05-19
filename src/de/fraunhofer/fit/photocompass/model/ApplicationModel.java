@@ -6,7 +6,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
-// TODO make this model active so it updates the photos displaying views
 public class ApplicationModel {
 
     private static ApplicationModel _instance;
