@@ -4,15 +4,24 @@
       android:versionName="1.0" package="de.fraunhofer.fit.photocompass">
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true" android:name="PhotoCompassApplication">
     	<uses-library android:name="com.google.android.maps" />
-    	<activity android:label="@string/app_name" android:name=".activities.SplashActivity">
+    	<activity android:label="@string/app_name"
+    			  android:name=".activities.SplashActivity"
+        		  android:screenOrientation="landscape"
+        		  android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
     	</activity>
-        <activity android:name=".activities.FinderActivity" android:screenOrientation="landscape"></activity>
-    	<activity android:name=".activities.PhotoMapActivity" android:screenOrientation="landscape"></activity>
-    	<activity android:name=".activities.DummyMapActivity" android:screenOrientation="landscape"></activity>
+        <activity android:name=".activities.FinderActivity"
+        		  android:screenOrientation="landscape"
+        		  android:launchMode="singleTop"></activity>
+    	<activity android:name=".activities.PhotoMapActivity"
+    			  android:screenOrientation="landscape"
+        		  android:launchMode="singleTop"></activity>
+    	<activity android:name=".activities.DummyMapActivity"
+    			  android:screenOrientation="landscape"
+        		  android:launchMode="singleTop"></activity>
 		<service android:name=".services.LocationService"></service>
 		<service android:name=".services.OrientationService"></service>
 	</application>
