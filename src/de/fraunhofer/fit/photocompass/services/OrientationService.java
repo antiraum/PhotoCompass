@@ -1,8 +1,6 @@
 package de.fraunhofer.fit.photocompass.services;
 
-import org.openintents.hardware.SensorManagerSimulator;
-import org.openintents.provider.Hardware;
-
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.SensorListener;
@@ -61,15 +59,17 @@ public class OrientationService extends Service {
     	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onCreate");
         super.onCreate();
         
-        /* begin sensor simulator code */
-        Hardware.mContentResolver = getContentResolver(); 
-        _sensorManager = (SensorManager) new SensorManagerSimulator((SensorManager) getSystemService(SENSOR_SERVICE));
-		SensorManagerSimulator.connectSimulator(); 
-        /* end sensor simulator code */
-        
-        /* begin real sensor code */
+        // As there seems to be no way to detect if we are running on an emulator, we have to manually switch between the following
+        // code blocks. If someone finds a way to do this, please add it. 
+
         // initialize location manager
-//        _sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
+        /* begin sensor simulator code */
+//        Hardware.mContentResolver = getContentResolver(); 
+//        _sensorManager = (SensorManager) new SensorManagerSimulator((SensorManager) getSystemService(SENSOR_SERVICE));
+//		SensorManagerSimulator.connectSimulator(); 
+        /* end sensor simulator code */
+        /* begin real sensor code */
+        _sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
         /* end real sensor code */
     	
     	// TODO test for orientation sensor and notify the user that he cannot use the application without it
