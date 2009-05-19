@@ -91,16 +91,13 @@ public class DummyMapActivity extends Activity {
     
     private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
-		private float _yaw;
-		private float _pitch;
 		private float _roll;
     	
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
 	    	
-	    	if (yaw == _yaw && pitch == _pitch && roll == _roll) return; // values have not changed
-	    	_yaw = yaw;
-	    	_pitch = pitch;
+        	// currently we are only interested in the roll value
+	    	if (roll == _roll) return; // value has not changed
 	    	_roll = roll;
             
             // switch to activity based on orientation

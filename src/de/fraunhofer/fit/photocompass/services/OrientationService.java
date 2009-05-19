@@ -88,6 +88,7 @@ public class OrientationService extends Service {
     	// TODO test for orientation sensor and notify the user that he cannot use the application without it
     	
     	// start listening to sensors
+        // TODO we should aim to be able to handle events at SensorManager.SENSOR_DELAY_NORMAL rate
     	_sensorManager.registerListener(_sensorListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_UI);
     }
 

@@ -113,30 +113,36 @@ public class FinderActivity extends Activity {
     private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
 		private float _yaw;
-		private float _pitch;
 		private float _roll;
     	
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from orientation service");
-	    	
-	    	if (yaw == _yaw && pitch == _pitch && roll == _roll) return; // values have not changed
-	    	_yaw = yaw;
-	    	_pitch = pitch;
-	    	_roll = roll;
+
+	    	// roll value has changed
+        	// TODO make this activity represent changing pitch values
+	    	if (roll != _roll) {
+		    	_roll = roll;
             
-            // switch to activity based on orientation
-        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
-	    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
-	    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
-//	    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
-	    		startActivity(new Intent(finderActivity, DummyMapActivity.class));
+	            // switch to activity based on orientation
+	        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
+		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
+	//	    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
+		    		startActivity(new Intent(finderActivity, DummyMapActivity.class));
+		    	}
 	    	}
-            
-	    	// update variables
-	    	_currentYaw = _yaw;
-            
-            // update photo view
-	    	_updatePhotoView();
+
+	    	// yaw value has changed
+        	// TODO make this activity represent changing pitch values
+	    	if (yaw != _yaw) {
+		    	_yaw = yaw;
+	    		
+		    	// update variables
+		    	_currentYaw = _yaw;
+	            
+	            // update photo view
+		    	_updatePhotoView();
+	    	}
         }
     };
 

@@ -49,13 +49,19 @@ public class SplashActivity extends Activity {
     
     private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
     	
+    	private float _roll;
+    	
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: received event from orientation service");
+        	
+        	// we are only interested in the roll value
+        	if (roll == _roll) return; // value has not changed
+        	_roll = roll;
         	
         	if (isFinishing()) return; // splash activity is in the process of finishing, we don't need to do anything here
             
             // switch to activity based on orientation
-        	int activity = PhotoCompassApplication.getActivityForRoll(roll);
+        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to finder activity");
 	    		startActivity(new Intent(splashActivity, FinderActivity.class));
