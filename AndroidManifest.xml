@@ -11,8 +11,8 @@
             </intent-filter>
     	</activity>
         <activity android:name=".activities.FinderActivity" android:screenOrientation="landscape"></activity>
-    	<activity android:name=".activities.PhotoMapActivity"></activity>
-    	<activity android:name=".activities.DummyMapActivity"></activity>
+    	<activity android:name=".activities.PhotoMapActivity" android:screenOrientation="landscape"></activity>
+    	<activity android:name=".activities.DummyMapActivity" android:screenOrientation="landscape"></activity>
 		<service android:name=".services.LocationService"></service>
 		<service android:name=".services.OrientationService"></service>
 	</application>
