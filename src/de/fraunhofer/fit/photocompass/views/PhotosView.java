@@ -90,7 +90,7 @@ public class PhotosView extends AbsoluteLayout {
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: resouceId = "+resourceId);
         	
         	// create and add photo view
-        	PhotoView photoView = new PhotoView(_context, resourceId);
+        	PhotoView photoView = new PhotoView(_context, resourceId, photoEntry.getValue().getDistance());
         	photoView.setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
         	addView(photoView);
         	
