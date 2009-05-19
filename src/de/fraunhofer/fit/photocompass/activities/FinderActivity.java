@@ -79,7 +79,7 @@ public class FinderActivity extends Activity {
 	    	_currentLng = longitude;
             
             // update photo view
-	    	_updatePhotoView();
+	    	updatePhotos();
         }
     };
 
@@ -133,7 +133,7 @@ public class FinderActivity extends Activity {
 	    	_currentYaw = _yaw;
             
             // update photo view
-	    	_updatePhotoView();
+	    	updatePhotos();
         }
     };
     
@@ -237,8 +237,8 @@ public class FinderActivity extends Activity {
     /**
      * Updates the photo view based on the current location and orientation parameters.
      */
-    private void _updatePhotoView() {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
+    public void updatePhotos() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: updatePhotos");
     	
     	// dummy values
     	// TODO make this proper
