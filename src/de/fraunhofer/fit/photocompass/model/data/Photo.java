@@ -1,6 +1,8 @@
 package de.fraunhofer.fit.photocompass.model.data;
 
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import android.location.Location;
+import android.util.Log;
 
 public class Photo {
 
@@ -9,6 +11,10 @@ public class Photo {
 	private double _lng;
 	private float _distance;
 	private double _direction;
+	
+	// position on the last updateDistanceAndDirection call
+	private double _lastUpdateLat;
+	private double _lastUpdateLng;
 	
 	public Photo(int resourceId, double lat, double lng) {
 		_resourceId = resourceId;
@@ -38,6 +44,13 @@ public class Photo {
 	 * @return
 	 */
 	public void updateDistanceAndDirection(double lat, double lng) {
+		
+		// this is are expensive calculations, so we double check here if they really have to be done
+		if (_lastUpdateLat == lat && _lastUpdateLng == lng) return;
+		_lastUpdateLat = lat;
+		_lastUpdateLng = lng;
+
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection");
 		
 		// distance calculation
 		float[] results = new float[1];

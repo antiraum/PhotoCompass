@@ -5,9 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 import android.location.Location;
+import android.util.Log;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoComparator;
+import de.fraunhofer.fit.photocompass.views.PhotosView;
 
 public class Photos {
 
@@ -49,19 +52,32 @@ public class Photos {
      * @return List of Photos (sorted in order farthest to nearest)
      */
     public List<Photo> getPhotos(double lat, double lng, float yaw, float maxDistance, int minAge, int maxAge) {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: getPhotos");
     	
     	List<Photo> results = new ArrayList<Photo>(); 
     	
     	// update distance and direction for all photos and add the matching ones to the results
     	for (Photo photo : _photos) {
+    		
     		photo.updateDistanceAndDirection(lat, lng);
-    		float distance = photo.getDistance();
-    		double direction = photo.getDirection();
     		    		
-    		if (distance > maxDistance ||
-    			// TODO have a proper model witch directions are in the viewing direction (depending on the distance)
-    			direction < yaw - 10 || direction > yaw + 10 ||
-    			photo.getAge() < minAge || photo.getAge() > maxAge) continue;
+    		if (photo.getDistance() > maxDistance) {
+    			// photo is too far away
+    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is to far away: photo.getDistance() = "+photo.getDistance()+", maxDistance = "+maxDistance);
+    			continue;
+    		}
+    		if (photo.getDirection() < yaw - PhotosView.PHOTO_VIEW_DEGREES / 2 ||
+    			photo.getDirection() > yaw + PhotosView.PHOTO_VIEW_DEGREES / 2) {
+//    			// TODO have a proper model witch directions are in the viewing direction (depending on the distance) (see also PhotosView class)
+    			// photo is not in viewing direction
+    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo not in viewing direction: photo.getDirection() = "+photo.getDirection()+", yaw = "+yaw);
+    	    	continue;
+    		}
+    		if (photo.getAge() < minAge || photo.getAge() > maxAge) {
+    			// photo is too young or too old
+    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is too young or too old: photo.getAge() = "+photo.getAge()+", minAge = "+minAge+", maxAge = "+maxAge);
+    			continue;
+    		}
     		
     		results.add(photo);
     	}

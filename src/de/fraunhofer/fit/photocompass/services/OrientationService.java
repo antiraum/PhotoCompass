@@ -68,7 +68,7 @@ public class OrientationService extends Service {
         /* end sensor simulator code */
         
         /* begin real sensor code */
-//        // initialize location manager
+        // initialize location manager
 //        _sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
         /* end real sensor code */
     	

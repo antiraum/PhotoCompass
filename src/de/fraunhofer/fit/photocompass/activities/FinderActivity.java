@@ -13,6 +13,7 @@ import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Display;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
@@ -157,7 +158,9 @@ public class FinderActivity extends Activity {
         
         // initialize views
         FinderView finderView = new FinderView(this);
-        _photosView = new PhotosView(this);
+        Display display = getWindowManager().getDefaultDisplay();
+        int statusbarHeight = 25; // TODO no hardcoded values
+        _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - statusbarHeight);
         ControlsView controlsView = new ControlsView(this);
 
         // setup views
@@ -246,6 +249,6 @@ public class FinderActivity extends Activity {
     														ApplicationModel.getInstance().getMaxDistance(),
     												 		ApplicationModel.getInstance().getMinAge(),
     												 		ApplicationModel.getInstance().getMaxAge());
-    	_photosView.setPhotos(photos);
+    	_photosView.setPhotos(photos, _currentYaw);
     }
 }
