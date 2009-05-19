@@ -54,11 +54,11 @@ public class SplashActivity extends Activity {
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: received event from orientation service");
         	
+        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
+        	
         	// we are only interested in the roll value
         	if (roll == _roll) return; // value has not changed
         	_roll = roll;
-        	
-        	if (isFinishing()) return; // splash activity is in the process of finishing, we don't need to do anything here
             
             // switch to activity based on orientation
         	int activity = PhotoCompassApplication.getActivityForRoll(_roll);

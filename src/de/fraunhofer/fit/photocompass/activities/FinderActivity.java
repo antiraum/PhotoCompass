@@ -76,6 +76,8 @@ public class FinderActivity extends Activity {
     	
         public void onLocationEvent(double latitude, double longitude, double altitude) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from location service");
+        	
+        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
 	    	// update variables
 	    	_currentLat = latitude;
@@ -117,6 +119,8 @@ public class FinderActivity extends Activity {
     	
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from orientation service");
+        	
+        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
 
 	    	// roll value has changed
         	// TODO make this activity represent changing pitch values
@@ -134,7 +138,8 @@ public class FinderActivity extends Activity {
 
 	    	// yaw value has changed
         	// TODO make this activity represent changing pitch values
-	    	if (yaw != _yaw) {
+	    	int yawTolerance = 5; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
+	    	if (yaw < _yaw - yawTolerance || yaw > _yaw + yawTolerance) {
 		    	_yaw = yaw;
 	    		
 		    	// update variables

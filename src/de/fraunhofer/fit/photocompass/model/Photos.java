@@ -63,19 +63,19 @@ public class Photos {
     		    		
     		if (photo.getDistance() > maxDistance) {
     			// photo is too far away
-    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is to far away: photo.getDistance() = "+photo.getDistance()+", maxDistance = "+maxDistance);
+//    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is to far away: photo.getDistance() = "+photo.getDistance()+", maxDistance = "+maxDistance);
     			continue;
     		}
     		if (photo.getDirection() < yaw - PhotosView.PHOTO_VIEW_DEGREES / 2 ||
     			photo.getDirection() > yaw + PhotosView.PHOTO_VIEW_DEGREES / 2) {
 //    			// FIXME have a proper model witch directions are in the viewing direction (depending on the distance) (see also PhotosView class)
     			// photo is not in viewing direction
-    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo not in viewing direction: photo.getDirection() = "+photo.getDirection()+", yaw = "+yaw);
+//    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo not in viewing direction: photo.getDirection() = "+photo.getDirection()+", yaw = "+yaw);
     	    	continue;
     		}
     		if (photo.getAge() < minAge || photo.getAge() > maxAge) {
     			// photo is too young or too old
-    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is too young or too old: photo.getAge() = "+photo.getAge()+", minAge = "+minAge+", maxAge = "+maxAge);
+//    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is too young or too old: photo.getAge() = "+photo.getAge()+", minAge = "+minAge+", maxAge = "+maxAge);
     			continue;
     		}
     		

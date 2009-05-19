@@ -57,6 +57,8 @@ public class DummyMapActivity extends Activity {
     	
         public void onLocationEvent(double latitude, double longitude, double altitude) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from location service");
+        	
+        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
             // get location
             
@@ -95,6 +97,8 @@ public class DummyMapActivity extends Activity {
     	
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
+        	
+        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
 	    	
         	// currently we are only interested in the roll value
 	    	if (roll == _roll) return; // value has not changed
