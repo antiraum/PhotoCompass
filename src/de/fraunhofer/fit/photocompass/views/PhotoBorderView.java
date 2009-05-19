@@ -1,5 +1,6 @@
 package de.fraunhofer.fit.photocompass.views;
 
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -17,7 +18,7 @@ public class PhotoBorderView extends View {
 		_width = width;
 		_height = height;
 		_paint = new Paint(); 
-		_paint.setColor(Color.parseColor("#ffd300")); 
+		_paint.setColor(Color.parseColor(PhotoCompassApplication.ORANGE)); 
 		_paint.setStrokeWidth(2f);
 	}
 	

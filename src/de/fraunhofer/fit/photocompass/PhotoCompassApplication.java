@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass;
 
 import android.app.Application;
+import android.graphics.Color;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
 
@@ -12,6 +13,9 @@ public class PhotoCompassApplication extends Application {
     // activity constants
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
+    
+    // colors
+    public static final String ORANGE = "#ffd300";
     
     public PhotoCompassApplication() {
     	super();
