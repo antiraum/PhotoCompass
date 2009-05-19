@@ -132,13 +132,13 @@ public class FinderActivity extends Activity {
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
 	//	    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
-		    		startActivity(new Intent(finderActivity, DummyMapActivity.class));
+		    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
 		    	}
 	    	}
 
 	    	// yaw value has changed
         	// TODO make this activity represent changing pitch values
-	    	int yawTolerance = 5; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
+	    	int yawTolerance = 3; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
 	    	if (yaw < _yaw - yawTolerance || yaw > _yaw + yawTolerance) {
 		    	_yaw = yaw;
 	    		

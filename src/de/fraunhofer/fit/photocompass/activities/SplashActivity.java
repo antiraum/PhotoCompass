@@ -55,10 +55,6 @@ public class SplashActivity extends Activity {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
-        	
-        	// we are only interested in the roll value
-        	if (roll == _roll) return; // value has not changed
-        	_roll = roll;
             
             // switch to activity based on orientation
         	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
@@ -68,7 +64,7 @@ public class SplashActivity extends Activity {
 	    	} else {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to map activity");
 //	    		startActivity(new Intent(splashActivity, PhotoMapActivity.class));
-	    		startActivity(new Intent(splashActivity, DummyMapActivity.class));
+	    		startActivity(new Intent(splashActivity, PhotoMapActivity.class));
 	    	}
 	        
 	        // close splash activity
