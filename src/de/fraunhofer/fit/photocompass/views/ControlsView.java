@@ -11,12 +11,9 @@ public class ControlsView extends AbsoluteLayout {
         PhotoView distanceSliderDummy = new PhotoView(context, R.drawable.distance_slider_dummy);
         addView(distanceSliderDummy);
         distanceSliderDummy.setLayoutParams(new LayoutParams(62, 257, 6, 7));
-//        PhotoView ageSliderDummy = new PhotoView(context, R.drawable.age_slider_dummy);
-//        addView(ageSliderDummy);
-//        ageSliderDummy.setLayoutParams(new LayoutParams(441, 41, 32, 249));
-        DoubleSeekBar dsb = new DoubleSeekBar(context);
-        dsb.setLayoutParams(new LayoutParams(441,41,32,249));
-        addView(dsb);
+        PhotoView ageSliderDummy = new PhotoView(context, R.drawable.age_slider_dummy);
+        addView(ageSliderDummy);
+        ageSliderDummy.setLayoutParams(new LayoutParams(441, 41, 32, 249));
         
     }
 }
