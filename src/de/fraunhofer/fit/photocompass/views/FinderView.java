@@ -39,6 +39,10 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
     	
         // surface will be destroyed, so stop the preview
         _camera.stopPreview();
+        
+        // release the camera
+        _camera.release();
+//        Thread.sleep(1000L) 
         _camera = null;
     }
 
