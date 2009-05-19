@@ -13,7 +13,7 @@ public class ApplicationModel {
 		super();
 		
 		// default values
-		_maxDistance = 100000;
+		_maxDistance = 500;
 		_minAge = 0;
 		_maxAge = 100000;
 	}
