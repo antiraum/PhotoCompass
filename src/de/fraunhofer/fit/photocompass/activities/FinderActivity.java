@@ -18,6 +18,7 @@ import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
+import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
@@ -44,6 +45,8 @@ public class FinderActivity extends Activity {
     private boolean _boundToLocationService;
     private IOrientationService _orientationService;
     private boolean _boundToOrientationService;
+
+    private ApplicationModel _applicationModel;
 
     private ServiceConnection _locationServiceConn = new ServiceConnection() {
 
@@ -79,7 +82,7 @@ public class FinderActivity extends Activity {
 	    	_currentLng = longitude;
             
             // update photo view
-	    	updatePhotos();
+	    	_updatePhotoView();
         }
     };
 
@@ -133,17 +136,33 @@ public class FinderActivity extends Activity {
 	    	_currentYaw = _yaw;
             
             // update photo view
-	    	updatePhotos();
+	    	_updatePhotoView();
         }
     };
+
+	private IApplicationModelCallback _applicationModelCallback = new IApplicationModelCallback.Stub() {
+	
+		public void onApplicationModelChange() {
+			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
+		    
+		    // update photo view
+			_updatePhotoView();
+		}
+	};
     
     public FinderActivity() {
     	super();
     	finderActivity = this;
+    	
+    	// initialize service variables
         _locationService = null;
         _boundToLocationService = false;
         _orientationService = null;
         _boundToOrientationService = false;
+    	
+        // initialize application model and register as callback
+    	_applicationModel = ApplicationModel.getInstance();
+    	_applicationModel.registerCallback(_applicationModelCallback);
     }
     
     /**
@@ -237,8 +256,8 @@ public class FinderActivity extends Activity {
     /**
      * Updates the photo view based on the current location and orientation parameters.
      */
-    public void updatePhotos() {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: updatePhotos");
+    private void _updatePhotoView() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
     	
     	// dummy values
     	// TODO make this proper
