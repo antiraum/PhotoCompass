@@ -9,17 +9,20 @@ public class Photo {
 	private int _resourceId;
 	private double _lat;
 	private double _lng;
+	private double _alt;
 	private float _distance;
 	private double _direction;
+	private double _altOffset;
 	
 	// position on the last updateDistanceAndDirection call
 	private double _lastUpdateLat;
 	private double _lastUpdateLng;
 	
-	public Photo(int resourceId, double lat, double lng) {
+	public Photo(int resourceId, double lat, double lng, double alt) {
 		_resourceId = resourceId;
 		_lat = lat;
 		_lng = lng;
+		_alt  = alt;
 		_distance = 0f;
 		_direction = 0f;
 	}
@@ -43,7 +46,7 @@ public class Photo {
 	 * @param lng Longitude of the current location
 	 * @return
 	 */
-	public void updateDistanceAndDirection(double lat, double lng) {
+	public void updateDistanceAndDirection(double lat, double lng, double alt) {
 		
 		// this is are expensive calculations, so we double check here if they really have to be done
 		if (_lastUpdateLat == lat && _lastUpdateLng == lng) return;
@@ -67,7 +70,8 @@ public class Photo {
         // end direction calculation
 
 		// TODO check how we can use the altitude for the direction
-        // (I'm not sure the altitude is in the meta data of the photos - check this first)
+        _altOffset = _alt - alt; // altitud photo - current altitute position
+        
 	}
 	
 	/**
@@ -95,5 +99,13 @@ public class Photo {
 	public int getAge() {
 		// FIXME 
 		return 24 * 60;
+	}
+	/**
+	 * 
+	 * @return Age of the photo in ... (maybe minutes or seconds)
+	 */
+	public double getAltOffset() {
+		// FIXME 
+		return _altOffset;
 	}
 }

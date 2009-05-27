@@ -7,6 +7,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -36,6 +37,7 @@ public class LocationService extends Service {
     };
 	
 	private LocationManager _locationManager;
+	
 	private LocationListener _locationListener = new LocationListener() {
 		
 		public void onLocationChanged(Location location) {
@@ -56,14 +58,30 @@ public class LocationService extends Service {
 	        }
 	        remoteCallbacks.finishBroadcast();
 		}
-
+		
 		public void onProviderDisabled(String provider) {
 		}
 
 		public void onProviderEnabled(String provider) {
 		}
-
+//Called when the provider status changes. This method is called when a provider is unable to fetch a location 
+//or if the provider has recently become available after a period of unavailability.
 		public void onStatusChanged(String provider, int status, Bundle extras) {
+			switch(status){
+			case LocationProvider.OUT_OF_SERVICE: //f the provider is out of service, and this is not expected to change in the near future
+			case LocationProvider.TEMPORARILY_UNAVAILABLE: //if the provider is temporarily unavailable but is expected to be available shortly
+	            try {
+	    	        final int numCallbacks = remoteCallbacks.beginBroadcast();
+	    	        for (int i = 0; i < numCallbacks; i++) {
+	    	        	remoteCallbacks.getBroadcastItem(i).onLocationEvent(0.0,0.0,0.0);
+	    	        }
+	            } catch (DeadObjectException e) {
+	                // the RemoteCallbackList will take care of removing the dead object
+	            } catch (RemoteException e) {
+	    	    	Log.w(PhotoCompassApplication.LOG_TAG, "broadcast to callback failed");
+                }
+				break;
+			}
 		}
     };
 	

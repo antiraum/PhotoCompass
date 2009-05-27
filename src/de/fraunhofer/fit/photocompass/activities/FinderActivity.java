@@ -1,7 +1,6 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import java.util.List;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,6 +36,7 @@ public class FinderActivity extends Activity {
     
 	private double _currentLat;
 	private double _currentLng;
+	private double _currentAlt;
 	private float _currentYaw;
 	
     private PhotosView _photosView;
@@ -47,7 +47,10 @@ public class FinderActivity extends Activity {
     private boolean _boundToOrientationService;
 
     private ApplicationModel _applicationModel;
-
+/*********************************************************************************************************
+ * Location Service
+ */
+    //parameter for the intent
     private ServiceConnection _locationServiceConn = new ServiceConnection() {
 
 	    public void onServiceConnected(ComponentName className, IBinder service) {
@@ -71,7 +74,7 @@ public class FinderActivity extends Activity {
 	    	_locationService = null;
 	    }
     };
-    
+    //Callback of the service used by bind and context
     private ILocationServiceCallback _locationServiceCallback = new ILocationServiceCallback.Stub() {
     	
         public void onLocationEvent(double latitude, double longitude, double altitude) {
@@ -82,12 +85,15 @@ public class FinderActivity extends Activity {
 	    	// update variables
 	    	_currentLat = latitude;
 	    	_currentLng = longitude;
+	    	_currentAlt = altitude;
             
             // update photo view
 	    	_updatePhotoView();
         }
     };
-
+/*********************************************************************************************************
+ * Orientation Service
+ */
     private ServiceConnection _orientationServiceConn = new ServiceConnection() {
 
 	    public void onServiceConnected(ComponentName className, IBinder service) {
@@ -131,7 +137,6 @@ public class FinderActivity extends Activity {
 	        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
-	//	    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
 		    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
 		    	}
 	    	}
@@ -150,7 +155,9 @@ public class FinderActivity extends Activity {
 	    	}
         }
     };
-
+/*********************************************************************************************************
+ *     
+ */
 	private IApplicationModelCallback _applicationModelCallback = new IApplicationModelCallback.Stub() {
 	
 		public void onApplicationModelChange() {
@@ -160,7 +167,7 @@ public class FinderActivity extends Activity {
 			_updatePhotoView();
 		}
 	};
-    
+
     public FinderActivity() {
     	super();
     	finderActivity = this;
@@ -207,12 +214,14 @@ public class FinderActivity extends Activity {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onStart");
     	super.onStart();
     	
-        // connect to location service
+    // connect to location service, using hte context of the activity and the class which implements the service
     	Intent locationServiceIntent = new Intent(this, LocationService.class);
+    	// Check if the activity can connect with the service
     	_boundToLocationService = bindService(locationServiceIntent, _locationServiceConn, Context.BIND_AUTO_CREATE);
+    	//If not then show message "fail..." 
     	if (! _boundToLocationService) Log.e(PhotoCompassApplication.LOG_TAG, "failed to connect to location service");
     	
-        // connect to orientation service
+    // connect to orientation service
     	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "failed to connect to orientation service");
@@ -225,9 +234,10 @@ public class FinderActivity extends Activity {
     public void onStop() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onStop");
     	
+    //If the location service was binded....
     	if (_boundToLocationService) {
 	    	
-	    	// unregister from location service
+    	// unregister from location service
 	    	if (_locationService != null) {
 	    		try {
 	    			_locationService.unregisterCallback(_locationServiceCallback);
@@ -237,8 +247,7 @@ public class FinderActivity extends Activity {
 	    			Log.w(PhotoCompassApplication.LOG_TAG, "FinderActivity: failed to unregister from location service");
 	    		}
 	    	}
-
-	        // disconnect from location service
+        // disconnect from location service
 	        unbindService(_locationServiceConn);
 	        _boundToLocationService = false;
     	}
@@ -270,15 +279,25 @@ public class FinderActivity extends Activity {
     private void _updatePhotoView() {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
     	
-    	// dummy values
     	// TODO make this proper
-    	_currentLat = Location.convert("50:43:12.59"); // B-IT
-    	_currentLng = Location.convert("7:7:16.2"); // B-IT
+
+// dummy values    	
+//    	_currentLat = Location.convert("50:43:12.59"); // B-IT
+//    	_currentLng = Location.convert("7:7:16.2"); // B-IT
     	
-    	List<Photo> photos = Photos.getInstance().getPhotos(_currentLat, _currentLng, _currentYaw,
+    	List<Photo> photos = Photos.getInstance().getPhotos(_currentAlt,_currentLat, _currentLng, _currentYaw,
     														ApplicationModel.getInstance().getMaxDistance(),
     												 		ApplicationModel.getInstance().getMinAge(),
     												 		ApplicationModel.getInstance().getMaxAge());
+    	
+    	/**
+    	 * A couple of questions
+    	 * 
+    	 * from here should I compute the altitude connected with the display? 
+    	 * how do I access to the display?
+    	 *  
+    	 * 
+    	 */
     	_photosView.setPhotos(photos, _currentYaw);
     }
 }
