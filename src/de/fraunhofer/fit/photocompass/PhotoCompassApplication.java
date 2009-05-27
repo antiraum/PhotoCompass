@@ -1,7 +1,6 @@
 package de.fraunhofer.fit.photocompass;
 
 import android.app.Application;
-import android.graphics.Color;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
 
@@ -9,6 +8,10 @@ public class PhotoCompassApplication extends Application {
 	
 	// tag for logging
     public static final String LOG_TAG = "PhotoCompass";
+    
+    // running environment constants
+    public static final boolean RUNNING_ON_EMULATOR = true;
+    public static final int TARGET_PLATFORM = 1; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
     
     // activity constants
     public static final int FINDER_ACTIVITY = 1;

@@ -131,8 +131,11 @@ public class FinderActivity extends Activity {
 	        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
-	//	    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
-		    		startActivity(new Intent(finderActivity, PhotoMapActivity.class));
+		    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {
+		    			startActivity(new Intent(finderActivity, PhotoMapActivity.class));
+		    		} else {
+		    			startActivity(new Intent(finderActivity, DummyMapActivity.class));
+		    		}
 		    	}
 	    	}
 
