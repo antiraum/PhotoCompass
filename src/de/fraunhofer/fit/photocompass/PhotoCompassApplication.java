@@ -9,9 +9,16 @@ public class PhotoCompassApplication extends Application {
 	// tag for logging
     public static final String LOG_TAG = "PhotoCompass";
     
+    // running environment constants
+    public static final boolean RUNNING_ON_EMULATOR = false;
+    public static final int TARGET_PLATFORM = 3; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
+    
     // activity constants
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
+    
+    // colors
+    public static final String ORANGE = "#ffd300";
     
     public PhotoCompassApplication() {
     	super();

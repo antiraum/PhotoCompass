@@ -42,14 +42,14 @@ public class OrientationService extends Service {
 			
 			_yaw = values[0];
 			// the values are exchanged on the G1, so we have to switch between these code blocks
-	        /* begin sensor simulator code */
-			_pitch = values[1];
-			_roll = values[2];
-	        /* end sensor simulator code */
-	        /* begin real sensor code */
-//			_pitch = values[2];
-//			_roll = values[1];
-	        /* end real sensor code */
+
+			if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
+				_pitch = values[1];
+				_roll = values[2];
+			} else {
+				_pitch = values[2];
+				_roll = values[1];
+			}
 			
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
