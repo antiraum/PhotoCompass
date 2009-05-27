@@ -4,9 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
 public class PhotoBorderView extends View {
@@ -15,12 +15,18 @@ public class PhotoBorderView extends View {
 	private int _height = 0;
 	private Paint _paint;
 	
+	private boolean _minimized = false;
+	
 	public PhotoBorderView(Context context) {
 		super(context);
 		_paint = new Paint();
 		_paint.setColor(Color.parseColor(PhotoCompassApplication.ORANGE)); 
 		_paint.setStrokeWidth(2f);
 	}
+	
+//	public void setDistance(float distance) {
+//		_paint.setAlpha(distance);
+//	}
 	
     @Override 
     protected void onDraw(Canvas canvas) {
@@ -36,4 +42,12 @@ public class PhotoBorderView extends View {
 		_height = params.height;
         super.setLayoutParams(params);
     }
+	
+	public void setMinimized(boolean value) {
+		_minimized = value;
+	}
+	
+	public boolean isMinimized() {
+		return _minimized;
+	}
 }

@@ -14,6 +14,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
@@ -33,6 +35,8 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
 
 public class FinderActivity extends Activity {
 
+    private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
+
 	FinderActivity finderActivity;
     
 	private double _currentLat;
@@ -47,6 +51,25 @@ public class FinderActivity extends Activity {
     private boolean _boundToOrientationService;
 
     private ApplicationModel _applicationModel;
+
+	private GestureDetector _gestureDetector = new GestureDetector(
+	    new GestureDetector.SimpleOnGestureListener() {
+	    	
+	        @Override
+	        public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+	        	
+	        	// pass on to photos view
+	        	return _photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
+	        							   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
+	        }
+	        
+	        @Override
+	        public boolean onSingleTapUp(MotionEvent event) {
+	        	
+	        	// pass on to photos view
+	        	return _photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
+	        }
+	    });
 
     private ServiceConnection _locationServiceConn = new ServiceConnection() {
 
@@ -180,6 +203,12 @@ public class FinderActivity extends Activity {
     	_applicationModel = ApplicationModel.getInstance();
     	_applicationModel.registerCallback(_applicationModelCallback);
     }
+
+    // detect gestures from touch events
+    public boolean onTouchEvent(MotionEvent event) {
+    	if (_photosView == null) return false; // photos view not yet created
+        return _gestureDetector.onTouchEvent(event);
+    }
     
     /**
      * Called when the activity is first created.
@@ -194,8 +223,7 @@ public class FinderActivity extends Activity {
         // initialize views
         FinderView finderView = new FinderView(this);
         Display display = getWindowManager().getDefaultDisplay();
-        int statusbarHeight = 25; // FIXME no hardcoded values
-        _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - statusbarHeight);
+        _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT);
         ControlsView controlsView = new ControlsView(this);
 
         // setup views
