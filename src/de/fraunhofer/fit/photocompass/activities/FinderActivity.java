@@ -142,7 +142,7 @@ public class FinderActivity extends Activity {
 
 	    	// yaw value has changed
         	// TODO make this activity represent changing pitch values
-	    	float yawTolerance = 2.5f; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
+	    	int yawTolerance = 3; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
 	    	if (yaw < _yaw - yawTolerance || yaw > _yaw + yawTolerance) {
 //	    	if (yaw != _yaw) {
 		    	_yaw = yaw;
@@ -276,7 +276,7 @@ public class FinderActivity extends Activity {
     private void _updatePhotoView() {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
     	
-    	// dummy values
+    	// dummy values - override actual location with B-IT cause our dummy photos are next to B-IT
     	// TODO make this proper
     	_currentLat = Location.convert("50:43:12.59"); // B-IT
     	_currentLng = Location.convert("7:7:16.2"); // B-IT
