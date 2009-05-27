@@ -1,6 +1,8 @@
 package de.fraunhofer.fit.photocompass.services;
 
-import android.app.Activity;
+import org.openintents.hardware.SensorManagerSimulator;
+import org.openintents.provider.Hardware;
+
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.SensorListener;
@@ -41,12 +43,12 @@ public class OrientationService extends Service {
 			_yaw = values[0];
 			// the values are exchanged on the G1, so we have to switch between these code blocks
 	        /* begin sensor simulator code */
-//			_pitch = values[1];
-//			_roll = values[2];
+			_pitch = values[1];
+			_roll = values[2];
 	        /* end sensor simulator code */
 	        /* begin real sensor code */
-			_pitch = values[2];
-			_roll = values[1];
+//			_pitch = values[2];
+//			_roll = values[1];
 	        /* end real sensor code */
 			
 	        // broadcast the new location to all registered callbacks
@@ -77,12 +79,12 @@ public class OrientationService extends Service {
 
         // initialize location manager
         /* begin sensor simulator code */
-//        Hardware.mContentResolver = getContentResolver(); 
-//        _sensorManager = (SensorManager) new SensorManagerSimulator((SensorManager) getSystemService(SENSOR_SERVICE));
-//		SensorManagerSimulator.connectSimulator(); 
+        Hardware.mContentResolver = getContentResolver(); 
+        _sensorManager = (SensorManager) new SensorManagerSimulator((SensorManager) getSystemService(SENSOR_SERVICE));
+		SensorManagerSimulator.connectSimulator(); 
         /* end sensor simulator code */
         /* begin real sensor code */
-        _sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
+//        _sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
         /* end real sensor code */
     	
     	// TODO test for orientation sensor and notify the user that he cannot use the application without it
