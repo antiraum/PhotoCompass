@@ -66,8 +66,8 @@ public class Photos {
 //    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo is to far away: photo.getDistance() = "+photo.getDistance()+", maxDistance = "+maxDistance);
     			continue;
     		}
-    		if (photo.getDirection() < yaw - PhotosView.PHOTO_VIEW_DEGREES / 2 ||
-    			photo.getDirection() > yaw + PhotosView.PHOTO_VIEW_DEGREES / 2) {
+    		if (photo.getDirection() < yaw - PhotosView.PHOTO_VIEW_HDEGREES / 2 ||
+    			photo.getDirection() > yaw + PhotosView.PHOTO_VIEW_HDEGREES / 2) {
     			// photo is not in viewing direction
 //    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo not in viewing direction: photo.getDirection() = "+photo.getDirection()+", yaw = "+yaw);
     	    	continue;

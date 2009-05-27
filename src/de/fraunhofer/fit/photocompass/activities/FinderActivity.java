@@ -141,8 +141,9 @@ public class FinderActivity extends Activity {
 
 	    	// yaw value has changed
         	// TODO make this activity represent changing pitch values
-	    	int yawTolerance = 3; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
+	    	float yawTolerance = 2.5f; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
 	    	if (yaw < _yaw - yawTolerance || yaw > _yaw + yawTolerance) {
+//	    	if (yaw != _yaw) {
 		    	_yaw = yaw;
 	    		
 		    	// update variables
@@ -199,6 +200,7 @@ public class FinderActivity extends Activity {
         // setup views
         setContentView(finderView);
         addContentView(_photosView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//        setContentView(_photosView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
     }
     

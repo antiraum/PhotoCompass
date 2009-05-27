@@ -1,13 +1,15 @@
 package de.fraunhofer.fit.photocompass.views;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
@@ -18,16 +20,19 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 public class PhotosView extends AbsoluteLayout {
 	
 	// FIXME set this to a correct value determined by the camera capacities
-	public static final int PHOTO_VIEW_DEGREES = 40; // degrees out of 360 that are visible from one point
+	public static final int PHOTO_VIEW_HDEGREES = 48; // horizontal degrees out of 360 that are visible from one point
+	public static final int PHOTO_VIEW_VDEGREES = 32; // vertical degrees out of 360 that are visible from one point
 	
 	private static final int MIN_PHOTO_HEIGHT = 50;
 	private static int MAX_PHOTO_HEIGHT;
 	private Context _context;
-	private int _viewMaxWidth;
-	private int _viewMaxHeight;
+	private int _viewMaxWidth; // display width
+	private int _viewMaxHeight; // display height minus statusbar height
 	
-//	private Map<Integer, PhotoView> _photoViews; // map of currently displayed photo views (key is resourceId of the photo)
-//	private List<PhotoBorderView> _photoBorderViews; // list of currently displayed photo border views
+	private AbsoluteLayout _photoLayer; // layer with all the photo views
+	private AbsoluteLayout _borderLayer; // layer with all the photo border views
+	private Map<Integer, PhotoView> _photoViews; // map of photo views (key is resourceId of the photo)
+	private List<PhotoBorderView> _photoBorderViews; // list of photo border views
 
 	public PhotosView(Context context, int viewMaxWidth, int viewMaxHeight) {
         super(context);
@@ -39,8 +44,16 @@ public class PhotosView extends AbsoluteLayout {
 
         MAX_PHOTO_HEIGHT = (int) Math.round(0.65 * _viewMaxHeight); // 80 percent of view height
     	
-//    	_photoViews = new HashMap<Integer, PhotoView>();
-//    	_photoBorderViews = new ArrayList<PhotoBorderView>();
+        _photoLayer = new AbsoluteLayout(_context);
+        _photoLayer.setLayoutParams(new LayoutParams(_viewMaxWidth, _viewMaxHeight, 0, 0));
+        addView(_photoLayer);
+    	
+        _borderLayer = new AbsoluteLayout(_context);
+        _borderLayer.setLayoutParams(new LayoutParams(_viewMaxWidth, _viewMaxHeight, 0, 0));
+        addView(_borderLayer);
+        
+    	_photoViews = new HashMap<Integer, PhotoView>();
+    	_photoBorderViews = new ArrayList<PhotoBorderView>();
 	}
 	
 	/**
@@ -53,23 +66,31 @@ public class PhotosView extends AbsoluteLayout {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: setPhotos");
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photos.size = "+photos.size());
     	
-    	// remove all views
-    	removeAllViews();
-    	
-    	// remove all photo views we no longer need
-//    	photoViews: for (int resourceId : _photoViews.keySet()) {
-//    		for (Photo photo : photos) {
-//    			if (photo.getResourceId() != resourceId) continue;
-//    			continue photoViews; 
-//    		}
+    	// hide the photo views not needed right now
+    	photoViews: for (Map.Entry<Integer, PhotoView> photoView : _photoViews.entrySet()) {
+    		for (Photo photo : photos) {
+    			if (photo.getResourceId() != photoView.getKey()) continue;
+    			continue photoViews; 
+    		}
 //    		removeView(_photoViews.get(resourceId));
-//    		_photoViews.remove(resourceId);
-//    	}
+//    		detachViewFromParent(_photoViews.get(photoView.getKey()));
+    		photoView.getValue().setVisibility(View.GONE);
+//    		_photoViews.remove(photoView.getKey());
+    	}
     	
-    	// remove all photo border views
-    	// TODO better would be to also reuse existing photo border views
-//    	for (PhotoBorderView photoBorderView : _photoBorderViews) removeView(photoBorderView);
-//    	_photoBorderViews.clear();
+		// update the number of photo border views
+		if (_photoBorderViews.size() > photos.size()) {
+			// too many borders: hide the photo border not needed right now
+			for (PhotoBorderView photoBorderView : _photoBorderViews.subList(photos.size(), _photoBorderViews.size()))
+				photoBorderView.setVisibility(View.GONE);
+		} else {
+			// too little borders: add additional border views
+			while (_photoBorderViews.size() < photos.size()) {
+				PhotoBorderView photoBorderView = new PhotoBorderView(_context);
+				_borderLayer.addView(photoBorderView);
+				_photoBorderViews.add(photoBorderView);
+			}
+		}
         
         // calculate the photo sizes and positions
         Map<PhotoMetrics, Photo> photosMap = new HashMap<PhotoMetrics, Photo>();
@@ -78,46 +99,42 @@ public class PhotosView extends AbsoluteLayout {
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
 	        int photoWidth = photoHeight / 4 * 3; // FIXME make this right (xScale = yScale)
-	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_DEGREES / 2) / PHOTO_VIEW_DEGREES);
+	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_HDEGREES / 2) / PHOTO_VIEW_HDEGREES);
 	        int photoY = (_viewMaxHeight - photoHeight) / 2;
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
         }
         
-        // add photo views
+        // setup the photo views
         for (Map.Entry<PhotoMetrics, Photo> photoEntry : photosMap.entrySet()) {
         	int resourceId = photoEntry.getValue().getResourceId();
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: resouceId = "+resourceId);
         	
-        	// create and add photo view
-        	PhotoView photoView = new PhotoView(_context, resourceId, photoEntry.getValue().getDistance());
-        	photoView.setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
-        	addView(photoView);
-        	
         	// check if the view already exists
-//        	boolean viewExists = false;
-//        	for (int resId : Collections.unmodifiableMap(_photoViews).keySet()) {
-//        		if (resId != resourceId) continue;
-//        		viewExists = true;
-//        		break;
-//        	}
+        	boolean viewExists = false;
+            for (Map.Entry<Integer, PhotoView> photoView : _photoViews.entrySet()) {
+        		if (photoView.getKey() != resourceId) continue;
+        		viewExists = true;
+        		photoView.getValue().setVisibility(View.VISIBLE);
+        		break;
+        	}
         	
         	// create if it does not exist
-//        	if (! viewExists) {
-//    			_photoViews.put(resourceId, new PhotoView(_context, resourceId));
-//        		addView(_photoViews.get(resourceId));
-//        	}
+        	if (! viewExists) {
+    			_photoViews.put(resourceId, new PhotoView(_context, resourceId, photoEntry.getValue().getDistance()));
+        		_photoLayer.addView(_photoViews.get(resourceId));
+        	}
 
         	// set layout parameters
-//        	_photoViews.get(resourceId).setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
+        	_photoViews.get(resourceId).setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
         }
         
-        // add photo border views
+        // setup the photo border views
+        Iterator<PhotoBorderView> borderViewIter = _photoBorderViews.iterator();
         for (PhotoMetrics photoMetrics : photosMap.keySet()) {
-	        PhotoBorderView photoBorderView = new PhotoBorderView(_context, photoMetrics.getWidth(), photoMetrics.getHeight());
+        	PhotoBorderView photoBorderView = borderViewIter.next(); 
 	        photoBorderView.setLayoutParams(photoMetrics.getAbsoluteLayoutParams());
-	        addView(photoBorderView);
-//        	_photoBorderViews.add(photoBorderView);
+			photoBorderView.setVisibility(View.VISIBLE);
         }
 	}
 }
