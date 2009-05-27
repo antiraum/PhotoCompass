@@ -136,6 +136,7 @@ public class FinderActivity extends Activity {
 		    		} else {
 		    			startActivity(new Intent(finderActivity, DummyMapActivity.class));
 		    		}
+			        finish(); // close this activity
 		    	}
 	    	}
 

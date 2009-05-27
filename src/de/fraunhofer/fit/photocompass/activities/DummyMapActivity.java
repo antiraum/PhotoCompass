@@ -65,6 +65,7 @@ public class DummyMapActivity extends Activity {
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
+		        finish(); // close this activity
 	    	}
         }
     };

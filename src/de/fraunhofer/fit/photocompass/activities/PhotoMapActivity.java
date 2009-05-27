@@ -135,6 +135,7 @@ public class PhotoMapActivity extends MapActivity {
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
+		        finish(); // close this activity
 	    	}
             
             // update map view
