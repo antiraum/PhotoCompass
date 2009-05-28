@@ -20,7 +20,8 @@ public class ApplicationModel {
 		super();
 		
 		// default values
-		_maxDistance = 500;
+//		_maxDistance = 500; // for B-IT photos
+		_maxDistance = 2500; // for FIT photos
 		_minAge = 0;
 		_maxAge = 100000;
 	}

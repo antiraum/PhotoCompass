@@ -307,10 +307,13 @@ public class FinderActivity extends Activity {
     private void _updatePhotoView() {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
     	
-    	// dummy values - override actual location with B-IT cause our dummy photos are next to B-IT
-    	// TODO make this proper
-    	_currentLat = Location.convert("50:43:12.59"); // B-IT
-    	_currentLng = Location.convert("7:7:16.2"); // B-IT
+    	// dummy values - override actual location with B-IT/FIT cause our dummy photos are next to B-IT/FIT
+    	// TODO remove this when we have real photos
+//    	_currentLat = Location.convert("50:43:12.59"); // B-IT
+//    	_currentLng = Location.convert("7:7:16.2"); // B-IT
+    	_currentLat = Location.convert("50:44:58.43"); // FIT
+    	_currentLng = Location.convert("7:12:14.54"); // FIT
+//    	_currentAlt = 499; // in ft // FIT
     	
     	List<Photo> photos = Photos.getInstance().getPhotos(_currentLat, _currentLng, _currentYaw,
     														ApplicationModel.getInstance().getMaxDistance(),

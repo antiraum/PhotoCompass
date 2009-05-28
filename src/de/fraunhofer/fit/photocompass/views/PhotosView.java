@@ -101,6 +101,7 @@ public class PhotosView extends AbsoluteLayout {
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
         }
+        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _nearestDistance = "+_nearestDistance+", _furthestDistance = "+_furthestDistance);
         
         // setup the views
         for (Map.Entry<PhotoMetrics, Photo> photoEntry : photosMap.entrySet()) {
@@ -162,7 +163,10 @@ public class PhotosView extends AbsoluteLayout {
         	}
 
         	// set photo border view parameters
-        	_borderViews.get(resourceId).setDistance(1 - (photoEntry.getValue().getDistance() - _nearestDistance) / (_furthestDistance - _nearestDistance));
+        	float relativeDistance = 1;
+        	if (_furthestDistance != _nearestDistance) // this happens if currently only one photo is visible
+        		relativeDistance = 1 - (photoEntry.getValue().getDistance() - _nearestDistance) / (_furthestDistance - _nearestDistance);
+        	_borderViews.get(resourceId).setDistance(relativeDistance);
         	_borderViews.get(resourceId).setLayoutParams(layoutParams);
         }
 	}
