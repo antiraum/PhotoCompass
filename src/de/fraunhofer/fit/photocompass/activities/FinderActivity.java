@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -139,6 +140,7 @@ public class FinderActivity extends Activity {
 		
 		private float _yaw;
 		private float _roll;
+		private long _lastPhotoViewUpdate;
     	
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from orientation service");
@@ -165,10 +167,11 @@ public class FinderActivity extends Activity {
 
 	    	// yaw value has changed
         	// TODO make this activity represent changing pitch values
-	    	int yawTolerance = 3; // reduces the number of update, cause the performance is not so great up to now / TODO make this work without
-	    	if (yaw < _yaw - yawTolerance || yaw > _yaw + yawTolerance) {
-//	    	if (yaw != _yaw) {
-		    	_yaw = yaw;
+	    	if (_yaw != yaw &&
+	    		SystemClock.uptimeMillis() - _lastPhotoViewUpdate > 750) { // reduces the number of update, cause the performance is not so great up to now / TODO increase performance and update rate
+	    		_yaw = yaw;
+	    		_lastPhotoViewUpdate = SystemClock.uptimeMillis();
+	    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: "+_lastPhotoViewUpdate);
 	    		
 		    	// update variables
 		    	_currentYaw = _yaw;
