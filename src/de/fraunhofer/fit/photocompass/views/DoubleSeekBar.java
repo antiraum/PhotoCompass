@@ -84,48 +84,16 @@ public class DoubleSeekBar extends View {
 		p.setColor(Color.GRAY);
 		p.setStyle(Style.FILL);
 		if (this.orientation == HORIZONTAL) {
-			canvas.drawRoundRect(new RectF(0f, 4f, this.getWidth(), 26f), 5f,
-					5f, p);
+			canvas.drawRoundRect(new RectF(0f, barPadding, this.getWidth(),
+					barThickness + barPadding), 5f, 5f, p);
 		} else { // VERTICAL
-			canvas.drawRoundRect(new RectF(4f, 0f, 26f, this.getHeight()), 5f,
-					5f, p);
+			canvas.drawRoundRect(new RectF(barPadding, 0f, barThickness
+					+ barPadding, this.getHeight()), 5f, 5f, p);
 		}
 		p.setColor(Color.YELLOW);
 		canvas.drawRect(this.selectionRect, p);
-		// Drawable thumb =
-		// getResources().getDrawable(R.drawable.seek_thumb_normal);
 		startThumb.draw(canvas);
-		// thumb.setBounds(this.getWidth() - 32, 0, this.getWidth(), 29);
 		endThumb.draw(canvas);
-	}
-
-	//
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right,
-			int bottom) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onLayout()");
-
-		super.onLayout(changed, left, top, right, bottom);
-	}
-
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onMeasure()");
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-	}
-
-	@Override
-	protected int[] onCreateDrawableState(int extraSpace) {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onCreateDrawableState()");
-		return super.onCreateDrawableState(extraSpace);
-	}
-
-	@Override
-	protected void onAttachedToWindow() {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onAttachedToWindow()");
-		super.onAttachedToWindow();
 	}
 
 	@Override
@@ -139,20 +107,6 @@ public class DoubleSeekBar extends View {
 		}
 		this.updateAllBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
-	}
-
-	@Override
-	protected void onWindowVisibilityChanged(int visibility) {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onWindowVisibilityChanged()");
-		super.onWindowVisibilityChanged(visibility);
-	}
-
-	@Override
-	public void onWindowFocusChanged(boolean hasWindowFocus) {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onWindowFocusChanged()");
-		super.onWindowFocusChanged(hasWindowFocus);
 	}
 
 	@Override
@@ -170,7 +124,6 @@ public class DoubleSeekBar extends View {
 	}
 
 	private void updateStartBounds() {
-		// Log.d(PhotoCompassApplication.LOG_TAG, "Width: " + this.getWidth());
 		int begin = convertToConcrete(startValue) - halfAThumb;
 		if (orientation == HORIZONTAL) {
 			this.startThumb.setBounds(begin, 0, begin
@@ -183,9 +136,6 @@ public class DoubleSeekBar extends View {
 					+ this.startThumb.getIntrinsicWidth());
 			this.selectionRect.top = begin + halfAThumb;
 		}
-
-		// System.out.println(this.leftThumb.getBounds());
-
 	}
 
 	private void updateEndBounds() {
@@ -201,7 +151,6 @@ public class DoubleSeekBar extends View {
 					+ this.startThumb.getIntrinsicWidth());
 			this.selectionRect.bottom = begin + halfAThumb;
 		}
-		// System.out.println(this.rightThumb.getBounds());
 
 	}
 
@@ -229,7 +178,7 @@ public class DoubleSeekBar extends View {
 				this.endValue = newValue;
 				this.updateEndBounds();
 			}
-			this.invalidate(); //TODO determine "dirty" region
+			this.invalidate(); // TODO determine "dirty" region
 		}
 
 		return true;
