@@ -9,7 +9,7 @@ import android.util.Log;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
-import de.fraunhofer.fit.photocompass.model.data.PhotoComparator;
+import de.fraunhofer.fit.photocompass.model.data.PhotoMetricsComparator;
 import de.fraunhofer.fit.photocompass.views.PhotosView;
 
 public class Photos {
@@ -68,6 +68,7 @@ public class Photos {
     		}
     		if (photo.getDirection() < yaw - PhotosView.PHOTO_VIEW_HDEGREES / 2 ||
     			photo.getDirection() > yaw + PhotosView.PHOTO_VIEW_HDEGREES / 2) {
+    			// TODO also consider the photos that are partial visible because their direction is little off the horizontal camera angle 
     			// photo is not in viewing direction
 //    	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: photo not in viewing direction: photo.getDirection() = "+photo.getDirection()+", yaw = "+yaw);
     	    	continue;
@@ -80,9 +81,6 @@ public class Photos {
     		
     		results.add(photo);
     	}
-    	
-    	// sort results
-    	Collections.sort(results, new PhotoComparator());
     	
     	return results;
     }

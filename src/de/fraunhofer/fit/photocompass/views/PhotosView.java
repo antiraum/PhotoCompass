@@ -1,9 +1,10 @@
 package de.fraunhofer.fit.photocompass.views;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +14,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
+import de.fraunhofer.fit.photocompass.model.data.PhotoMetricsComparator;
 
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
 public class PhotosView extends AbsoluteLayout {
@@ -84,7 +86,7 @@ public class PhotosView extends AbsoluteLayout {
 		}
         
         // calculate the photo sizes and positions
-        Map<PhotoMetrics, Photo> photosMap = new LinkedHashMap<PhotoMetrics, Photo>();
+        SortedMap<PhotoMetrics, Photo> photosMap = new TreeMap<PhotoMetrics, Photo>(new PhotoMetricsComparator());
         for (Photo photo : photos) {
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
