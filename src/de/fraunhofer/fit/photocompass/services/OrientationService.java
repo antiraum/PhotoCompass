@@ -3,6 +3,7 @@ package de.fraunhofer.fit.photocompass.services;
 import org.openintents.hardware.SensorManagerSimulator;
 import org.openintents.provider.Hardware;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.SensorListener;
@@ -42,7 +43,6 @@ public class OrientationService extends Service {
 			
 			_yaw = values[0];
 			// the values are exchanged on the G1, so we have to switch between these code blocks
-
 			if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
 				_pitch = values[1];
 				_roll = values[2];
@@ -78,14 +78,15 @@ public class OrientationService extends Service {
         // code blocks. If someone finds a way to do this, please add it. 
 
         // initialize location manager
-        /* begin sensor simulator code */
-        Hardware.mContentResolver = getContentResolver(); 
-        _sensorManager = (SensorManager) new SensorManagerSimulator((SensorManager) getSystemService(SENSOR_SERVICE));
-		SensorManagerSimulator.connectSimulator(); 
-        /* end sensor simulator code */
-        /* begin real sensor code */
-//        _sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
-        /* end real sensor code */
+		if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
+			// running on emulator with sensor simulator
+	        Hardware.mContentResolver = getContentResolver(); 
+	        _sensorManager = (SensorManager) new SensorManagerSimulator((SensorManager) getSystemService(SENSOR_SERVICE));
+			SensorManagerSimulator.connectSimulator(); 
+		} else {
+			// running on phone
+			_sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
+		}
     	
     	// TODO test for orientation sensor and notify the user that he cannot use the application without it
     	

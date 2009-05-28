@@ -1,6 +1,5 @@
 package de.fraunhofer.fit.photocompass.activities;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,11 +11,17 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Window;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ZoomControls;
 
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
 import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
@@ -25,10 +30,10 @@ import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
 
 /* begin 1.1 code */
-public class PhotoMapActivity extends Activity {
+//public class PhotoMapActivity extends Activity {
 /* end 1.1 code */
 /* begin 1.5 code */
-//public class PhotoMapActivity extends MapActivity {
+public class PhotoMapActivity extends MapActivity {
 /* end 1.5 code */
 	
 	private static final String MAPS_API_KEY = "02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw";
@@ -130,6 +135,7 @@ public class PhotoMapActivity extends Activity {
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
+		        finish(); // close this activity
 	    	}
             
             // update map view
@@ -158,31 +164,31 @@ public class PhotoMapActivity extends Activity {
 
         /* begin 1.1 code */
 //        // setup view
-	    setContentView(R.layout.dummymap_layout);
+//	    setContentView(R.layout.dummymap_layout);
         /* end 1.1 code */
         
         /* begin 1.5 code */
         // initialize views
-//        RelativeLayout mapLayout = new RelativeLayout(this);
-//		MapView mapView = new MapView(this, MAPS_API_KEY);
-//		mapView.setClickable(true);
-////		mapView.displayZoomControls(true);
-//		LinearLayout zoomControlsView = new LinearLayout(this);
-//		ZoomControls zoomControls = (ZoomControls) mapView.getZoomControls();
-//        zoomControlsView.addView(zoomControls);
-//        
-//        // setup views
-//		mapLayout.addView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//		mapLayout.addView(zoomControlsView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-//        setContentView(mapLayout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//        
-//        // initialize map controller
-//		_mapController = mapView.getController();
-//		_mapController.setZoom(12);
-//		
-//		_updateMapView();
-//		
-//		// TODO display photos
+        RelativeLayout mapLayout = new RelativeLayout(this);
+		MapView mapView = new MapView(this, MAPS_API_KEY);
+		mapView.setClickable(true);
+//		mapView.displayZoomControls(true);
+		LinearLayout zoomControlsView = new LinearLayout(this);
+		ZoomControls zoomControls = (ZoomControls) mapView.getZoomControls();
+        zoomControlsView.addView(zoomControls);
+        
+        // setup views
+		mapLayout.addView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mapLayout.addView(zoomControlsView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        setContentView(mapLayout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        
+        // initialize map controller
+		_mapController = mapView.getController();
+		_mapController.setZoom(12);
+		
+		_updateMapView();
+		
+		// TODO display photos
         /* end 1.5 code */
 	}
     
@@ -252,10 +258,10 @@ public class PhotoMapActivity extends Activity {
     }
 
     /* begin 1.5 code */
-//    @Override
-//    protected boolean isRouteDisplayed() {
-//        return false;
-//    }
+    @Override
+    protected boolean isRouteDisplayed() {
+        return false;
+    }
     /* end 1.5 code */
     
     /**
@@ -271,12 +277,12 @@ public class PhotoMapActivity extends Activity {
 		
     	// center map view
         /* begin 1.5 code */
-//		GeoPoint location = new GeoPoint((int)(_currentLat * 1E6), (int)(_currentLng * 1E6));
-//		// _mapController.centerMapTo(m_curLocation, false);
-//		_mapController.animateTo(location);
-//		
-//		// TODO set zoom according to radius of displayed photos
-////		_mapController.zoomToSpan(latSpanE6, lonSpanE6);
+		GeoPoint location = new GeoPoint((int)(_currentLat * 1E6), (int)(_currentLng * 1E6));
+		// _mapController.centerMapTo(m_curLocation, false);
+		_mapController.animateTo(location);
+		
+		// TODO set zoom according to radius of displayed photos
+//		_mapController.zoomToSpan(latSpanE6, lonSpanE6);
 	    /* end 1.5 code */
 	}
 }

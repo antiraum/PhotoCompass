@@ -1,26 +1,41 @@
 package de.fraunhofer.fit.photocompass.views;
 
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.AbsoluteLayout.LayoutParams;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
 public class PhotoView extends AbsoluteLayout {
 	
+	private boolean _minimized = false;
+	
 	public PhotoView (Context context, int photoId, float distance) { 
 		super(context);
-//		this.setLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		
+		// photo
 		ImageView imgView = new ImageView(context);
 		imgView.setScaleType(ImageView.ScaleType.FIT_XY); 
 		imgView.setImageResource(photoId); 
         addView(imgView);
+        
+        // distance text
         TextView textView = new TextView(context);
         textView.setText((int)Math.round(distance)+" m");
         textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
         textView.setPadding(5, 0, 5, 0);
         addView(textView);
-	} 
+	}
+	
+	public void setMinimized(boolean value) {
+		_minimized = value;
+	}
+	
+	public boolean isMinimized() {
+		return _minimized;
+	}
 }
