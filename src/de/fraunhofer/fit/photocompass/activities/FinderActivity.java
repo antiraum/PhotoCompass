@@ -34,7 +34,7 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
 
 public class FinderActivity extends Activity {
 
-    private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
+	private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
 
 	FinderActivity finderActivity;
 
@@ -52,24 +52,31 @@ public class FinderActivity extends Activity {
 
 	private ApplicationModel _applicationModel;
 	/*********************************************************************************************************
+	*/
 	private GestureDetector _gestureDetector = new GestureDetector(
-	    new GestureDetector.SimpleOnGestureListener() {
-	    	
-	        @Override
-	        public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
-	        	
-	        	// pass on to photos view
-	        	return _photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
-	        							   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
-	        }
-	        
-	        @Override
-	        public boolean onSingleTapUp(MotionEvent event) {
-	        	
-	        	// pass on to photos view
-	        	return _photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
-	        }
-	    });
+			new GestureDetector.SimpleOnGestureListener() {
+
+				@Override
+				public boolean onFling(MotionEvent event1, MotionEvent event2,
+						float velocityX, float velocityY) {
+
+					// pass on to photos view
+					return _photosView.onFling(event1.getRawX(), event1
+							.getRawY()
+							- STATUSBAR_HEIGHT, event2.getRawX(), event2
+							.getRawY()
+							- STATUSBAR_HEIGHT);
+				}
+
+				@Override
+				public boolean onSingleTapUp(MotionEvent event) {
+
+					// pass on to photos view
+					return _photosView.onSingleTapUp(event.getRawX(), event
+							.getRawY()
+							- STATUSBAR_HEIGHT);
+				}
+			});
 
 	private ServiceConnection _locationServiceConn = new ServiceConnection() {
 
@@ -108,7 +115,7 @@ public class FinderActivity extends Activity {
 
 			if (isFinishing())
 				return; // in the process of finishing, we don't need to do
-						// anything here
+			// anything here
 
 			// update variables
 			_currentLat = latitude;
@@ -162,7 +169,7 @@ public class FinderActivity extends Activity {
 
 			if (isFinishing())
 				return; // in the process of finishing, we don't need to do
-						// anything here
+			// anything here
 
 			// roll value has changed
 			// TODO make this activity represent changing pitch values
@@ -182,17 +189,17 @@ public class FinderActivity extends Activity {
 						startActivity(new Intent(finderActivity,
 								DummyMapActivity.class));
 					}
-			        finish(); // close this activity
+					finish(); // close this activity
 				}
 			}
 
 			// yaw value has changed
 			// TODO make this activity represent changing pitch values
 			int yawTolerance = 3; // reduces the number of update, cause the
-									// performance is not so great up to now /
-									// TODO make this work without
+			// performance is not so great up to now /
+			// TODO make this work without
 			if (yaw < _yaw - yawTolerance || yaw > _yaw + yawTolerance) {
-//	    	if (yaw != _yaw) {
+				// if (yaw != _yaw) {
 				_yaw = yaw;
 
 				// update variables
@@ -232,12 +239,13 @@ public class FinderActivity extends Activity {
 		_applicationModel.registerCallback(_applicationModelCallback);
 	}
 
-    // detect gestures from touch events
-    public boolean onTouchEvent(MotionEvent event) {
-    	if (_photosView == null) return false; // photos view not yet created
-        return _gestureDetector.onTouchEvent(event);
-    }
-    
+	// detect gestures from touch events
+	public boolean onTouchEvent(MotionEvent event) {
+		if (_photosView == null)
+			return false; // photos view not yet created
+		return _gestureDetector.onTouchEvent(event);
+	}
+
 	/**
 	 * Called when the activity is first created.
 	 */
@@ -354,7 +362,8 @@ public class FinderActivity extends Activity {
 		// Log.d(PhotoCompassApplication.LOG_TAG,
 		// "FinderActivity: _updatePhotoView");
 
-    	// dummy values - override actual location with B-IT cause our dummy photos are next to B-IT
+		// dummy values - override actual location with B-IT cause our dummy
+		// photos are next to B-IT
 		// TODO make this proper
 
 		// dummy values

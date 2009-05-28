@@ -34,6 +34,8 @@ public class DoubleSeekBar extends View {
 	private Rect selectionRect;
 	private int halfAThumb;
 
+	private boolean startThumbDown = false;
+
 	public DoubleSeekBar(Context context, int orientation) {
 		super(context);
 		if (orientation != DoubleSeekBar.HORIZONTAL
@@ -168,14 +170,66 @@ public class DoubleSeekBar extends View {
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
 					- this.endValue)) {
 				// distance to left is less than distance to right
+				this.startThumbDown = true;
 				this.startValue = newValue;
+				if (this.orientation == HORIZONTAL) {
+					this.startThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_pressed);
+				} else { // VERTICAL
+					this.startThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_pressed_vertical);
+				}
 				this.updateStartBounds();
 			} else {
 				// distance to right is less than to left
+				this.startThumbDown = false;
 				this.endValue = newValue;
+				if (this.orientation == HORIZONTAL) {
+					this.endThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_pressed);
+				} else { // VERTICAL
+					this.endThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_pressed_vertical);
+				}
 				this.updateEndBounds();
 			}
 			this.invalidate(); // TODO determine "dirty" region
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (this.startThumbDown) {
+				this.startValue = newValue;
+				this.updateStartBounds();
+			} else {
+				this.endValue = newValue;
+				this.updateEndBounds();
+			}
+			this.invalidate();
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			if (this.startThumbDown) {
+				this.startValue = newValue;
+				if (this.orientation == HORIZONTAL) {
+					this.startThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_normal);
+				} else { // VERTICAL
+					this.startThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_normal_vertical);
+				}
+				this.updateStartBounds();
+			} else {
+				this.endValue = newValue;
+				if (this.orientation == HORIZONTAL) {
+					this.endThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_normal);
+				} else { // VERTICAL
+					this.endThumb = this.getResources().getDrawable(
+							R.drawable.seek_thumb_normal_vertical);
+				}
+				this.updateEndBounds();
+			}
+			this.invalidate();
+		} else {
+			Log.w(PhotoCompassApplication.LOG_TAG,
+					"DoubleSeekBar: Unexpected TouchEvent, action "
+							+ event.getAction());
 		}
 
 		return true;
