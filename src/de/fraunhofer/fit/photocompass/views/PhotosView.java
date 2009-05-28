@@ -20,9 +20,12 @@ public class PhotosView extends AbsoluteLayout {
 	// FIXME set this to a correct value determined by the camera capacities
 	public static final int PHOTO_VIEW_DEGREES = 40; // degrees out of 360 that are visible from one point
 	
+	
 	private static final int MIN_PHOTO_HEIGHT = 50;
 	private static int MAX_PHOTO_HEIGHT;
+	
 	private Context _context;
+	
 	private int _viewMaxWidth;
 	private int _viewMaxHeight;
 	
@@ -46,6 +49,8 @@ public class PhotosView extends AbsoluteLayout {
 	/**
 	 * Change the displayed photos
 	 * 
+	 * 	Angles for the viewfinder are vertical 32º horizontal 48º
+	 * 
 	 * @param photos List of photos
 	 * @param yaw Current viewing direction
 	 */
@@ -55,31 +60,28 @@ public class PhotosView extends AbsoluteLayout {
     	
     	// remove all views
     	removeAllViews();
-    	
-    	// remove all photo views we no longer need
-//    	photoViews: for (int resourceId : _photoViews.keySet()) {
-//    		for (Photo photo : photos) {
-//    			if (photo.getResourceId() != resourceId) continue;
-//    			continue photoViews; 
-//    		}
-//    		removeView(_photoViews.get(resourceId));
-//    		_photoViews.remove(resourceId);
-//    	}
-    	
-    	// remove all photo border views
-    	// TODO better would be to also reuse existing photo border views
-//    	for (PhotoBorderView photoBorderView : _photoBorderViews) removeView(photoBorderView);
-//    	_photoBorderViews.clear();
         
-        // calculate the photo sizes and positions
+   // calculate the photo sizes - positions - altitude related with the screen.
+    	
         Map<PhotoMetrics, Photo> photosMap = new HashMap<PhotoMetrics, Photo>();
         for (Photo photo : photos) {
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
 	        int photoWidth = photoHeight / 4 * 3; // FIXME make this right (xScale = yScale)
+	        
+	        
 	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_DEGREES / 2) / PHOTO_VIEW_DEGREES);
-	        int photoY = (_viewMaxHeight - photoHeight) / 2;
+	        
+	     //calculating the percent of the y position of the photo on the screen
+	     // percent is from 0.0 to 1.0
+	        double h = photo.getDistance()/Math.cos(Math.toRadians(16));
+	        double limit_ymeter = (Math.sin( Math.toRadians(16) )) * h ; 
+	        double ypercent = limit_ymeter / photo.getAltOffset();
+	        int photoY = (int) Math.round ( (_viewMaxHeight/2)* ypercent );
+	        
+	        
+	        
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
         }
@@ -93,23 +95,6 @@ public class PhotosView extends AbsoluteLayout {
         	PhotoView photoView = new PhotoView(_context, resourceId, photoEntry.getValue().getDistance());
         	photoView.setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
         	addView(photoView);
-        	
-        	// check if the view already exists
-//        	boolean viewExists = false;
-//        	for (int resId : Collections.unmodifiableMap(_photoViews).keySet()) {
-//        		if (resId != resourceId) continue;
-//        		viewExists = true;
-//        		break;
-//        	}
-        	
-        	// create if it does not exist
-//        	if (! viewExists) {
-//    			_photoViews.put(resourceId, new PhotoView(_context, resourceId));
-//        		addView(_photoViews.get(resourceId));
-//        	}
-
-        	// set layout parameters
-//        	_photoViews.get(resourceId).setLayoutParams(photoEntry.getKey().getAbsoluteLayoutParams());
         }
         
         // add photo border views
