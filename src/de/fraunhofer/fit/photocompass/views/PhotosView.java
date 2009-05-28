@@ -8,9 +8,7 @@ import java.util.Map;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
-import android.widget.AbsoluteLayout.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
@@ -32,8 +30,8 @@ public class PhotosView extends AbsoluteLayout {
 	
 	private AbsoluteLayout _photoLayer; // layer with all the photo views
 	private AbsoluteLayout _borderLayer; // layer with all the photo border views
-	private LinkedHashMap<Integer, PhotoView> _photoViews; // map of photo views (key is resourceId of the photo) (sorted back to front)
-	private LinkedHashMap<Integer, PhotoBorderView> _borderViews; // map of photo border views (key is resourceId of the photo) (sorted back to front)
+	private Map<Integer, PhotoView> _photoViews; // map of photo views (key is resourceId of the photo) (sorted back to front)
+	private Map<Integer, PhotoBorderView> _borderViews; // map of photo border views (key is resourceId of the photo) (sorted back to front)
 
 	public PhotosView(Context context, int viewMaxWidth, int viewMaxHeight) {
         super(context);
@@ -86,7 +84,7 @@ public class PhotosView extends AbsoluteLayout {
 		}
         
         // calculate the photo sizes and positions
-        Map<PhotoMetrics, Photo> photosMap = new HashMap<PhotoMetrics, Photo>();
+        Map<PhotoMetrics, Photo> photosMap = new LinkedHashMap<PhotoMetrics, Photo>();
         for (Photo photo : photos) {
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
@@ -101,7 +99,7 @@ public class PhotosView extends AbsoluteLayout {
         // setup the views
         for (Map.Entry<PhotoMetrics, Photo> photoEntry : photosMap.entrySet()) {
         	int resourceId = photoEntry.getValue().getResourceId();
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: resouceId = "+resourceId);
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: resourceId = "+resourceId+", getDistance() = "+photoEntry.getValue().getDistance());
         	
         	// check if the photo view already exists
         	boolean photoViewExists = false;
