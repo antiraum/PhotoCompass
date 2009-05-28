@@ -2,9 +2,6 @@ package de.fraunhofer.fit.photocompass.views;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.TextView;

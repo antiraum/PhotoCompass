@@ -18,6 +18,7 @@ public class PhotoCompassApplication extends Application {
     public static final int MAP_ACTIVITY = 2;
     
     // colors
+    public static final String WHITE = "#ffffff";
     public static final String ORANGE = "#ffd300";
     
     public PhotoCompassApplication() {

@@ -168,10 +168,10 @@ public class FinderActivity extends Activity {
 	    	// yaw value has changed
         	// TODO make this activity represent changing pitch values
 	    	if (_yaw != yaw &&
-	    		SystemClock.uptimeMillis() - _lastPhotoViewUpdate > 750) { // reduces the number of update, cause the performance is not so great up to now / TODO increase performance and update rate
+	    		SystemClock.uptimeMillis() - _lastPhotoViewUpdate > 650) { // reduces the number of update, cause the performance is not so great up to now / TODO increase performance and update rate
 	    		_yaw = yaw;
 	    		_lastPhotoViewUpdate = SystemClock.uptimeMillis();
-	    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: "+_lastPhotoViewUpdate);
+//	    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: "+_lastPhotoViewUpdate);
 	    		
 		    	// update variables
 		    	_currentYaw = _yaw;

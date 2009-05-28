@@ -86,8 +86,12 @@ public class PhotosView extends AbsoluteLayout {
 		}
         
         // calculate the photo sizes and positions
+    	float _nearestDistance = ApplicationModel.getInstance().getMaxDistance();
+    	float _furthestDistance = 0;
         SortedMap<PhotoMetrics, Photo> photosMap = new TreeMap<PhotoMetrics, Photo>(new PhotoMetricsComparator());
         for (Photo photo : photos) {
+        	if (_nearestDistance > photo.getDistance()) _nearestDistance = photo.getDistance();
+        	if (_furthestDistance < photo.getDistance()) _furthestDistance = photo.getDistance();
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
@@ -157,7 +161,8 @@ public class PhotosView extends AbsoluteLayout {
         		_borderLayer.addView(_borderViews.get(resourceId));
         	}
 
-        	// set photo border view layout parameters
+        	// set photo border view parameters
+        	_borderViews.get(resourceId).setDistance(1 - (photoEntry.getValue().getDistance() - _nearestDistance) / (_furthestDistance - _nearestDistance));
         	_borderViews.get(resourceId).setLayoutParams(layoutParams);
         }
 	}

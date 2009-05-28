@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 
 public class PhotoBorderView extends View {
 
@@ -20,13 +21,16 @@ public class PhotoBorderView extends View {
 	public PhotoBorderView(Context context) {
 		super(context);
 		_paint = new Paint();
-		_paint.setColor(Color.parseColor(PhotoCompassApplication.ORANGE)); 
-		_paint.setStrokeWidth(2f);
+		_paint.setColor(Color.parseColor(PhotoCompassApplication.ORANGE));
+		_paint.setStrokeWidth(3.1f);
 	}
 	
-//	public void setDistance(float distance) {
-//		_paint.setAlpha(distance);
-//	}
+	public void setDistance(float relativeDistance) {
+		int minAlpha = 80;
+		int alpha = (int) (minAlpha + (255 - minAlpha) * relativeDistance);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoBorderView: setDistance: relativeDistance = "+relativeDistance+", alpha = "+alpha);
+		_paint.setAlpha(alpha);
+	}
 	
     @Override 
     protected void onDraw(Canvas canvas) {
