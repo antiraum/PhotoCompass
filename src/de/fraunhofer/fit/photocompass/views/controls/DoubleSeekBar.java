@@ -1,4 +1,4 @@
-package de.fraunhofer.fit.photocompass.views;
+package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
 import android.graphics.Canvas;

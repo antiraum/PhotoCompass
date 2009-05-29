@@ -1,5 +1,6 @@
 package de.fraunhofer.fit.photocompass.views;
 
+import de.fraunhofer.fit.photocompass.views.controls.DoubleSeekBar;
 import android.content.Context;
 import android.widget.AbsoluteLayout;
 
