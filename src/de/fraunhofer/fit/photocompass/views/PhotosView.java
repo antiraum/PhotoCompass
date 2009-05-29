@@ -7,6 +7,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsoluteLayout;
@@ -95,13 +97,15 @@ public class PhotosView extends AbsoluteLayout {
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
-	        int photoWidth = photoHeight / 4 * 3; // FIXME make this right (xScale = yScale)
+	        photo.determineOrigSize(getResources());
+	        float scale = (float) photoHeight / (float) photo.getOrigHeight();
+	        int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
 	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_HDEGREES / 2) / PHOTO_VIEW_HDEGREES);
 	        int photoY = (_viewMaxHeight - photoHeight) / 2;
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", scale = "+scale+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
         }
-        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _nearestDistance = "+_nearestDistance+", _furthestDistance = "+_furthestDistance);
+//        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _nearestDistance = "+_nearestDistance+", _furthestDistance = "+_furthestDistance);
         
         // setup the views
         for (Map.Entry<PhotoMetrics, Photo> photoEntry : photosMap.entrySet()) {
@@ -127,7 +131,7 @@ public class PhotosView extends AbsoluteLayout {
         	
         	// create photo view if it does not exist
         	if (! photoViewExists) {
-    			_photoViews.put(resourceId, new PhotoView(_context, resourceId, photoEntry.getValue().getDistance()));
+    			_photoViews.put(resourceId, new PhotoView(_context, photoEntry.getValue()));
         		_photoLayer.addView(_photoViews.get(resourceId));
         	}
 
@@ -226,7 +230,9 @@ public class PhotosView extends AbsoluteLayout {
         PhotoBorderView borderView = _borderViews.get(tappedPhoto);
         photoView.setMinimized(false);
         borderView.setMinimized(false);
-        int photoHeight = photoView.getWidth() / 3 * 4; // FIXME make this right (xScale = yScale)
+        photoView.getPhoto().determineOrigSize(getResources());
+        float scale = (float) photoView.getWidth() / (float) photoView.getPhoto().getOrigWidth();
+        int photoHeight = (int) Math.round(photoView.getPhoto().getOrigHeight() * scale);
     	LayoutParams layoutParams = new LayoutParams(photoView.getWidth(), photoHeight, photoView.getLeft(),
     												 (_viewMaxHeight - photoHeight) / 2);
     	photoView.setLayoutParams(layoutParams);

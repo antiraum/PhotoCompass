@@ -1,14 +1,20 @@
 package de.fraunhofer.fit.photocompass.model.data;
 
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.util.Log;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 
 public class Photo {
 
 	private int _resourceId;
 	private double _lat;
 	private double _lng;
+	private int _origWidth;
+	private int _origHeight;
 	private float _distance;
 	private double _direction;
 	
@@ -20,6 +26,8 @@ public class Photo {
 		_resourceId = resourceId;
 		_lat = lat;
 		_lng = lng;
+		_origWidth = 0;
+		_origHeight = 0;
 		_distance = 0f;
 		_direction = 0f;
 	}
@@ -34,6 +42,23 @@ public class Photo {
 
 	public double getLng() {
 		return _lng;
+	}
+
+	public void determineOrigSize(Resources resources) {
+		if (_origWidth != 0 && _origHeight != 0) return; // already determined
+		Bitmap bitmap = BitmapFactory.decodeResource(resources, _resourceId);
+		_origWidth = bitmap.getWidth();
+		_origHeight = bitmap.getHeight();
+		bitmap = null;
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: _origWidth = "+_origWidth+", _origHeight = "+_origHeight);
+	}
+
+	public int getOrigWidth() {
+		return _origWidth;
+	}
+
+	public int getOrigHeight() {
+		return _origHeight;
 	}
 	
 	/**

@@ -28,7 +28,7 @@ public class PhotoBorderView extends View {
 	public void setDistance(float relativeDistance) {
 		int minAlpha = 80;
 		int alpha = (int) (minAlpha + (255 - minAlpha) * relativeDistance);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoBorderView: setDistance: relativeDistance = "+relativeDistance+", alpha = "+alpha);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoBorderView: setDistance: relativeDistance = "+relativeDistance+", alpha = "+alpha);
 		_paint.setAlpha(alpha);
 	}
 	

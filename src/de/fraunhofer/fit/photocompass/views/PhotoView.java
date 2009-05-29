@@ -8,34 +8,41 @@ import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.model.data.Photo;
 
 public class PhotoView extends AbsoluteLayout {
 	
+	private Photo _photo;
 	private boolean _minimized = false;
 	
-	public PhotoView (Context context, int photoId, float distance) { 
+	public PhotoView (Context context, Photo photo) { 
 		super(context);
+		_photo = photo;
 		
 		// photo
 		ImageView imgView = new ImageView(context);
 		imgView.setScaleType(ImageView.ScaleType.FIT_XY); 
-		imgView.setImageResource(photoId); 
+		imgView.setImageResource(_photo.getResourceId()); 
         addView(imgView);
         
         // distance text
         TextView textView = new TextView(context);
         String text;
-        if (distance < 1000) {
-        	text = (int)Math.round(distance)+" m";
+        if (_photo.getDistance() < 1000) {
+        	text = (int)Math.round(_photo.getDistance())+" m";
         } else {
         	Formatter fmt = new Formatter();
-            fmt.format("%.1f", distance / 1000); 
+            fmt.format("%.1f", _photo.getDistance() / 1000); 
             text = fmt+" km";
         }
         textView.setText(text);
         textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
         textView.setPadding(5, 0, 5, 0);
         addView(textView);
+	}
+	
+	public Photo getPhoto() {
+		return _photo;
 	}
 	
 	public void setMinimized(boolean value) {
