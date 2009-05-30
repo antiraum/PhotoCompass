@@ -29,12 +29,7 @@ import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
 
-/* begin 1.1 code */
-//public class PhotoMapActivity extends Activity {
-/* end 1.1 code */
-/* begin 1.5 code */
 public class PhotoMapActivity extends MapActivity {
-/* end 1.5 code */
 	
 	private static final String MAPS_API_KEY = "02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw";
 
@@ -162,12 +157,6 @@ public class PhotoMapActivity extends MapActivity {
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        /* begin 1.1 code */
-//        // setup view
-//	    setContentView(R.layout.dummymap_layout);
-        /* end 1.1 code */
-        
-        /* begin 1.5 code */
         // initialize views
         RelativeLayout mapLayout = new RelativeLayout(this);
 		MapView mapView = new MapView(this, MAPS_API_KEY);
@@ -189,7 +178,6 @@ public class PhotoMapActivity extends MapActivity {
 		_updateMapView();
 		
 		// TODO display photos
-        /* end 1.5 code */
 	}
     
     /**
@@ -257,35 +245,23 @@ public class PhotoMapActivity extends MapActivity {
         super.onStop();
     }
 
-    /* begin 1.5 code */
     @Override
     protected boolean isRouteDisplayed() {
         return false;
     }
-    /* end 1.5 code */
     
     /**
      * Updates the map view based on the current location
      */
     private void _updateMapView() {
 		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: _updateMapView");
-    	
-    	// dummy values - override actual location with B-IT/FIT cause our dummy photos are next to B-IT/FIT
-    	// TODO remove this when we have real photos
-//    	_currentLat = Location.convert("50:43:12.59"); // B-IT
-//    	_currentLng = Location.convert("7:7:16.2"); // B-IT
-    	_currentLat = Location.convert("50:44:58.43"); // FIT
-    	_currentLng = Location.convert("7:12:14.54"); // FIT
-//    	_currentAlt = 499; // in ft // FIT
 		
     	// center map view
-        /* begin 1.5 code */
 		GeoPoint location = new GeoPoint((int)(_currentLat * 1E6), (int)(_currentLng * 1E6));
 		// _mapController.centerMapTo(m_curLocation, false);
 		_mapController.animateTo(location);
 		
 		// TODO set zoom according to radius of displayed photos
 //		_mapController.zoomToSpan(latSpanE6, lonSpanE6);
-	    /* end 1.5 code */
 	}
 }
