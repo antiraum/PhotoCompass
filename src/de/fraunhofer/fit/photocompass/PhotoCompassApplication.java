@@ -16,6 +16,11 @@ public class PhotoCompassApplication extends Application {
     // activity constants
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
+
+	// camera angle constants
+	// FIXME set this to a correct value determined by the camera capacities
+	public static final int CAMERA_HDEGREES = 48; // horizontal degrees out of 360 that are visible on the screen
+	public static final int CAMERA_VDEGREES = 32; // vertical degrees out of 360 that are visible on the screen
     
     // colors
     public static final String WHITE = "#ffffff";

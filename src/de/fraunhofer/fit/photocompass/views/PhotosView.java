@@ -7,8 +7,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsoluteLayout;
@@ -21,38 +19,41 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetricsComparator;
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
 public class PhotosView extends AbsoluteLayout {
 	
-	// FIXME set this to a correct value determined by the camera capacities
-	public static final int PHOTO_VIEW_HDEGREES = 48; // horizontal degrees out of 360 that are visible from one point
-	public static final int PHOTO_VIEW_VDEGREES = 32; // vertical degrees out of 360 that are visible from one point
-	
-	private static final int MIN_PHOTO_HEIGHT = 50;
+	private static final float MIN_PHOTO_HEIGHT_PERCENT = .3f;
+	private static int MIN_PHOTO_HEIGHT;
+	private static final float MAX_PHOTO_HEIGHT_PERCENT = .9f;
 	private static int MAX_PHOTO_HEIGHT;
-	private static final int MINIMIZED_PHOTO_HEIGHT = 30;
+	private static final float MINIMIZED_PHOTO_HEIGHT_PERCENT = .15f;
+	private static int MINIMIZED_PHOTO_HEIGHT;
+	
 	private Context _context;
-	private int _viewMaxWidth; // display width
-	private int _viewMaxHeight; // display height minus statusbar height
+	private int _availableWidth; // display width
+	private int _availableHeight; // display height minus status bar height and minus the height of the controls on the bottom
 	
 	private AbsoluteLayout _photoLayer; // layer with all the photo views
 	private AbsoluteLayout _borderLayer; // layer with all the photo border views
 	private Map<Integer, PhotoView> _photoViews; // map of photo views (key is resourceId of the photo) (sorted back to front)
 	private Map<Integer, PhotoBorderView> _borderViews; // map of photo border views (key is resourceId of the photo) (sorted back to front)
 
-	public PhotosView(Context context, int viewMaxWidth, int viewMaxHeight) {
+	public PhotosView(Context context, int availableWidth, int availableHeight) {
         super(context);
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView");
         
         _context = context;
-        _viewMaxWidth = viewMaxWidth;
-        _viewMaxHeight = viewMaxHeight;
+        _availableWidth = availableWidth;
+        _availableHeight = availableHeight;
 
-        MAX_PHOTO_HEIGHT = (int) Math.round(0.65 * _viewMaxHeight); // 80 percent of view height
+        // set height constants
+        MAX_PHOTO_HEIGHT = (int) Math.round(MAX_PHOTO_HEIGHT_PERCENT * _availableHeight);
+        MIN_PHOTO_HEIGHT = (int) Math.round(MIN_PHOTO_HEIGHT_PERCENT * _availableHeight);
+        MINIMIZED_PHOTO_HEIGHT = (int) Math.round(MINIMIZED_PHOTO_HEIGHT_PERCENT * _availableHeight);
     	
         _photoLayer = new AbsoluteLayout(_context);
-        _photoLayer.setLayoutParams(new LayoutParams(_viewMaxWidth, _viewMaxHeight, 0, 0));
+        _photoLayer.setLayoutParams(new LayoutParams(_availableWidth, _availableHeight, 0, 0));
         addView(_photoLayer);
     	
         _borderLayer = new AbsoluteLayout(_context);
-        _borderLayer.setLayoutParams(new LayoutParams(_viewMaxWidth, _viewMaxHeight, 0, 0));
+        _borderLayer.setLayoutParams(new LayoutParams(_availableWidth, _availableHeight, 0, 0));
         addView(_borderLayer);
         
     	_photoViews = new LinkedHashMap<Integer, PhotoView>();
@@ -69,7 +70,9 @@ public class PhotosView extends AbsoluteLayout {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: setPhotos");
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photos.size = "+photos.size());
     	
-    	// hide the photo views not needed right now
+    	/*
+    	 * hide the photo views not needed right now
+    	 */
     	photoViews: for (Map.Entry<Integer, PhotoView> photoView : _photoViews.entrySet()) {
     		for (Photo photo : photos) {
     			if (photo.getResourceId() != photoView.getKey()) continue;
@@ -78,7 +81,9 @@ public class PhotosView extends AbsoluteLayout {
     		photoView.getValue().setVisibility(View.GONE);
     	}
 	
-		// hide the photo border views not needed right now
+		/*
+		 * hide the photo border views not needed right now
+		 */
 		borderViews: for (Map.Entry<Integer, PhotoBorderView> borderView : _borderViews.entrySet()) {
 			for (Photo photo : photos) {
 				if (photo.getResourceId() != borderView.getKey()) continue;
@@ -87,30 +92,62 @@ public class PhotosView extends AbsoluteLayout {
 			borderView.getValue().setVisibility(View.GONE);
 		}
         
-        // calculate the photo sizes and positions
-    	float _nearestDistance = ApplicationModel.getInstance().getMaxDistance();
-    	float _furthestDistance = 0;
+        /*
+         * calculate the photo sizes and positions
+         */
+    	// nearestDistance and furthestDistance are needed for calculating the relative distance
+    	// (relative to the other currently visible photos) wich is used by the photo border views
+    	float nearestDistance = ApplicationModel.getInstance().getMaxDistance();
+    	float furthestDistance = 0;
         SortedMap<PhotoMetrics, Photo> photosMap = new TreeMap<PhotoMetrics, Photo>(new PhotoMetricsComparator());
         for (Photo photo : photos) {
-        	if (_nearestDistance > photo.getDistance()) _nearestDistance = photo.getDistance();
-        	if (_furthestDistance < photo.getDistance()) _furthestDistance = photo.getDistance();
+        	if (nearestDistance > photo.getDistance()) nearestDistance = photo.getDistance();
+        	if (furthestDistance < photo.getDistance()) furthestDistance = photo.getDistance();
+        	
+        	// the photo height is a linear mapping of the ratio between photo distance and maximum visible distance to the
+        	// range between minimum photo height and maximum photo height
 	        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 	        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: getDistance() = "+photo.getDistance()+", getMaxDistance() = "+ApplicationModel.getInstance().getMaxDistance());
+	        
+	        // to calculate the photo width the original aspect ratio of the photo is used
 	        photo.determineOrigSize(getResources());
 	        float scale = (float) photoHeight / (float) photo.getOrigHeight();
 	        int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
-	        int photoX = (int) Math.round(_viewMaxWidth * (photo.getDirection() - yaw + PHOTO_VIEW_HDEGREES / 2) / PHOTO_VIEW_HDEGREES);
-	        int photoY = (_viewMaxHeight - photoHeight) / 2;
+	        int photoX = (int) Math.round(_availableWidth * (photo.getDirection() - yaw + PhotoCompassApplication.CAMERA_HDEGREES / 2) /
+	        							  PhotoCompassApplication.CAMERA_HDEGREES);
+	        
+	        // the y position of the photo is determined by calculating the ratio between the altitude difference of the photo
+	        // to the current altitude and the maximum visible height at the distance of the photo
+	        // this ratio is then mapped to the available screen height
+	        // TODO take the roll value of the orientation sensor into account, then the FinderActivity wouldn't need to subtract the
+	        // BOTTOM_CONTROLS_HEIGHT from the available height any more -- also see the getPhotos method of the Photo model for this
+	        int photoY = (_availableHeight - photoHeight) / 2;
+	        if (photo.getAltOffset() != 0) {
+		        double halfOfMaxVisibleMeters = Math.sin(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2)) * photo.getDistance() /
+		        							    Math.cos(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2));
+		        int pixelOffset = (int) Math.round(Math.abs(photo.getAltOffset()) / halfOfMaxVisibleMeters *
+		        								   (_availableHeight - photoHeight) / 2);
+		        if (photo.getAltOffset() > 0) pixelOffset *= -1;
+		        photoY += pixelOffset;
+	        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: altOffset = "+photo.getAltOffset()+
+	        										   ", halfOfMaxVisibleMeters = "+halfOfMaxVisibleMeters+
+	        										   ", pixelOffset = "+pixelOffset);
+	        }
+	        
+        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", scale = "+scale+
+        										   ", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
+	        
 	        photosMap.put(new PhotoMetrics(photoX, photoY, photoWidth, photoHeight), photo);
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: photoX = "+photoX+", photoY = "+photoY+", scale = "+scale+", photoWidth = "+photoWidth+", photoHeight = "+photoHeight);
         }
-//        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _nearestDistance = "+_nearestDistance+", _furthestDistance = "+_furthestDistance);
+//        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: nearestDistance = "+nearestDistance+", furthestDistance = "+furthestDistance);
         
-        // setup the views
+        /*
+         * setup the views
+         */
         for (Map.Entry<PhotoMetrics, Photo> photoEntry : photosMap.entrySet()) {
         	int resourceId = photoEntry.getValue().getResourceId();
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: resourceId = "+resourceId+", getDistance() = "+photoEntry.getValue().getDistance());
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: resourceId = "+resourceId+
+//        										   ", getDistance() = "+photoEntry.getValue().getDistance());
         	
         	// check if the photo view already exists
         	boolean photoViewExists = false;
@@ -168,8 +205,8 @@ public class PhotosView extends AbsoluteLayout {
 
         	// set photo border view parameters
         	float relativeDistance = 1;
-        	if (_furthestDistance != _nearestDistance) // this happens if currently only one photo is visible
-        		relativeDistance = 1 - (photoEntry.getValue().getDistance() - _nearestDistance) / (_furthestDistance - _nearestDistance);
+        	if (furthestDistance != nearestDistance) // this happens if currently only one photo is visible
+        		relativeDistance = 1 - (photoEntry.getValue().getDistance() - nearestDistance) / (furthestDistance - nearestDistance);
         	_borderViews.get(resourceId).setDistance(relativeDistance);
         	_borderViews.get(resourceId).setLayoutParams(layoutParams);
         }
@@ -179,7 +216,8 @@ public class PhotosView extends AbsoluteLayout {
 	 * gets called by the activity when a fling gesture is detected
 	 */
     public boolean onFling(float startX, float startY, float endX, float endY) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+", endX = "+endX+", endY = "+endY);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
+    										   ", endX = "+endX+", endY = "+endY);
     	
     	// detect which photo was "flinged"
     	// TODO change this to a reverse iteration through the map
@@ -189,7 +227,7 @@ public class PhotosView extends AbsoluteLayout {
         	if (view.isMinimized()) continue;
     		if (view.getLeft() < startX && view.getRight() > startX &&
     			view.getTop() < startY && view.getBottom() > startY &&
-    			endY - startY > view.getHeight() / 2) flingedPhoto = photoView.getKey();
+    			endY - startY > view.getHeight() / 3) flingedPhoto = photoView.getKey();
     	}
         if (flingedPhoto == 0) return false;
     	
@@ -219,7 +257,6 @@ public class PhotosView extends AbsoluteLayout {
         for (Map.Entry<Integer, PhotoView> photoView : _photoViews.entrySet()) {
         	PhotoView view = photoView.getValue();
         	if (! view.isMinimized()) continue;
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp: photo = "+photoView.getKey()+", left = "+view.getLeft()+", top = "+view.getTop()+", right = "+view.getRight()+", bottom = "+view.getBottom());
     		if (view.getLeft() < x && view.getRight() > x &&
     			view.getTop() - Y_TAP_TOLERANCE < y && view.getBottom() + Y_TAP_TOLERANCE > y) tappedPhoto = photoView.getKey();
     	}
@@ -234,7 +271,7 @@ public class PhotosView extends AbsoluteLayout {
         float scale = (float) photoView.getWidth() / (float) photoView.getPhoto().getOrigWidth();
         int photoHeight = (int) Math.round(photoView.getPhoto().getOrigHeight() * scale);
     	LayoutParams layoutParams = new LayoutParams(photoView.getWidth(), photoHeight, photoView.getLeft(),
-    												 (_viewMaxHeight - photoHeight) / 2);
+    												 (_availableHeight - photoHeight) / 2);
     	photoView.setLayoutParams(layoutParams);
     	borderView.setLayoutParams(layoutParams);
         

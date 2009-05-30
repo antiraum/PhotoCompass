@@ -50,7 +50,7 @@ public class OrientationService extends Service {
 				_pitch = values[2];
 				_roll = values[1];
 			}
-			
+		
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
 	        for (int i = 0; i < numCallbacks; i++) {

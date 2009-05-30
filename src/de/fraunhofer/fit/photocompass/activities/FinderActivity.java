@@ -37,11 +37,13 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
 public class FinderActivity extends Activity {
 
     private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
+    private static final int BOTTOM_CONTROLS_HEIGHT = 35;
 
 	FinderActivity finderActivity;
     
 	private double _currentLat;
 	private double _currentLng;
+	private double _currentAlt;
 	private float _currentYaw;
 	
     private PhotosView _photosView;
@@ -106,6 +108,7 @@ public class FinderActivity extends Activity {
 	    	// update variables
 	    	_currentLat = latitude;
 	    	_currentLng = longitude;
+	    	_currentAlt = altitude;
             
             // update photo view
 	    	_updatePhotoView();
@@ -226,7 +229,7 @@ public class FinderActivity extends Activity {
         // initialize views
         FinderView finderView = new FinderView(this);
         Display display = getWindowManager().getDefaultDisplay();
-        _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT);
+        _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
         ControlsView controlsView = new ControlsView(this);
 
         // setup views
@@ -311,11 +314,12 @@ public class FinderActivity extends Activity {
     	// TODO remove this when we have real photos
 //    	_currentLat = Location.convert("50:43:12.59"); // B-IT
 //    	_currentLng = Location.convert("7:7:16.2"); // B-IT
+//    	_currentAlt = 103; // B-IT
     	_currentLat = Location.convert("50:44:58.43"); // FIT
     	_currentLng = Location.convert("7:12:14.54"); // FIT
-//    	_currentAlt = 499; // in ft // FIT
+    	_currentAlt = 125; // FIT
     	
-    	List<Photo> photos = Photos.getInstance().getPhotos(_currentLat, _currentLng, _currentYaw,
+    	List<Photo> photos = Photos.getInstance().getPhotos(_currentLat, _currentLng, _currentAlt, _currentYaw,
     														ApplicationModel.getInstance().getMaxDistance(),
     												 		ApplicationModel.getInstance().getMinAge(),
     												 		ApplicationModel.getInstance().getMaxAge());

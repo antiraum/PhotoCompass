@@ -25,7 +25,7 @@ public class PhotoView extends AbsoluteLayout {
 		imgView.setImageResource(_photo.getResourceId()); 
         addView(imgView);
         
-        // distance text
+        // distance and altitude offset text
         TextView textView = new TextView(context);
         String text;
         if (_photo.getDistance() < 1000) {
@@ -34,6 +34,13 @@ public class PhotoView extends AbsoluteLayout {
         	Formatter fmt = new Formatter();
             fmt.format("%.1f", _photo.getDistance() / 1000); 
             text = fmt+" km";
+        }
+        text += " away";
+        if (photo.getAltOffset() == 0) {
+        	text += "\nsame level";
+        } else {
+        	text += "\n"+Math.abs(Math.round(_photo.getAltOffset()))+" m ";
+        	text += (photo.getAltOffset() > 0) ? "higher" : "lower";
         }
         textView.setText(text);
         textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
