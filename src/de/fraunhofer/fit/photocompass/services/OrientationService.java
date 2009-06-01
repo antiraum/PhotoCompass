@@ -33,7 +33,8 @@ public class OrientationService extends Service {
     };
 
 	private SensorManager _sensorManager;
-	private SensorListener _sensorListener = new SensorListener() {
+	
+	private final SensorListener _sensorListener = new SensorListener() {
 		
 		private float _yaw, _pitch, _roll;
 

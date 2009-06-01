@@ -16,8 +16,6 @@ public class PhotoBorderView extends View {
 	private int _height = 0;
 	private Paint _paint;
 	
-	private boolean _minimized = false;
-	
 	public PhotoBorderView(Context context) {
 		super(context);
 		_paint = new Paint();
@@ -25,10 +23,8 @@ public class PhotoBorderView extends View {
 		_paint.setStrokeWidth(3.1f);
 	}
 	
-	public void setDistance(float relativeDistance) {
-		int minAlpha = 80;
-		int alpha = (int) (minAlpha + (255 - minAlpha) * relativeDistance);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoBorderView: setDistance: relativeDistance = "+relativeDistance+", alpha = "+alpha);
+	public void setNumberOfOcclusions(int numOcclusions) {
+		int alpha = 255 - numOcclusions * 15;
 		_paint.setAlpha(alpha);
 	}
 	
@@ -46,12 +42,4 @@ public class PhotoBorderView extends View {
 		_height = params.height;
         super.setLayoutParams(params);
     }
-	
-	public void setMinimized(boolean value) {
-		_minimized = value;
-	}
-	
-	public boolean isMinimized() {
-		return _minimized;
-	}
 }

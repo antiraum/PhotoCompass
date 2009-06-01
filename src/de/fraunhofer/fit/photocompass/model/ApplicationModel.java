@@ -6,7 +6,18 @@ import android.os.RemoteException;
 import android.util.Log;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
+/**
+ * This model stores the current values for distance and age limitations of the displayed photos.
+ * The values are set by the controls in the {@link de.fraunhofer.fit.photocompass.views.ControlsView}.
+ * This is an active model, where Activities can register as callbacks in order to get updates when the values change.
+ * This is a Singleton.
+ */
 public class ApplicationModel {
+	
+	// default values
+	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
+	private static final int DEFAULT_MIN_AGE = 0; // in ...
+	private static final int DEFAULT_MAX_AGE = 100000;
 
     private static ApplicationModel _instance;
 
@@ -16,57 +27,89 @@ public class ApplicationModel {
 
     private RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 	
+    /**
+     * Constructor.
+     * Sets the initial values.
+     */
 	protected ApplicationModel() {
 		super();
 		
-		// default values
-//		_maxDistance = 500; // for B-IT photos
-		_maxDistance = 2500; // for FIT photos
-		_minAge = 0;
-		_maxAge = 100000;
+		_maxDistance = DEFAULT_MAX_DISTANCE;
+		_minAge = DEFAULT_MIN_AGE;
+		_maxAge = DEFAULT_MAX_AGE;
 	}
 
+	/**
+	 * @return The instance of this Singleton model.
+	 */
     public static ApplicationModel getInstance() {
         if (_instance == null) _instance = new ApplicationModel();
         return _instance;
     }
     
+    /**
+     * Register a callback object.
+     */
     public void registerCallback(IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.register(cb);
     }
     
+    /**
+     * Unregister a callback object.
+     */
     public void unregisterCallback(IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.unregister(cb);
     }
 
+    /**
+     * @return The current maximum distance for photos to be displayed.
+     */
 	public float getMaxDistance() {
 		return _maxDistance;
 	}
 
+	/**
+	 * @param value The new maximum distance for photos to be displayed.
+	 */
 	public void setMaxDistance(float value) {
 		_maxDistance = value;
 		_broadcastChange();
 	}
 
+    /**
+     * @return The current minimum age for photos to be displayed.
+     */
 	public int getMinAge() {
 		return _minAge;
 	}
 
+	/**
+	 * @param value The new minimum age for photos to be displayed.
+	 */
 	public void setMinAge(int value) {
 		_minAge = value;
 		_broadcastChange();
 	}
 
+    /**
+     * @return The current maximum age for photos to be displayed.
+     */
 	public int getMaxAge() {
 		return _maxAge;
 	}
 
+	/**
+	 * @param value The new maximum age for photos to be displayed.
+	 */
 	public void setMaxAge(int value) {
 		_maxAge = value;
 		_broadcastChange();
 	}
 	
-    // broadcasts the application model change to all registered callbacks
+    /**
+     * Broadcasts the application model change to all registered callbacks.
+     * Gets called by the setter methods.
+     */
 	private void _broadcastChange() {
 	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
 	    for (int i = 0; i < numCallbacks; i++) {

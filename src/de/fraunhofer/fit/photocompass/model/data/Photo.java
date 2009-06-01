@@ -4,10 +4,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.util.Log;
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 
+/**
+ * This class is a custom data type for photos.
+ */
 public class Photo {
 
 	private int _resourceId;
@@ -25,6 +25,13 @@ public class Photo {
 	private double _lastUpdateLng;
 	private double _lastUpdateAlt;
 	
+	/**
+	 * Constructor.
+	 * @param resourceId Resource id of the photo.
+	 * @param lat		 Latitude of the photo.
+	 * @param lng		 Longitude of the photo.
+	 * @param alt		 Altitude of the photo.
+	 */
 	public Photo(int resourceId, double lat, double lng, double alt) {
 		_resourceId = resourceId;
 		_lat = lat;
@@ -36,99 +43,121 @@ public class Photo {
 		_direction = 0f;
 	}
 
+	/**
+	 * @return Resource id of the photo.
+	 */
 	public int getResourceId() {
 		return _resourceId;
 	}
 
+	/**
+	 * @return Latitude of the photo.
+	 */
 	public double getLat() {
 		return _lat;
 	}
 
+	/**
+	 * @return Longitude of the photo.
+	 */
 	public double getLng() {
 		return _lng;
 	}
 
+	/**
+	 * Determines the original size of the resource.
+	 * Loads the bitmap data of the resource and sets {@link #_origWidth} and {@link #_origHeight}.
+	 * Always call this method before accessing {@link #getOrigWidth()} or {@link #getOrigHeight()} to ensure
+	 * the size has been determined. 
+	 * @param resources {@link Resources} of the application.
+	 */
 	public void determineOrigSize(Resources resources) {
 		if (_origWidth != 0 && _origHeight != 0) return; // already determined
 		Bitmap bitmap = BitmapFactory.decodeResource(resources, _resourceId);
 		_origWidth = bitmap.getWidth();
 		_origHeight = bitmap.getHeight();
 		bitmap = null;
-    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: _origWidth = "+_origWidth+", _origHeight = "+_origHeight);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: _origWidth = "+_origWidth+", _origHeight = "+_origHeight);
 	}
 
+	/**
+	 * @return Original width of the photo resource.
+	 */
 	public int getOrigWidth() {
 		return _origWidth;
 	}
 
+	/**
+	 * @return Original height of the photo resource.
+	 */
 	public int getOrigHeight() {
 		return _origHeight;
 	}
 	
 	/**
-	 * Set the distance and direction to a given position.
-	 * 
-	 * @param lat Latitude of the current location
-	 * @param lng Longitude of the current location
-	 * @return
+	 * Updates {@link #_distance}, {@link #_direction}, and {@link #_altOffset} relative to a given position.
+	 * Only performs calculations if the position parameters have changed since the last call.
+	 * @param lat Latitude of the current location.
+	 * @param lng Longitude of the current location.
+	 * @param alt Altitude of the current location.
 	 */
 	public void updateDistanceDirectionAndAltitudeOffset(double lat, double lng, double alt) {
 		
-		// this is are expensive calculations, so we double check here if they really have to be done
-		if (_lastUpdateLat == lat && _lastUpdateLng == lng && _lastUpdateAlt == alt) return;
+		if (_lastUpdateLat != lat && _lastUpdateLng != lng) { // position has changed
+		
+			// distance calculation
+			float[] results = new float[1];
+			Location.distanceBetween(lat, lng, _lat, _lng, results);
+			_distance = results[0];
+	
+			// direction calculation - taken from com.google.android.radar.GeoUtils (http://code.google.com/p/apps-for-android)
+	        double lat1Rad = Math.toRadians(lat);
+	        double lat2Rad = Math.toRadians(_lat);
+	        double deltaLonRad = Math.toRadians(_lng - lng);
+	        double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
+	        double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad);
+	        _direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
+	        // end direction calculation
+		}
+
+		if (_lastUpdateAlt != alt) { // altitude has changed
+			
+			// altitude offset calculation
+	        _altOffset = _alt - alt;
+		}
+		
 		_lastUpdateLat = lat;
 		_lastUpdateLng = lng;
 		_lastUpdateAlt = alt;
-
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection");
 		
-		// distance calculation
-		float[] results = new float[1];
-		Location.distanceBetween(lat, lng, _lat, _lng, results);
-		_distance = results[0];
-
-		// direction calculation - taken from com.google.android.radar.GeoUtils (http://code.google.com/p/apps-for-android)
-        double lat1Rad = Math.toRadians(lat);
-        double lat2Rad = Math.toRadians(_lat);
-        double deltaLonRad = Math.toRadians(_lng - lng);
-        double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
-        double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad);
-        _direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
-        // end direction calculation
-
-		// altitude offset calculation
-        _altOffset = _alt - alt;
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", _distance = "+_distance+", _direction = "+_direction+", _altOffset = "+_altOffset);
 	}
 	
 	/**
-	 * Returns the saved distance
-	 * 
-	 * @return Distance in meters
+	 * Returns the saved distance.
+	 * @return Distance in meters.
 	 */
 	public float getDistance() {
 		return _distance;
 	}
 	
 	/**
-	 * Returns the saved direction
-	 * 
-	 * @return Direction in degrees (in degrees 0 - 360) 0 = North, 90 = East, 180 = South, 270 = West
+	 * Returns the saved direction.
+	 * @return Direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	 */
 	public double getDirection() {
 		return _direction;
 	}
 	
 	/**
-	 * Returns the saved altitude offset
-	 * 
-	 * @return Altitude offset (in meters)
+	 * Returns the saved altitude offset.
+	 * @return Altitude offset in meters.
 	 */
 	public double getAltOffset() {
 		return _altOffset;
 	}
 	
 	/**
-	 * 
 	 * @return Age of the photo in ... (maybe minutes or seconds)
 	 */
 	public int getAge() {

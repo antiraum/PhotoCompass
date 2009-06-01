@@ -1,9 +1,14 @@
 package de.fraunhofer.fit.photocompass;
 
 import android.app.Application;
+import android.location.Location;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
 
+/**
+ * This is the Application class of the PhotoCompass application. It gets initialized at application start.
+ * We use it to store some global information and to initialize the model singletons.
+ */
 public class PhotoCompassApplication extends Application {
 	
 	// tag for logging
@@ -26,15 +31,44 @@ public class PhotoCompassApplication extends Application {
     public static final String WHITE = "#ffffff";
     public static final String ORANGE = "#ffd300";
     
+    // tap interaction constants
+    public static final int MIN_TAP_SIZE = 50; // minimum size of an area that can be tapped on
+	
+    // dummy location settings (enable for development when a fixed location is needed)
+    public static final boolean USE_DUMMY_LOCATION = true;
+    public static Location dummyLocation;
+    
+    /**
+     * Constructor.
+     * Initializes the models {@link ApplicationModel} and {@link Photos}.
+     */
     public PhotoCompassApplication() {
     	super();
+
+    	// setup dummy location
+    	if (USE_DUMMY_LOCATION) {
+	    	dummyLocation = new Location("");
+	//    	dummyLocation.setLatitude(Location.convert("50:43:12.59")); // B-IT
+	//    	dummyLocation.setLongitude(Location.convert("7:7:16.2")); // B-IT
+	//    	dummyLocation.setAltitude(103); // B-IT
+	    	dummyLocation.setLatitude(Location.convert("50:44:58.43")); // FIT
+	    	dummyLocation.setLongitude(Location.convert("7:12:14.54")); // FIT
+	    	dummyLocation.setAltitude(125); // FIT
+    	}
     	
     	// initialize models
     	ApplicationModel.getInstance();
     	Photos.getInstance();
     }
     
-    // returns the activity constant for a roll value from the orientation sensor
+    /**
+     * Returns the activity constant for a roll value from the orientation sensor.
+     * Is used by the activities to determine when they have to switch to another activity.
+     * @param roll Roll value of the orientation sensor (values from -180 to 180).
+     * @return Activity constant of the correct activity at this roll value.
+     * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
+     * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
+     */
     public static int getActivityForRoll(float roll) {
     	if ((roll > -135 && roll < -45) || (roll > 45 && roll < 135)) {
     		return FINDER_ACTIVITY;

@@ -1,13 +1,12 @@
 package de.fraunhofer.fit.photocompass.activities;
 
-import java.util.List;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -18,6 +17,7 @@ import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.Window;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.ViewGroup.LayoutParams;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
@@ -34,6 +34,9 @@ import de.fraunhofer.fit.photocompass.views.ControlsView;
 import de.fraunhofer.fit.photocompass.views.FinderView;
 import de.fraunhofer.fit.photocompass.views.PhotosView;
 
+/**
+ * This class is the Activity component for the camera view screen (phone held vertically) of the application.
+ */
 public class FinderActivity extends Activity {
 
     private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
@@ -41,110 +44,167 @@ public class FinderActivity extends Activity {
 
 	FinderActivity finderActivity;
     
-	private double _currentLat;
-	private double _currentLng;
-	private double _currentAlt;
-	private float _currentYaw;
+	double currentLat; // package scoped for faster access by inner classes
+	double currentLng; // package scoped for faster access by inner classes
+	double currentAlt; // package scoped for faster access by inner classes
+	float currentYaw; // package scoped for faster access by inner classes
 	
-    private PhotosView _photosView;
+    PhotosView photosView; // package scoped for faster access by inner classes
+	private long _lastPhotoViewUpdate;
+	private static final int PHOTO_VIEW_UPDATE_IVAL = 300; // in milliseconds
 
-    private ILocationService _locationService;
+    ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
-    private IOrientationService _orientationService;
+    IOrientationService orientationService; // package scoped for faster access by inner classes
     private boolean _boundToOrientationService;
 
     private ApplicationModel _applicationModel;
 
+    /**
+     * {@link GestureDetector} with a {@link SimpleOnGestureListener} that detects the gestures used for interacting
+     * with the displayed photos. Calls the {@link #photosView} to deal with the events.
+     */
 	private GestureDetector _gestureDetector = new GestureDetector(
 	    new GestureDetector.SimpleOnGestureListener() {
 	    	
+	    	/**
+	    	 * Gets called when a fling/swipe gesture is detected.
+	    	 */
 	        @Override
 	        public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
 	        	
 	        	// pass on to photos view
-	        	return _photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
+	        	return photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
 	        							   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
 	        }
 	        
+	        /**
+	         * Gets called when a tap gesture is completed.
+	         */
 	        @Override
 	        public boolean onSingleTapUp(MotionEvent event) {
 	        	
 	        	// pass on to photos view
-	        	return _photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
+	        	return photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
 	        }
 	    });
 
-    private ServiceConnection _locationServiceConn = new ServiceConnection() {
+    /**
+     * Connection object for the connection with the {@link LocationService}.
+     */
+    private final ServiceConnection _locationServiceConn = new ServiceConnection() {
 
+    	/**
+    	 * Gets called when the service connection is established.
+    	 * Creates the {@link #locationService} object from the service interface and
+    	 * registers the {@link #locationServiceCallback}.
+    	 */
 	    public void onServiceConnected(ComponentName className, IBinder service) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: connected to location service");
 	    	
 	    	// generate service object
-	    	_locationService = ILocationService.Stub.asInterface(service);
+	    	locationService = ILocationService.Stub.asInterface(service);
 	    	
 	    	// register at the service
             try {
-            	_locationService.registerCallback(_locationServiceCallback);
+            	locationService.registerCallback(locationServiceCallback);
             } catch (DeadObjectException e) {
             	// service crashed
             } catch (RemoteException e) {
     			Log.e(PhotoCompassApplication.LOG_TAG, "FinderActivity: failed to register to location service");
             }
 	    }
-	
+
+    	/**
+    	 * Gets called when the service connection is closed down.
+    	 * Frees {@link #locationService}.
+    	 */
 	    public void onServiceDisconnected(ComponentName name) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: disconnected from location service");
-	    	_locationService = null;
+	    	locationService = null;
 	    }
     };
-    
-    private ILocationServiceCallback _locationServiceCallback = new ILocationServiceCallback.Stub() {
-    	
-        public void onLocationEvent(double latitude, double longitude, double altitude) {
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from location service");
+
+    /**
+     * Callback object for the {@link LocationService}.
+     * Gets registered and unregistered at the {@link #locationService} object.
+     * Package scoped for faster access by inner classes.
+     */
+    final ILocationServiceCallback locationServiceCallback = new ILocationServiceCallback.Stub() {
+
+		/**
+		 * Gets called when new data is provided by the {@link LocationService}.
+		 * Stores the new location and initiates an update of the map view. 
+		 */
+        public void onLocationEvent(double lat, double lng, double alt) {
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
+        	boolean latChanged = (lat == currentLat) ? false : true;
+        	boolean lngChanged = (lng == currentLng) ? false : true;
+        	boolean altChanged = (alt == currentAlt) ? false : true;
+	    	
 	    	// update variables
-	    	_currentLat = latitude;
-	    	_currentLng = longitude;
-	    	_currentAlt = altitude;
-            
+	    	currentLat = lat;
+	    	currentLng = lng;
+	    	currentAlt = alt;
+        	
             // update photo view
-	    	_updatePhotoView();
+	    	updatePhotoView(latChanged, lngChanged, altChanged, false, false, false);
         }
     };
 
-    private ServiceConnection _orientationServiceConn = new ServiceConnection() {
+    /**
+     * Connection object for the connection with the {@link OrientationService}.
+     */
+    private final ServiceConnection _orientationServiceConn = new ServiceConnection() {
 
+    	/**
+    	 * Gets called when the service connection is established.
+    	 * Creates the {@link #orientationService} object from the service interface and
+    	 * registers the {@link #orientationServiceCallback}.
+    	 */
 	    public void onServiceConnected(ComponentName className, IBinder service) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: connected to orientation service");
 	    	
 	    	// generate service object
-	    	_orientationService = IOrientationService.Stub.asInterface(service);
+	    	orientationService = IOrientationService.Stub.asInterface(service);
 	    	
 	    	// register at the service
             try {
-            	_orientationService.registerCallback(_orientationServiceCallback);
+            	orientationService.registerCallback(orientationServiceCallback);
             } catch (DeadObjectException e) {
             	// service crashed
             } catch (RemoteException e) {
     			Log.e(PhotoCompassApplication.LOG_TAG, "FinderActivity: failed to register to orientation service");
             }
 	    }
-	
+
+    	/**
+    	 * Gets called when the service connection is closed down.
+    	 * Frees {@link #orientationService}.
+    	 */
 	    public void onServiceDisconnected(ComponentName name) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: disconnected from orientation service");
-	    	_orientationService = null;
+	    	orientationService = null;
 	    }
     };
-    
-    private IOrientationServiceCallback _orientationServiceCallback = new IOrientationServiceCallback.Stub() {
+
+    /**
+     * Callback object for the {@link OrientationService}.
+     * Gets registered and unregistered at the {@link #orientationService} object.
+     * Package scoped for faster access by inner classes.
+     */
+    final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
-		private float _yaw;
 		private float _roll;
-		private long _lastPhotoViewUpdate;
-    	
+
+		/**
+		 * Gets called when new data is provided by the {@link OrientationService}.
+		 * Initiates switch to {@link PhotoMapActivity} when the phone is held horizontally.
+		 * Also updates the {@link #photosView} when the yaw value changed. 
+		 */
         public void onOrientationEvent(float yaw, float pitch, float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from orientation service");
         	
@@ -169,40 +229,47 @@ public class FinderActivity extends Activity {
 	    	}
 
 	    	// yaw value has changed
-        	// TODO make this activity represent changing pitch values
-	    	if (_yaw != yaw &&
-	    		SystemClock.uptimeMillis() - _lastPhotoViewUpdate > 650) { // reduces the number of update, cause the performance is not so great up to now / TODO increase performance and update rate
-	    		_yaw = yaw;
-	    		_lastPhotoViewUpdate = SystemClock.uptimeMillis();
-//	    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: "+_lastPhotoViewUpdate);
+	    	if (currentYaw != yaw) {
 	    		
-		    	// update variables
-		    	_currentYaw = _yaw;
-	            
+		    	// update variable
+	    		currentYaw = yaw;
+
 	            // update photo view
-		    	_updatePhotoView();
+		    	updatePhotoView(false, false, false, true, false, false);
 	    	}
         }
     };
 
-	private IApplicationModelCallback _applicationModelCallback = new IApplicationModelCallback.Stub() {
-	
+    /**
+     * Callback object for the {@link ApplicationModel}.
+     * Gets registered and unregistered at the {@link #_applicationModel} object.
+     */
+	private final IApplicationModelCallback _applicationModelCallback = new IApplicationModelCallback.Stub() {
+
+		/**
+		 * Gets called when variables in the {@link ApplicationModel} change.
+		 * Initiates a update of {@link #photosView}. 
+		 */
 		public void onApplicationModelChange() {
 			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
-		    
-		    // update photo view
-			_updatePhotoView();
+
+            // update photo view
+	    	updatePhotoView(false, false, false, false, true, true);
 		}
 	};
     
+    /**
+     * Constructor.
+     * Initializes the state variables.
+     */
     public FinderActivity() {
     	super();
     	finderActivity = this;
     	
     	// initialize service variables
-        _locationService = null;
+        locationService = null;
         _boundToLocationService = false;
-        _orientationService = null;
+        orientationService = null;
         _boundToOrientationService = false;
     	
         // initialize application model and register as callback
@@ -210,14 +277,18 @@ public class FinderActivity extends Activity {
     	_applicationModel.registerCallback(_applicationModelCallback);
     }
 
-    // detect gestures from touch events
+    /**
+     * Gets called when a touch events occurs.
+     * Passes the event on to the {@link #_gestureDetector}.
+     */
     public boolean onTouchEvent(MotionEvent event) {
-    	if (_photosView == null) return false; // photos view not yet created
+    	if (photosView == null) return false; // photos view not yet created
         return _gestureDetector.onTouchEvent(event);
     }
     
     /**
      * Called when the activity is first created.
+     * Initializes the views.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -229,18 +300,19 @@ public class FinderActivity extends Activity {
         // initialize views
         FinderView finderView = new FinderView(this);
         Display display = getWindowManager().getDefaultDisplay();
-        _photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
+        photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
         ControlsView controlsView = new ControlsView(this);
 
         // setup views
         setContentView(finderView);
-        addContentView(_photosView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//        setContentView(_photosView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        addContentView(photosView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
     }
     
     /**
      * Called before the activity becomes visible.
+     * Connects to the {@link LocationService} and the {@link OrientationService}.
+     * Initiates a update of the {@link Photos} model.
      */
     @Override
     public void onStart() {
@@ -256,10 +328,14 @@ public class FinderActivity extends Activity {
     	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "failed to connect to orientation service");
+    	
+    	// let photos model check if the available photos have changed
+    	Photos.getInstance().updatePhotos();
     }
     
     /**
      * Called when the activity is no longer visible.
+     * Unregisters the callbacks from the services and then disconnects from the services.
      */
     @Override
     public void onStop() {
@@ -268,9 +344,9 @@ public class FinderActivity extends Activity {
     	if (_boundToLocationService) {
 	    	
 	    	// unregister from location service
-	    	if (_locationService != null) {
+	    	if (locationService != null) {
 	    		try {
-	    			_locationService.unregisterCallback(_locationServiceCallback);
+	    			locationService.unregisterCallback(locationServiceCallback);
 	            } catch (DeadObjectException e) {
 	            	// the service has crashed
 	    		} catch (RemoteException e) {
@@ -286,9 +362,9 @@ public class FinderActivity extends Activity {
     	if (_boundToOrientationService) {
 	    	
 	    	// unregister from orientation service
-	    	if (_orientationService != null) {
+	    	if (orientationService != null) {
 	    		try {
-	    			_orientationService.unregisterCallback(_orientationServiceCallback);
+	    			orientationService.unregisterCallback(orientationServiceCallback);
 	            } catch (DeadObjectException e) {
 	            	// the service has crashed
 	    		} catch (RemoteException e) {
@@ -305,15 +381,58 @@ public class FinderActivity extends Activity {
     }
     
     /**
-     * Updates the photo view based on the current location and orientation parameters.
+     * Updates the photo view based on the current location and phone orientation as well as the settings in the {@link ApplicationModel}.
+     * Package scoped for faster access by inner classes.
      */
-    private void _updatePhotoView() {
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: _updatePhotoView");
+    void updatePhotoView(boolean latChanged, boolean lngChanged, boolean altChanged, boolean yawChanged, boolean modelChanged,
+    				     boolean forceRedraw) {
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: updatePhotoView");
     	
-    	List<Photo> photos = Photos.getInstance().getPhotos(_currentLat, _currentLng, _currentAlt, _currentYaw,
-    														ApplicationModel.getInstance().getMaxDistance(),
-    												 		ApplicationModel.getInstance().getMinAge(),
-    												 		ApplicationModel.getInstance().getMaxAge());
-    	_photosView.setPhotos(photos, _currentYaw);
+    	// redraw the view only if either forced or last redraw older than PHOTO_VIEW_UPDATE_IVAL
+		if (forceRedraw || SystemClock.uptimeMillis() - _lastPhotoViewUpdate > PHOTO_VIEW_UPDATE_IVAL) {
+			forceRedraw = true;
+	    	_lastPhotoViewUpdate = SystemClock.uptimeMillis();
+		}
+    	
+    	if (latChanged || lngChanged || modelChanged) {
+    		
+    		// update photos
+        	Photos photosModel = Photos.getInstance();
+    		ApplicationModel appModel = ApplicationModel.getInstance();
+    		photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
+    		photosView.addPhotos(photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
+    															   appModel.getMaxDistance(), appModel.getMinAge(), appModel.getMaxAge()),
+    															   forceRedraw);
+    		photosView.removePhotos(photosModel.getNoLongerVisiblePhotos(photosView.getPhotos(),
+																 		 appModel.getMaxDistance(), appModel.getMinAge(), appModel.getMaxAge()));
+    	}
+    	
+    	if (latChanged || lngChanged) {
+    		
+    		// update sizes of the photos
+    		_updateCurrentPhotosProperties();
+    		photosView.updateSizes(forceRedraw);
+    	}
+    	
+    	if (altChanged) {
+    		
+    		// update y positions of the photos
+    		_updateCurrentPhotosProperties();
+    		photosView.updateYPositions(forceRedraw);
+    	}
+    	
+    	if (yawChanged) {
+    		
+    		// update x positions of the photos
+    		photosView.updateXPositions(currentYaw, forceRedraw);
+    	}
+    }
+    
+    /**
+     * Updates distance, direction, and altitude offset of the photos currently used by the photos view.
+     */
+    private void _updateCurrentPhotosProperties() {
+    	for (int resourceId : photosView.getPhotos())
+    		Photos.getInstance().getPhoto(resourceId).updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
     }
 }
