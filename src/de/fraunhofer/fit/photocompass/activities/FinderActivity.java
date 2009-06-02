@@ -41,10 +41,10 @@ public class FinderActivity extends Activity {
 
 	FinderActivity finderActivity;
     
-	double currentLat; // package scoped for faster access by inner classes
-	double currentLng; // package scoped for faster access by inner classes
-	double currentAlt; // package scoped for faster access by inner classes
-	float currentYaw; // package scoped for faster access by inner classes
+	double currentLat = 0; // package scoped for faster access by inner classes
+	double currentLng = 0; // package scoped for faster access by inner classes
+	double currentAlt = 0; // package scoped for faster access by inner classes
+	float currentYaw = 0; // package scoped for faster access by inner classes
 	
     PhotosView photosView; // package scoped for faster access by inner classes
 	private long _lastPhotoViewUpdate;
@@ -133,19 +133,19 @@ public class FinderActivity extends Activity {
 		 * Gets called when new data is provided by the {@link LocationService}.
 		 * Stores the new location and initiates an update of the map view. 
 		 */
-        public void onLocationEvent(double lat, double lng, double alt) {
+        public void onLocationEvent(double lat, double lng, boolean hasAlt, double alt) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
         	boolean latChanged = (lat == currentLat) ? false : true;
         	boolean lngChanged = (lng == currentLng) ? false : true;
-        	boolean altChanged = (alt == currentAlt) ? false : true;
+        	boolean altChanged = (! hasAlt || alt == currentAlt) ? false : true;
 	    	
 	    	// update variables
 	    	currentLat = lat;
 	    	currentLng = lng;
-	    	currentAlt = alt;
+	    	if (hasAlt) currentAlt = alt;
         	
             // update photo view
 	    	updatePhotoView(latChanged, lngChanged, altChanged, false, false, false);

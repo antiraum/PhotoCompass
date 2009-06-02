@@ -8,5 +8,5 @@ interface ILocationServiceCallback {
     /**
      * Called when the service has a new value.
      */
-    void onLocationEvent(double latitude, double longitude, double altitude);
+    void onLocationEvent(double lat, double lng, boolean hasAlt, double alt);
 }

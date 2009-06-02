@@ -98,14 +98,14 @@ public class PhotoMapActivity extends MapActivity {
 		 * Gets called when new data is provided by the {@link LocationService}.
 		 * Stores the new location and initiates an update of the map view. 
 		 */
-        public void onLocationEvent(double latitude, double longitude, double altitude) {
+        public void onLocationEvent(double lat, double lng, boolean hasAlt, double alt) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from location service");
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
 	    	// update variables
-	    	currentLat = latitude;
-	    	currentLng = longitude;
+	    	currentLat = lat;
+	    	currentLng = lng;
             
             // update map view
 	    	updateMapView();

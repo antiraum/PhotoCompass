@@ -101,34 +101,35 @@ public class Photo {
 	 * @param lng Longitude of the current location.
 	 * @param alt Altitude of the current location.
 	 */
-	public void updateDistanceDirectionAndAltitudeOffset(double lat, double lng, double alt) {
+	public void updateDistanceDirectionAndAltitudeOffset(double currentLat, double currentLng, double currentAlt) {
 		
-		if (_lastUpdateLat != lat && _lastUpdateLng != lng) { // position has changed
+		if (_lastUpdateLat != currentLat && _lastUpdateLng != currentLng) { // position has changed
 		
 			// distance calculation
 			float[] results = new float[1];
-			Location.distanceBetween(lat, lng, _lat, _lng, results);
+			Location.distanceBetween(currentLat, currentLng, _lat, _lng, results);
 			_distance = results[0];
 	
 			// direction calculation - taken from com.google.android.radar.GeoUtils (http://code.google.com/p/apps-for-android)
-	        double lat1Rad = Math.toRadians(lat);
+	        double lat1Rad = Math.toRadians(currentLat);
 	        double lat2Rad = Math.toRadians(_lat);
-	        double deltaLonRad = Math.toRadians(_lng - lng);
+	        double deltaLonRad = Math.toRadians(_lng - currentLng);
 	        double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
 	        double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad);
 	        _direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
 	        // end direction calculation
 		}
 
-		if (_lastUpdateAlt != alt) { // altitude has changed
+		if (_lastUpdateAlt != currentAlt) { // altitude has changed
 			
 			// altitude offset calculation
-	        _altOffset = _alt - alt;
+	        _altOffset = (currentAlt == 0) ? 0 // no valid altitude -> no valid offset possible
+	        							   : _alt - currentAlt;
 		}
 		
-		_lastUpdateLat = lat;
-		_lastUpdateLng = lng;
-		_lastUpdateAlt = alt;
+		_lastUpdateLat = currentLat;
+		_lastUpdateLng = currentLng;
+		_lastUpdateAlt = currentAlt;
 		
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", _distance = "+_distance+", _direction = "+_direction+", _altOffset = "+_altOffset);
 	}
