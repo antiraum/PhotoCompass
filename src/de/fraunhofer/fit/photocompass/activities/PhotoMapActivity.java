@@ -99,7 +99,7 @@ public class PhotoMapActivity extends MapActivity {
 		 * Stores the new location and initiates an update of the map view. 
 		 */
         public void onLocationEvent(double lat, double lng, boolean hasAlt, double alt) {
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from location service");
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             

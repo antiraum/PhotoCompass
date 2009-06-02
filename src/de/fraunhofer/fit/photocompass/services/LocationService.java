@@ -88,7 +88,6 @@ public class LocationService extends Service {
 			
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: numCallbacks = "+numCallbacks);
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
 	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(location.getLatitude(), location.getLongitude(),
@@ -125,13 +124,19 @@ public class LocationService extends Service {
 		 * otherwise we keep checking the current one.
 		 */
 		public void onStatusChanged(String provider, int status, Bundle extras) {
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onStatusChanged: provider = "+provider+", status = "+status);
 	    	
 	    	if (status == LocationProvider.OUT_OF_SERVICE) {
 	    		// provider is out of service, and this is not expected to change in the near future
+	    		
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onStatusChanged: provider = "+provider+
+		    										   ", status = OUT_OF_SERVICE");
 	    		chooseLocationProvider(null); // choose new provider
+	    		
 	    	} else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
 	    		// provider is temporarily unavailable
+
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onStatusChanged: provider = "+provider+
+		    										   ", status = TEMPORARILY_UNAVAILABLE");
 	    		chooseLocationProvider(locationProvider); // look for better provider 
 	    	}
 		}
@@ -210,7 +215,7 @@ public class LocationService extends Service {
     	// first check for good and enabled provider
     	String newProvider = locationManager.getBestProvider(_criteria, true);
     	
-    	if (currentProvider != null && (newProvider == null || newProvider == currentProvider)) return; // no better provider found
+    	if (currentProvider != null && (newProvider == null || newProvider.equals(currentProvider))) return; // no better provider found
 
     	// second check for any enabled provider
     	if (newProvider == null) newProvider = locationManager.getBestProvider(_fallbackCriteria, true);

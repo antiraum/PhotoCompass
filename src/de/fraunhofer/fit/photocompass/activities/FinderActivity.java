@@ -48,7 +48,7 @@ public class FinderActivity extends Activity {
 	
     PhotosView photosView; // package scoped for faster access by inner classes
 	private long _lastPhotoViewUpdate;
-	private static final int PHOTO_VIEW_UPDATE_IVAL = 300; // in milliseconds
+	private static final int PHOTO_VIEW_UPDATE_IVAL = 350; // in milliseconds
 
     ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
