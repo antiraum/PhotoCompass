@@ -210,12 +210,15 @@ public class LocationService extends Service {
      * 						  is available. 
      */
     void chooseLocationProvider(String currentProvider) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: currentProvider = "+currentProvider);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: current location provider is "+currentProvider);
     	
     	// first check for good and enabled provider
     	String newProvider = locationManager.getBestProvider(_criteria, true);
     	
-    	if (currentProvider != null && (newProvider == null || newProvider.equals(currentProvider))) return; // no better provider found
+    	if (currentProvider != null && (newProvider == null || newProvider.equals(currentProvider))) { // no better provider found
+        	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: no better provider found");
+    		return;
+    	}
 
     	// second check for any enabled provider
     	if (newProvider == null) newProvider = locationManager.getBestProvider(_fallbackCriteria, true);
@@ -240,7 +243,7 @@ public class LocationService extends Service {
     	}
     	
     	// start getting updates
-    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: locationProvider = "+locationProvider);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: location provider changed to "+locationProvider);
     	locationManager.requestLocationUpdates(locationProvider, MIN_LOCATION_UPDATE_TIME, MIN_LOCATION_UPDATE_DISTANCE,
     										   locationListener, getMainLooper());
     }
