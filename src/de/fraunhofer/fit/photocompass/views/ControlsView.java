@@ -5,8 +5,16 @@ import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import de.fraunhofer.fit.photocompass.R;
 
+/**
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and the UI controls.
+ */
 public class ControlsView extends AbsoluteLayout {
 	
+	/**
+	 * Constructor.
+	 * Sets up the controls.
+	 * @param context
+	 */
 	public ControlsView(Context context) {
 		super(context);
 

@@ -7,25 +7,38 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
+/**
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the image from the camera finder.
+ */
 public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
 	
-    private SurfaceHolder _holder;
+    private SurfaceHolder _surfaceHolder;
     private Camera _camera;
 
+    /**
+     * Constructor.
+     * Initializes the {@field #_surfaceHolder}.
+     * @param context
+     */
     public FinderView(Context context) {
         super(context);
 
-        // install a SurfaceHolder callback so we get notified when the
-        // underlying surface is created and destroyed (activity gets paused)
-        _holder = getHolder();
-        _holder.addCallback(this);
-        _holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        // setup the surface holder
+        _surfaceHolder = getHolder();
+        _surfaceHolder.setKeepScreenOn(true);
+        _surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        
+        // register as callback so we get notified when the underlying surface is created, changed, or destroyed (activity gets paused)
+        _surfaceHolder.addCallback(this);
     }
 
+    /**
+     * This is called after the surface is first created.
+     * Acquires the camera and tells it where to draw.
+     */
     public void surfaceCreated(SurfaceHolder holder) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceCreated");
     	
-        // the Surface has been created, acquire the camera and tell it where to draw
         _camera = Camera.open();
         try {
         	_camera.setPreviewDisplay(holder);
@@ -34,10 +47,14 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    /**
+     * This is called before a surface is being destroyed.
+     * Stops the preview and releases the camera.
+     */
     public void surfaceDestroyed(SurfaceHolder holder) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceDestroyed");
     	
-        // surface will be destroyed, so stop the preview
+        // stop the preview
         _camera.stopPreview();
         
         // release the camera
@@ -46,13 +63,19 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
         _camera = null;
     }
 
+    /**
+     * This is called after any structural changes (format or size) have been made to the surface.
+     * Sets up the camera to the surface size and starts the preview.
+     */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceChanged");
     	
-        // size is known, set up the camera parameters and begin the preview
+        // set up the camera parameters
         Camera.Parameters parameters = _camera.getParameters();
         parameters.setPreviewSize(w, h);
         _camera.setParameters(parameters);
+        
+        // start the preview
         _camera.startPreview();
     }
 }
