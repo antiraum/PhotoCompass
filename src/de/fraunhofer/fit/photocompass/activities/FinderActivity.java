@@ -1,7 +1,5 @@
 package de.fraunhofer.fit.photocompass.activities;
 
-import java.util.HashMap;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,7 +21,6 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
 import de.fraunhofer.fit.photocompass.model.Photos;
-import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
 import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
