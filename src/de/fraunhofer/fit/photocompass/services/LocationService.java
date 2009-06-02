@@ -210,7 +210,7 @@ public class LocationService extends Service {
     	// first check for good and enabled provider
     	String newProvider = locationManager.getBestProvider(_criteria, true);
     	
-    	if (newProvider == null && currentProvider != null) return; // no better provider found
+    	if (currentProvider != null && (newProvider == null || newProvider == currentProvider)) return; // no better provider found
 
     	// second check for any enabled provider
     	if (newProvider == null) newProvider = locationManager.getBestProvider(_fallbackCriteria, true);
@@ -229,13 +229,13 @@ public class LocationService extends Service {
     	
     	// no provider found
     	if (locationProvider == null) {
-        	Log.e(PhotoCompassApplication.LOG_TAG, "LocationService: no location provider found");
+        	Log.e(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: no location provider found");
         	// TODO notify the user when there is no provider and tell him that he cannot use the application without it
     		return;
     	}
     	
     	// start getting updates
-    	Log.e(PhotoCompassApplication.LOG_TAG, "LocationService: locationProvider = "+locationProvider);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: locationProvider = "+locationProvider);
     	locationManager.requestLocationUpdates(locationProvider, MIN_LOCATION_UPDATE_TIME, MIN_LOCATION_UPDATE_DISTANCE,
     										   locationListener, getMainLooper());
     }
