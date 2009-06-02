@@ -8,6 +8,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -15,14 +17,24 @@ import android.os.RemoteException;
 import android.util.Log;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
+/**
+ * This class is a Service component that reads data from the orientation sensor.
+ * Activities should bind to this Service when they become visible and disconnect when they are no longer visible, so that this
+ * Service only runs when needed. After the connection to the service is established activities can register as callbacks to get
+ * notified when the location changes.
+ */
 public class OrientationService extends Service {
 
     /**
      * List of callbacks that have been registered with the service.
-     * This is package scoped (instead of private) so that it can be accessed more efficiently from inner classes.
+     * Package scoped for faster access by inner classes.
      */
     final RemoteCallbackList<IOrientationServiceCallback> remoteCallbacks = new RemoteCallbackList<IOrientationServiceCallback>();
-    
+
+    /**
+     * Implementation of the interface to this service.
+     * Is provided to activities when they connect ({@see #onBind(Intent)}).
+     */
     private final IOrientationService.Stub _binder = new IOrientationService.Stub() {
         public void registerCallback(IOrientationServiceCallback cb) {
             if (cb != null) remoteCallbacks.register(cb);
@@ -32,31 +44,39 @@ public class OrientationService extends Service {
         }
     };
 
+    /**
+     * {@link SensorManager}.
+     */
 	private SensorManager _sensorManager;
-	
-	private final SensorListener _sensorListener = new SensorListener() {
-		
-		private float _yaw, _pitch, _roll;
 
+	/**
+	 * {@link SensorListener} for the {@link #_sensorManager}.
+	 */
+	private final SensorListener _sensorListener = new SensorListener() {
+
+		/**
+		 * Called when sensor values have changed.
+		 * Broadcasts the new sensor data to all registered callbacks.
+		 */
 		public void onSensorChanged(int sensor, float[] values) {
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged");
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: yaw = "+values[0]+", pitch = "+values[1]+", roll = "+values[2]);
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged: "+
+//	    										   "yaw = "+values[0]+", pitch = "+values[1]+", roll = "+values[2]);
 			
-			_yaw = values[0];
-			// the values are exchanged on the G1, so we have to switch between these code blocks
+			float yaw = values[0], pitch, roll;
+			// the values are exchanged on the G1, so we have to switch them
 			if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
-				_pitch = values[1];
-				_roll = values[2];
+				pitch = values[1];
+				roll = values[2];
 			} else {
-				_pitch = values[2];
-				_roll = values[1];
+				pitch = values[2];
+				roll = values[1];
 			}
 		
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
-	                remoteCallbacks.getBroadcastItem(i).onOrientationEvent(_yaw, _pitch, _roll);
+	                remoteCallbacks.getBroadcastItem(i).onOrientationEvent(yaw, pitch, roll);
 	            } catch (DeadObjectException e) {
 	                // the RemoteCallbackList will take care of removing the dead object
 	            } catch (RemoteException e) {
@@ -66,17 +86,22 @@ public class OrientationService extends Service {
 	        remoteCallbacks.finishBroadcast();
 		}
 		
+		/**
+		 * Called when the accuracy of a sensor has changed.
+		 */
 		public void onAccuracyChanged(int sensor, int accuracy) {
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onAccuracyChanged: sensor = "+sensor+", accuracy = "+accuracy);
 		}
     };
-	
+
+    /**
+     * Called by the system when the service is first created.
+     * Initializes the {@link #_sensorManager}, checks if an orientation sensor is available, and starts listening to it.
+     */
     @Override
     public void onCreate() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onCreate");
         super.onCreate();
-        
-        // As there seems to be no way to detect if we are running on an emulator, we have to manually switch between the following
-        // code blocks. If someone finds a way to do this, please add it. 
 
         // initialize location manager
 		if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
@@ -89,19 +114,31 @@ public class OrientationService extends Service {
 			_sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
 		}
     	
-    	// TODO test for orientation sensor and notify the user that he cannot use the application without it
+		// check if there is no orientation sensor
+		if (_sensorManager.getSensorList(SensorManager.SENSOR_ORIENTATION).size() == 0) {
+        	Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: no orientation sensor found");
+        	// TODO notify the user and tell him that he cannot use the application
+    		return;
+    	}
     	
     	// start listening to sensors
-        // TODO we should aim to be able to handle events at SensorManager.SENSOR_DELAY_NORMAL rate
-    	_sensorManager.registerListener(_sensorListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_UI);
+    	_sensorManager.registerListener(_sensorListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /**
+     * Called when an activity connects to the service.
+     * @return The {@field #_binder} interface to the service.
+     */
 	@Override
 	public IBinder onBind(Intent intent) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onBind");
 		return _binder;
 	}
 
+	/**
+	 * Called by the system to notify a Service that it is no longer used and is being removed.
+	 * Shuts down the service.
+	 */
     @Override
     public void onDestroy() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onDestroy");

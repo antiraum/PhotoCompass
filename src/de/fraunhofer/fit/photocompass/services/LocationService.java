@@ -49,7 +49,7 @@ public class LocationService extends Service {
     
     /**
      * Implementation of the interface to this service.
-     * Is provided to activities when they connect.
+     * Is provided to activities when they connect ({@see #onBind(Intent)}).
      */
     private final ILocationService.Stub _binder = new ILocationService.Stub() {
         public void registerCallback(ILocationServiceCallback cb) {
@@ -70,7 +70,7 @@ public class LocationService extends Service {
 	LocationManager locationManager;
 	
 	/**
-	 * {@link LocationListener} for the {@link LocationManager}.
+	 * {@link LocationListener} for the {@link #locationManager}.
      * Package scoped for faster access by inner classes.
 	 */
 	final LocationListener locationListener = new LocationListener() {
@@ -229,8 +229,8 @@ public class LocationService extends Service {
     	
     	// no provider found
     	if (locationProvider == null) {
-        	// TODO notify the user when there is no provider and tell him that he cannot use the application without it
         	Log.e(PhotoCompassApplication.LOG_TAG, "LocationService: no location provider found");
+        	// TODO notify the user when there is no provider and tell him that he cannot use the application without it
     		return;
     	}
     	
