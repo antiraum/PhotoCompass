@@ -11,14 +11,12 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.ZoomControls;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.Photos;
@@ -36,15 +34,10 @@ public final class PhotoMapActivity extends MapActivity {
 	
 	private static final String MAPS_API_KEY = "02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw";
 
-	PhotoMapActivity mapActivity;
+	PhotoMapActivity mapActivity; // package scoped for faster access by inner classes
 
-//	private MapView _mapView;
+	private MyLocationOverlay _myLocOverlay;
 	private MapController _mapController;
-//	private LinearLayout _zoomControlsView;
-//	private ZoomControls _zoomControls;
-    
-	double currentLat; // package scoped for faster access by inner classes
-	double currentLng; // package scoped for faster access by inner classes
 
     ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
@@ -103,12 +96,8 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
-	    	// update variables
-	    	currentLat = lat;
-	    	currentLng = lng;
-            
             // update map view
-	    	updateMapView();
+	    	updateMapView(lat, lng);
         }
     };
 
@@ -204,28 +193,25 @@ public final class PhotoMapActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        // initialize views
-        RelativeLayout mapLayout = new RelativeLayout(this);
+        
+        // map view
 		MapView mapView = new MapView(this, MAPS_API_KEY);
 		mapView.setClickable(true);
-//		mapView.displayZoomControls(true);
-		LinearLayout zoomControlsView = new LinearLayout(this);
-		ZoomControls zoomControls = (ZoomControls) mapView.getZoomControls();
-        zoomControlsView.addView(zoomControls);
-        
-        // setup views
-		mapLayout.addView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		mapLayout.addView(zoomControlsView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-        setContentView(mapLayout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mapView.setEnabled(true);
+		mapView.setBuiltInZoomControls(true);
+		setContentView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		
+		// current position
+		_myLocOverlay = new MyLocationOverlay(this, mapView);
+		mapView.getOverlays().add(_myLocOverlay);
+
+//      RelativeLayout mapLayout = new RelativeLayout(this);
+//		mapLayout.addView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//        setContentView(mapLayout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         
         // initialize map controller
 		_mapController = mapView.getController();
 		_mapController.setZoom(12);
-		
-		updateMapView();
-		
-		// TODO display photos
 	}
     
     /**
@@ -250,6 +236,10 @@ public final class PhotoMapActivity extends MapActivity {
     	
     	// let photos model check if the available photos have changed
     	Photos.getInstance().updatePhotos();
+    	
+    	// enable location and compass overlay
+		_myLocOverlay.enableMyLocation();
+		_myLocOverlay.enableCompass();
     }
     
     /**
@@ -259,7 +249,11 @@ public final class PhotoMapActivity extends MapActivity {
     @Override
     public void onStop() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onStop");
-    	
+
+    	// disable location and compass overlay
+		_myLocOverlay.disableMyLocation();
+		_myLocOverlay.disableCompass();
+		
     	if (_boundToLocationService) {
 	    	
 	    	// unregister from location service
@@ -306,12 +300,15 @@ public final class PhotoMapActivity extends MapActivity {
     
     /**
      * Updates the map view based on the current location.
+     * 
+     * @param Current latitude.
+     * @param Current longitude.
      */
-    private void updateMapView() { // package scoped for faster access by inner classes
+    private void updateMapView(double lat, double lng) { // package scoped for faster access by inner classes
 		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
 		
     	// center map view
-		GeoPoint location = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
+		GeoPoint location = new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
 		// _mapController.centerMapTo(m_curLocation, false);
 		_mapController.animateTo(location);
 		
