@@ -16,8 +16,8 @@ public final class ApplicationModel {
 	
 	// default values
 	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
-	private static final int DEFAULT_MIN_AGE = 0; // in ...
-	private static final int DEFAULT_MAX_AGE = 100000;
+	private static final int DEFAULT_MIN_AGE = 0; // milliseconds since January 1, 1970
+	private static final int DEFAULT_MAX_AGE = 100000; // milliseconds since January 1, 1970
 
     private static ApplicationModel _instance;
 

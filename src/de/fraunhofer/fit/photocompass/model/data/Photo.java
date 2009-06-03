@@ -159,7 +159,7 @@ public final class Photo {
 	}
 	
 	/**
-	 * @return Age of the photo in ... (maybe minutes or seconds)
+	 * @return Age of the photo in milliseconds since January 1, 1970
 	 */
 	public int getAge() {
 		// FIXME 

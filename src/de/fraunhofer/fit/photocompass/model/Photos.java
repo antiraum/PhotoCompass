@@ -1,46 +1,37 @@
 package de.fraunhofer.fit.photocompass.model;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.util.Log;
-import android.view.View;
-import android.widget.GridView;
-import android.widget.ImageView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
-import de.fraunhofer.fit.photocompass.views.PhotoView;
 
 /**
  * This model stores the informations about the photos used by the application.
  * It provides methods to access the photos and to determine which photos are visible with the current settings.
  * This is a Singleton.
  */
-public class Photos {
+public final class Photos {
 
     private static Photos _instance;
-	private static HashMap<Integer, Photo> _photos; // map of all used photos (key is resource id, value is {@link Photo} object)
-	private static boolean _initialized = false;
+	private HashMap<Integer, Photo> _photos = new HashMap<Integer, Photo>(); // map of all used photos
+																			 // (key is resource id, value is {@link Photo} object)
+	private boolean _initialized = false;
 	
 	/**
 	 * Constructor.
 	 * Reads the photos stored on the device and populates {@link #_photos} with the ones that can be used by the application.
 	 */
 	protected Photos() {
-		
-	    _photos = new HashMap<Integer, Photo>();
         
 	    if (! PhotoCompassApplication.USE_DUMMY_PHOTOS) return;
 	    
@@ -70,28 +61,58 @@ public class Photos {
 		_photos.put(R.drawable.fit_2417313476_d588a4e2b5, new Photo(R.drawable.fit_2417313476_d588a4e2b5, Location.convert("50:44:56"), Location.convert("7:12:23"), 124));
 	}
 	
-	public void initialize(Activity activity) {
+	public void initialize(final Activity activity) {
 		
 		if (_initialized) return;
 		
 		ArrayList<Integer> photoIds = new ArrayList<Integer>();
 
 	    Uri uris[] = {MediaStore.Images.Thumbnails.INTERNAL_CONTENT_URI, MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI};
-	    String column = MediaStore.Images.Thumbnails._ID;
-//	    String[] projection = {column}; 
+	    String columns[] = { 
+	        MediaStore.Images.ImageColumns._ID, 
+	        MediaStore.Images.ImageColumns.DATA, 
+	        MediaStore.Images.ImageColumns.LATITUDE, 
+	        MediaStore.Images.ImageColumns.LONGITUDE,
+	        MediaStore.Images.ImageColumns.DATE_TAKEN
+	    };
+	    Cursor cursor;
+	    int idCol, fileCol, latCol, lngCol, altCol, dateCol;
 		for (Uri uri : uris) {
             Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: uri = "+uri.toString());
-		    Cursor cursor = activity.managedQuery(uri, null, null, null, null);
+            
+            // get cursor
+		    cursor = activity.managedQuery(uri, null, null, null, null);
 		    if (cursor == null) continue;
-		    int colidx = cursor.getColumnIndex(column);
+		    
+		    // get row count
 	        int numrows = cursor.getCount();
             Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: numrows = "+numrows);
-	        cursor.moveToFirst();
-	        for (int i = 0; i < numrows; i++) {
-	        	photoIds.add(cursor.getInt(colidx));
-	            cursor.moveToNext();
-	        }
+	        if (numrows == 0) continue;
+
+		    // get column indexes
+	    	idCol = cursor.getColumnIndex(Images.ImageColumns._ID);
+	    	fileCol = cursor.getColumnIndex(Images.ImageColumns.DATA); 
+	    	latCol = cursor.getColumnIndex(Images.ImageColumns.LATITUDE); 
+	    	lngCol = cursor.getColumnIndex(Images.ImageColumns.LONGITUDE); 
+//		    altCol = cursor.getColumnIndex(Images.ImageColumns.ALTITUDE); // FIXME: no such column!!!
+	    	dateCol = cursor.getColumnIndex(Images.ImageColumns.DATE_TAKEN);
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: idCol = "+idCol+", fileCol = "+fileCol+", latCol = "+latCol+", lngCol = "+lngCol+", dateCol = "+dateCol);
+	    	
+	    	// get photo data
+//	        cursor.moveToFirst();
+//	        for (int i = 0; i < numrows; i++) {
+//	        	int id = cursor.getInt(idCol);
+//                String file = cursor.getString(fileCol); 
+//                double lat = cursor.getDouble(latCol); 
+//                double lng = cursor.getDouble(lngCol); 
+//                int date = cursor.getInt(idCol);
+//                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: id = "+id+", file = "+file+", lat = "+lat+", lng = "+lng+", date = "+date);
+////	        	_photos.put(id, new Photo());
+//	            cursor.moveToNext();
+//	        }
 		}
+		
+//		ImageManager.instance()
 		
 		for (int photoId : photoIds) {
             Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: "+photoId);
@@ -149,6 +170,11 @@ public class Photos {
 //                        startActivityForResult(mIntent, ACTIVITY_PHOTOVIEW);
 //                }
 //        });
+//		private void setData(ImageView imageView, Cursor cursor) {
+//            long id = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+//
+//            imageView.setTag(id);
+//            imageView.setImageURI(ImageTools.getBestFitImageUri(mContext.getContentResolver(), id))
 	    
         _initialized = true;
 	}
@@ -175,7 +201,7 @@ public class Photos {
      * @return			 <code>{@link Photo}</code> if the photo is known, or
      * 					 <code>null</code> if the photo is not known.
      */
-    public Photo getPhoto(int resourceId) {
+    public Photo getPhoto(final int resourceId) {
     	return _photos.containsKey(resourceId) ? _photos.get(resourceId) : null;
     }
 
@@ -187,8 +213,8 @@ public class Photos {
      * @param maxAge 	    Maximum age of the photos (in ...).
      * @return				ArrayList with resource ids of the newly visible photos.
      */
-    public ArrayList<Integer> getNewlyVisiblePhotos(ArrayList<Integer> currentPhotos,
-    												float maxDistance, int minAge, int maxAge) {
+    public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos,
+    												final float maxDistance, final int minAge, final int maxAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
@@ -207,8 +233,8 @@ public class Photos {
      * @param maxAge 	    Maximum age of the photos (in ...).
      * @return				ArrayList with resource ids of the no longer visible photos.
      */
-    public ArrayList<Integer> getNoLongerVisiblePhotos(ArrayList<Integer> currentPhotos,
-    												   float maxDistance, int minAge, int maxAge) {
+    public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos,
+    												   final float maxDistance, final int minAge, final int maxAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
@@ -228,7 +254,7 @@ public class Photos {
      * @return			  <code>true</code> if photo is visible, or
      * 					  <code>false</code> if photo is not visible.
      */
-    private boolean _isPhotoVisible(Photo photo, float maxDistance, int minAge, int maxAge) {
+    private boolean _isPhotoVisible(final Photo photo, final float maxDistance, final int minAge, final int maxAge) {
 		if (photo.getDistance() > maxDistance) { // photo is too far away
 			return false;
 		}
@@ -245,7 +271,7 @@ public class Photos {
      * @param lng Current longitude.
      * @param alt Current altitude.
      */
-    public void updatePhotoProperties(double lat, double lng, double alt) {
+    public void updatePhotoProperties(final double lat, final double lng, final double alt) {
     	for (Photo photo : _photos.values()) photo.updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
     }
 }
