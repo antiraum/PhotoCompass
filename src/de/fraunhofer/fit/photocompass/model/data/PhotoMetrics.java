@@ -8,7 +8,7 @@ import android.widget.AbsoluteLayout.LayoutParams;
  */
 public class PhotoMetrics {
 
-	public static final int MINIMIZED_PHOTO_HEIGHT = 38; // height of a minimized photo in the PhotoView 
+	public static final int MINIMIZED_PHOTO_HEIGHT = 30; // height of a minimized photo in the PhotoView 
 	
 	private int _x;
 	private int _y = 0;
