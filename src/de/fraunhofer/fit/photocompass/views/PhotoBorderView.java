@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
 /**
- * This view is used by the {@link PhotosView} and displays the border for a photo.
+ * This view is used by the {@link PhotosView} to display the border for a photo.
  * It's always used in conjunction with a {@link PhotoView} which displays the photo. The decoupling is needed cause
  * photo borders should be visible even if the photo itself is occluded.
  * The border is a thin {@link #PhotoCompassApplication.ORANGE} line than is less opaque the more photos occlude the 

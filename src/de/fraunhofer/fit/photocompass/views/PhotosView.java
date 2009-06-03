@@ -18,7 +18,16 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 
 /**
- * 
+ * <p>This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the currently visible photos.</p>
+ * <p>The view should always know about all photos that are visible in any direction from the current position with the current settings.
+ * These photos can be added and removed to/from the view with the methods {@link #addPhotos(ArrayList, boolean)} and 
+ * {@link #removePhotos(ArrayList)}. {@link #getPhotos()} returns the photos the view currently uses.</p>
+ * <p>For every photo the view creates an instance of {@link PhotoMetrics}, {@link PhotoView}, and {@link PhotoBorderView}. When a photo
+ * is removed, these instances are not dismissed, but kept for later reuse.</p>
+ * <p>To initiate updates of the position and dimension of the photos use these methods: {@link #updateXPositions(float, boolean)}, 
+ * {@link #updateYPositions(boolean)}, and {@link #updateSizes(boolean)}.</p>
+ * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
+ * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
  */
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
 public class PhotosView extends AbsoluteLayout {
@@ -186,6 +195,10 @@ public class PhotosView extends AbsoluteLayout {
 	    });
 	}
 	
+	/**
+	 * Sets the number of occluding photos for every border view.
+	 * The border view decreases it's alpha value for every photo that occludes the photo it belongs to.
+	 */
 	private void _setBorderOcclusions() {
 
 		for (int resId1 : _photos) {

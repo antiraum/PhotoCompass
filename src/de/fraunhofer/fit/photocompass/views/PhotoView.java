@@ -4,6 +4,7 @@ import java.util.Formatter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,11 +12,22 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 
+/**
+ * This view is used by the {@link PhotosView} to display a photo.
+ * It shows the photo and an overlaying text with information about the photo.
+ */
 public class PhotoView extends AbsoluteLayout {
 	
 	private int _resourceId; // resource id of the displayed photo
+	private TextView _textView;
 	private boolean _minimized = false;
 	
+	/**
+	 * Constructor.
+	 * Initializes Image and Text View.
+	 * @param context
+	 * @param resourceId Resource id of the photo to display.
+	 */
 	public PhotoView (Context context, Integer resourceId) { 
 		super(context);
 		_resourceId = resourceId;
@@ -28,7 +40,7 @@ public class PhotoView extends AbsoluteLayout {
         addView(imgView);
         
         // distance and altitude offset text
-        TextView textView = new TextView(context);
+        _textView = new TextView(context);
         String text;
         float photoDistance = photo.getDistance();
         if (photoDistance < 1000) {
@@ -46,20 +58,27 @@ public class PhotoView extends AbsoluteLayout {
         	text += "\n"+Math.abs(Math.round(photoAltOffset))+" m ";
         	text += (photoAltOffset > 0) ? "higher" : "lower";
         }
-        textView.setText(text);
-        textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
-        textView.setPadding(5, 0, 5, 0);
-        addView(textView);
+        _textView.setText(text);
+        _textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
+        _textView.setPadding(5, 0, 5, 0);
+        addView(_textView);
 	}
 	
-	public int getResourceId() {
-		return _resourceId;
-	}
-	
+	/**
+	 * Changes the minimized state.
+	 * @param value <code>true</code> to minimize the photo, or
+	 * 				<code>false</code> to restore the photo.
+	 */
 	public void setMinimized(boolean value) {
 		_minimized = value;
+		_textView.setVisibility(_minimized ? View.GONE : View.VISIBLE);
 	}
-	
+
+	/**
+	 * Get the minimized state.
+	 * @return <code>true</code> when the photo is minimized, or
+	 * 		   <code>false</code> when the photo is not minimized.
+	 */
 	public boolean isMinimized() {
 		return _minimized;
 	}
