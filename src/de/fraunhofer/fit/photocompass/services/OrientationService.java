@@ -127,6 +127,7 @@ public final class OrientationService extends Service {
 
     /**
      * Called when an activity connects to the service.
+     * 
      * @return The {@field #_binder} interface to the service.
      */
 	@Override

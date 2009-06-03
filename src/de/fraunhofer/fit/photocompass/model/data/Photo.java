@@ -27,6 +27,7 @@ public final class Photo {
 	
 	/**
 	 * Constructor.
+	 * 
 	 * @param resourceId Resource id of the photo.
 	 * @param lat		 Latitude of the photo.
 	 * @param lng		 Longitude of the photo.
@@ -69,6 +70,7 @@ public final class Photo {
 	 * Loads the bitmap data of the resource and sets {@link #_origWidth} and {@link #_origHeight}.
 	 * Always call this method before accessing {@link #getOrigWidth()} or {@link #getOrigHeight()} to ensure
 	 * the size has been determined. 
+	 * 
 	 * @param resources {@link Resources} of the application.
 	 */
 	public void determineOrigSize(final Resources resources) {
@@ -97,6 +99,7 @@ public final class Photo {
 	/**
 	 * Updates {@link #_distance}, {@link #_direction}, and {@link #_altOffset} relative to a given position.
 	 * Only performs calculations if the position parameters have changed since the last call.
+	 * 
 	 * @param lat Latitude of the current location.
 	 * @param lng Longitude of the current location.
 	 * @param alt Altitude of the current location.
@@ -136,6 +139,7 @@ public final class Photo {
 	
 	/**
 	 * Returns the saved distance.
+	 * 
 	 * @return Distance in meters.
 	 */
 	public float getDistance() {
@@ -144,6 +148,7 @@ public final class Photo {
 	
 	/**
 	 * Returns the saved direction.
+	 * 
 	 * @return Direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	 */
 	public double getDirection() {
@@ -152,6 +157,7 @@ public final class Photo {
 	
 	/**
 	 * Returns the saved altitude offset.
+	 * 
 	 * @return Altitude offset in meters.
 	 */
 	public double getAltOffset() {

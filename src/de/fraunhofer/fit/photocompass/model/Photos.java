@@ -197,6 +197,7 @@ public final class Photos {
     
     /**
      * Get a {@link Photo} object for a resource id.
+     * 
      * @param resourceId Resource id of the requested photo.
      * @return			 <code>{@link Photo}</code> if the photo is known, or
      * 					 <code>null</code> if the photo is not known.
@@ -207,6 +208,7 @@ public final class Photos {
 
     /**
      * Determines which photos are newly visible for the current viewing settings.
+     * 
      * @param currentPhotos ArrayList with resource ids of the currently displayed photos.
      * @param maxDistance   Maximum distance from the current position (in meters).
      * @param minAge 	    Minimum age of the photos (in ...).
@@ -227,6 +229,7 @@ public final class Photos {
 
     /**
      * Determines which photos are no longer visible for the current viewing settings.
+     * 
      * @param currentPhotos ArrayList with resource ids of the currently displayed photos.
      * @param maxDistance   Maximum distance from the current position (in meters).
      * @param minAge 	    Minimum age of the photos (in ...).
@@ -247,6 +250,7 @@ public final class Photos {
     
     /**
      * Checks if a photo is visible with the current settings.
+     * 
      * @param photo		  Photo to check.
      * @param maxDistance Maximum distance from the current position (in meters).
      * @param minAge 	  Minimum age of the photos (in ...).
@@ -267,6 +271,7 @@ public final class Photos {
     
     /**
      * Updates distance, direction, and altitude offset of all photos stored in the model.
+     * 
      * @param lat Current latitude.
      * @param lng Current longitude.
      * @param alt Current altitude.

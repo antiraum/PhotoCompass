@@ -13,6 +13,7 @@ public final class ControlsView extends AbsoluteLayout {
 	/**
 	 * Constructor.
 	 * Sets up the controls.
+	 * 
 	 * @param context
 	 */
 	public ControlsView(final Context context) {

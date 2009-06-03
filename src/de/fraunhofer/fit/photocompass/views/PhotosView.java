@@ -57,6 +57,7 @@ public final class PhotosView extends AbsoluteLayout {
 	/**
 	 * Constructor.
 	 * Sets constants and creates the layers for photo and border views.
+	 * 
 	 * @param context
 	 * @param availableWidth  Maximum width for this view (the display width).
 	 * @param availableHeight Maximum height for this view (the display height minus status bar height and
@@ -90,6 +91,7 @@ public final class PhotosView extends AbsoluteLayout {
 	 * If a photo has been used before its views are set to {@link View#VISIBLE} and updated.
 	 * If a photo has not been used before, metrics and views are created and updated. 
 	 * The photos are added to {@link #_photos} and the z orders of the photo and border views are updated.
+	 * 
 	 * @param newPhotos ArrayList of resource ids of the photos to add.
 	 * @param doRedraw Redraw after changes.
 	 */
@@ -150,6 +152,7 @@ public final class PhotosView extends AbsoluteLayout {
 	 * Removes photos from the list of currently used photos.
 	 * The views of the photos are set to {@link View#GONE} and their minimized state is reset.
 	 * The photos are removed {@link #_photos}.
+	 * 
 	 * @param oldPhotos ArrayList of resource ids of the photos to remove.
 	 */
 	public void removePhotos(final ArrayList<Integer> oldPhotos) {
@@ -225,6 +228,7 @@ public final class PhotosView extends AbsoluteLayout {
 	
 	/**
 	 * Updates the text overlay on the photo views.
+	 * 
 	 * @param doRedraw Redraw after changes.
 	 */
 	public void updateTextInfos(final boolean doRedraw) {
@@ -235,6 +239,7 @@ public final class PhotosView extends AbsoluteLayout {
 
 	/**
 	 * Updates the x position of all photos and redraws the ones that changed.
+	 * 
 	 * @param direction Current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	 * @param doRedraw Redraw after changes.
 	 */
@@ -250,6 +255,7 @@ public final class PhotosView extends AbsoluteLayout {
 	
 	/**
 	 * Updates the x position of a photo.
+	 * 
 	 * @param resourceId Resource id of the photo to be updated.
 	 * @return 			 <code>true</code> if the x position has changed, or
 	 * 					 <code>false</code> if the x position has not changed.
@@ -273,6 +279,7 @@ public final class PhotosView extends AbsoluteLayout {
 
 	/**
 	 * Updates the y position of all photos and redraws the ones that changed.
+	 * 
 	 * @param doRedraw Redraw after changes.
 	 */
 	public void updateYPositions(final boolean doRedraw) {
@@ -287,6 +294,7 @@ public final class PhotosView extends AbsoluteLayout {
 	 * Updates the y position of a photo.
      * The y position of the photo is determined by calculating the ratio between the altitude offset of the photo and the maximum
      * visible height at the distance of the photo. This ratio is then mapped to the available screen height.
+     * 
 	 * @param resourceId Resource id of the photo to be updated.
 	 * @return 			 <code>true</code> if the y position has changed, or
 	 * 					 <code>false</code> if the y position has not changed.
@@ -323,6 +331,7 @@ public final class PhotosView extends AbsoluteLayout {
 
 	/**
 	 * Updates the sizes of all photos and redraws the ones that changed.
+	 * 
 	 * @param doRedraw Redraw after changes.
 	 */
 	public void updateSizes(final boolean doRedraw) {
@@ -342,6 +351,7 @@ public final class PhotosView extends AbsoluteLayout {
      * The photo height is a linear mapping of the ratio between photo distance and maximum visible distance to the
      * range between minimum photo height and maximum photo height.
      * To calculate the photo width the original aspect ratio of the photo is used.
+     * 
 	 * @param resourceId Resource id of the photo to be updated.
 	 * @return 			 <code>true</code> if the height has changed, or
 	 * 					 <code>false</code> if the height has not changed.
@@ -370,6 +380,7 @@ public final class PhotosView extends AbsoluteLayout {
 	
 	/** 
 	 * Redraws the photo and border view for a photo by updating its {@link LayoutParams}.
+	 * 
 	 * @param resourceId Resource id of the photo to be redrawn.
 	 */
 	private void _redrawPhoto(final int resourceId) {
@@ -393,6 +404,7 @@ public final class PhotosView extends AbsoluteLayout {
 	/**
 	 * Gets called by the activity when a fling gesture is detected.
 	 * Determines if the gesture was performed on an unminimized photo in vertical direction and minimizes it.
+	 * 
 	 * @param startX X-Position at the start of the gesture. 
 	 * @param startY Y-Position at the start of the gesture. 
 	 * @param endX   X-Position at the end of the gesture. 
@@ -433,6 +445,7 @@ public final class PhotosView extends AbsoluteLayout {
 	/**
 	 * Gets called by the activity when a single tap gesture is detected.
 	 * Determines if the gesture was performed on a minimized photo and restores it.
+	 * 
 	 * @param x X-Position of the gesture. 
 	 * @param y Y-Position of the gesture. 
 	 * @return  <code>true</code> if a photo is restored, or

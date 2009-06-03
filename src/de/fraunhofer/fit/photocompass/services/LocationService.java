@@ -200,6 +200,7 @@ public final class LocationService extends Service {
      * Chooses a location provider and starts getting updates from it.
      * First stops listening to the current provider, then tries to find the best possible provider, and starts listening to it. 
      * Package scoped for faster access by inner classes.
+     * 
      * @param currentProvider Current provider. Pass this argument when the provider should only be switched if a better provider
      * 						  is available. 
      */
@@ -244,6 +245,7 @@ public final class LocationService extends Service {
 
     /**
      * Called when an activity connects to the service.
+     * 
      * @return The {@field #_binder} interface to the service.
      */
 	@Override

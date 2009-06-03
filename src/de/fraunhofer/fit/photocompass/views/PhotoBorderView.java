@@ -28,6 +28,7 @@ final class PhotoBorderView extends View {
 	/**
 	 * Constructor.
 	 * Initializes the {@link #_paint}.
+	 * 
 	 * @param context
 	 */
 	PhotoBorderView(final Context context) {
@@ -39,6 +40,7 @@ final class PhotoBorderView extends View {
 	/**
 	 * Set the number of photo occluding the one this border belongs to.
 	 * The more occlusions, the lower the alpha value of the {@link #_paint} is set.
+	 * 
 	 * @param numOcclusions Number of photos occluding the photo this border belongs to.
 	 */
 	void setNumberOfOcclusions(final int numOcclusions) {

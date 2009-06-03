@@ -25,6 +25,7 @@ final class PhotoView extends AbsoluteLayout {
 	/**
 	 * Constructor.
 	 * Initializes Image and Text View.
+	 * 
 	 * @param context
 	 * @param resourceId Resource id of the photo to display.
 	 */
@@ -81,6 +82,7 @@ final class PhotoView extends AbsoluteLayout {
 	
 	/**
 	 * Changes the minimized state.
+	 * 
 	 * @param value <code>true</code> to minimize the photo, or
 	 * 				<code>false</code> to restore the photo.
 	 */
@@ -91,6 +93,7 @@ final class PhotoView extends AbsoluteLayout {
 
 	/**
 	 * Get the minimized state.
+	 * 
 	 * @return <code>true</code> when the photo is minimized, or
 	 * 		   <code>false</code> when the photo is not minimized.
 	 */
