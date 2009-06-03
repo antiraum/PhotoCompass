@@ -2,5 +2,4 @@
 <resources>
     <string name="splash_msg">PhotoCompass is loading</string>
     <string name="app_name">PhotoCompass</string>
-	<string name="maps_key">02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw</string>
 </resources>
