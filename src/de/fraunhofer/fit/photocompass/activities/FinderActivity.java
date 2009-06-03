@@ -391,7 +391,11 @@ public class FinderActivity extends Activity {
 	    	_lastPhotoViewUpdate = SystemClock.uptimeMillis();
 		}
     	
+		boolean doRedrawHere;
     	if (latChanged || lngChanged || modelChanged) {
+    		
+    		doRedrawHere = modelChanged ? forceRedraw : false; // only redraw here if modelChanged, for location changes we do
+    														   // other updates first 
     		
     		// update photos
         	Photos photosModel = Photos.getInstance();
@@ -399,29 +403,42 @@ public class FinderActivity extends Activity {
     		photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
     		photosView.addPhotos(photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
     															   appModel.getMaxDistance(), appModel.getMinAge(), appModel.getMaxAge()),
-    															   forceRedraw);
+    															   doRedrawHere);
     		photosView.removePhotos(photosModel.getNoLongerVisiblePhotos(photosView.getPhotos(),
 																 		 appModel.getMaxDistance(), appModel.getMinAge(), appModel.getMaxAge()));
     	}
     	
+    	if (latChanged || lngChanged || altChanged) {
+    		
+    		doRedrawHere = false; // we do other updates first 
+    		
+    		// update photo text informations
+    		_updateCurrentPhotosProperties();
+    		photosView.updateTextInfos(doRedrawHere);
+    	}
+    	
     	if (latChanged || lngChanged) {
     		
+    		doRedrawHere = forceRedraw;
+    		
     		// update sizes of the photos
-    		_updateCurrentPhotosProperties();
-    		photosView.updateSizes(forceRedraw);
+    		photosView.updateSizes(doRedrawHere);
     	}
     	
     	if (altChanged) {
     		
+    		doRedrawHere = forceRedraw;
+    		
     		// update y positions of the photos
-    		_updateCurrentPhotosProperties();
-    		photosView.updateYPositions(forceRedraw);
+    		photosView.updateYPositions(doRedrawHere);
     	}
     	
     	if (yawChanged) {
     		
+    		doRedrawHere = forceRedraw;
+    		
     		// update x positions of the photos
-    		photosView.updateXPositions(currentYaw, forceRedraw);
+    		photosView.updateXPositions(currentYaw, doRedrawHere);
     	}
     }
     

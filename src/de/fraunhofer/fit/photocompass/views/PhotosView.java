@@ -23,7 +23,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
  * These photos can be added and removed to/from the view with the methods {@link #addPhotos(ArrayList, boolean)} and 
  * {@link #removePhotos(ArrayList)}. {@link #getPhotos()} returns the photos the view currently uses.</p>
  * <p>For every photo the view creates an instance of {@link PhotoMetrics}, {@link PhotoView}, and {@link PhotoBorderView}. When a photo
- * is removed, these instances are not dismissed, but kept for later reuse.</p>
+ * is removed, these instances are not dismissed, but kept for later reuse (for better performance).</p>
  * <p>To initiate updates of the position and dimension of the photos use these methods: {@link #updateXPositions(float, boolean)}, 
  * {@link #updateYPositions(boolean)}, and {@link #updateSizes(boolean)}.</p>
  * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
@@ -224,6 +224,16 @@ public class PhotosView extends AbsoluteLayout {
 	 */
 	public ArrayList<Integer> getPhotos() {
 		return _photos;
+	}
+	
+	/**
+	 * Updates the text overlay on the photo views.
+	 * @param doRedraw Redraw after changes.
+	 */
+	public void updateTextInfos(boolean doRedraw) {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
+
+		for (int resourceId : _photos) _photoViews.get(resourceId).updateText();
 	}
 
 	/**

@@ -31,9 +31,8 @@ public class PhotoView extends AbsoluteLayout {
 	public PhotoView (Context context, Integer resourceId) { 
 		super(context);
 		_resourceId = resourceId;
-		Photo photo = Photos.getInstance().getPhoto(_resourceId);
 		
-		// photo
+		// image view
 		ImageView imgView = new ImageView(context);
 		imgView.setScaleType(ImageView.ScaleType.FIT_XY); 
 		imgView.setImageResource(resourceId); 
@@ -41,7 +40,22 @@ public class PhotoView extends AbsoluteLayout {
         
         // distance and altitude offset text
         _textView = new TextView(context);
+        updateText();
+        _textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
+        _textView.setPadding(5, 0, 5, 0);
+        addView(_textView);
+	}
+	
+	/**
+	 * Updates the Text View.
+	 * Call this when the distance or altitude offset of the photo has changed.
+	 */
+	public void updateText() {
+		
+		Photo photo = Photos.getInstance().getPhoto(_resourceId);
         String text;
+        
+        // distance
         float photoDistance = photo.getDistance();
         if (photoDistance < 1000) {
         	text = (int)Math.round(photoDistance)+" m";
@@ -51,17 +65,17 @@ public class PhotoView extends AbsoluteLayout {
             text = fmt+" km";
         }
         text += " away";
+        
+        // altitude offset
         double photoAltOffset = photo.getAltOffset();
         if (photoAltOffset == 0) {
-        	text += "\nsame level";
+        	text += "\non same level";
         } else {
         	text += "\n"+Math.abs(Math.round(photoAltOffset))+" m ";
         	text += (photoAltOffset > 0) ? "higher" : "lower";
         }
+        
         _textView.setText(text);
-        _textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
-        _textView.setPadding(5, 0, 5, 0);
-        addView(_textView);
 	}
 	
 	/**
