@@ -23,7 +23,7 @@ import de.fraunhofer.fit.photocompass.services.OrientationService;
  * It determines the initial orientation of the phone and switches to the right Activity for this orientation.
  * It also initializes the {@link Photos} model. 
  */
-public class SplashActivity extends Activity {
+public final class SplashActivity extends Activity {
 
 	SplashActivity splashActivity;
 	
@@ -35,7 +35,7 @@ public class SplashActivity extends Activity {
      */
     private final ServiceConnection _orientationServiceConn = new ServiceConnection() {
 
-	    public void onServiceConnected(ComponentName name, IBinder service) {
+	    public void onServiceConnected(final ComponentName name, final IBinder service) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: connected to orientation service");
 	    	
 	    	// generate service object
@@ -44,14 +44,14 @@ public class SplashActivity extends Activity {
 	    	// register at the service
             try {
             	orientationService.registerCallback(orientationServiceCallback);
-            } catch (DeadObjectException e) {
-            	// service crashed
-            } catch (RemoteException e) {
+            } catch (final DeadObjectException e) {
+    			Log.e(PhotoCompassApplication.LOG_TAG, "SplashActivity: orientation service has crashed");
+            } catch (final RemoteException e) {
     			Log.e(PhotoCompassApplication.LOG_TAG, "SplashActivity: failed to register to orientation service");
             }
 	    }
 	
-	    public void onServiceDisconnected(ComponentName name) {
+	    public void onServiceDisconnected(final ComponentName name) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: disconnected from orientation service");
 	    	orientationService = null;
 	    }
@@ -64,7 +64,7 @@ public class SplashActivity extends Activity {
      */
     final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
     	
-        public void onOrientationEvent(float yaw, float pitch, float roll) {
+        public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
@@ -107,7 +107,7 @@ public class SplashActivity extends Activity {
      * Initializes the view.
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: onCreate");
         super.onCreate(savedInstanceState);
         
@@ -138,9 +138,9 @@ public class SplashActivity extends Activity {
 	    	if (orientationService != null) {
 	    		try {
 	    			orientationService.unregisterCallback(orientationServiceCallback);
-	            } catch (DeadObjectException e) {
-	            	// the service has crashed
-	    		} catch (RemoteException e) {
+	            } catch (final DeadObjectException e) {
+	    			Log.e(PhotoCompassApplication.LOG_TAG, "SplashActivity: orientation service has crashed");
+	    		} catch (final RemoteException e) {
 	    			Log.e(PhotoCompassApplication.LOG_TAG, "SplashActivity: failed to unregister from orientation service");
 	    		}
 	    	}

@@ -8,7 +8,7 @@ import android.location.Location;
 /**
  * This class is a custom data type for photos.
  */
-public class Photo {
+public final class Photo {
 
 	private int _resourceId;
 	private double _lat;
@@ -32,11 +32,11 @@ public class Photo {
 	 * @param lng		 Longitude of the photo.
 	 * @param alt		 Altitude of the photo.
 	 */
-	public Photo(int resourceId, double lat, double lng, double alt) {
+	public Photo(final int resourceId, final double lat, final double lng, final double alt) {
 		_resourceId = resourceId;
 		_lat = lat;
 		_lng = lng;
-		_alt  = alt;
+		_alt = alt;
 		_origWidth = 0;
 		_origHeight = 0;
 		_distance = 0f;
@@ -71,7 +71,7 @@ public class Photo {
 	 * the size has been determined. 
 	 * @param resources {@link Resources} of the application.
 	 */
-	public void determineOrigSize(Resources resources) {
+	public void determineOrigSize(final Resources resources) {
 		if (_origWidth != 0 && _origHeight != 0) return; // already determined
 		Bitmap bitmap = BitmapFactory.decodeResource(resources, _resourceId);
 		_origWidth = bitmap.getWidth();
@@ -101,7 +101,7 @@ public class Photo {
 	 * @param lng Longitude of the current location.
 	 * @param alt Altitude of the current location.
 	 */
-	public void updateDistanceDirectionAndAltitudeOffset(double currentLat, double currentLng, double currentAlt) {
+	public void updateDistanceDirectionAndAltitudeOffset(final double currentLat, final double currentLng, final double currentAlt) {
 		
 		if (_lastUpdateLat != currentLat && _lastUpdateLng != currentLng) { // position has changed
 		

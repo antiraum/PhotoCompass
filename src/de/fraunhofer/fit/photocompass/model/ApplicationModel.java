@@ -12,7 +12,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  * This is an active model, where Activities can register as callbacks in order to get updates when the values change.
  * This is a Singleton.
  */
-public class ApplicationModel {
+public final class ApplicationModel {
 	
 	// default values
 	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
@@ -50,14 +50,14 @@ public class ApplicationModel {
     /**
      * Register a callback object.
      */
-    public void registerCallback(IApplicationModelCallback cb) {
+    public void registerCallback(final IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.register(cb);
     }
     
     /**
      * Unregister a callback object.
      */
-    public void unregisterCallback(IApplicationModelCallback cb) {
+    public void unregisterCallback(final IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.unregister(cb);
     }
 
@@ -71,8 +71,8 @@ public class ApplicationModel {
 	/**
 	 * @param value The new maximum distance for photos to be displayed.
 	 */
-	public void setMaxDistance(float value) {
-		_maxDistance = value;
+	public void setMaxDistance(final float maxDistance) {
+		_maxDistance = maxDistance;
 		_broadcastChange();
 	}
 
@@ -86,8 +86,8 @@ public class ApplicationModel {
 	/**
 	 * @param value The new minimum age for photos to be displayed.
 	 */
-	public void setMinAge(int value) {
-		_minAge = value;
+	public void setMinAge(final int minAge) {
+		_minAge = minAge;
 		_broadcastChange();
 	}
 
@@ -101,8 +101,8 @@ public class ApplicationModel {
 	/**
 	 * @param value The new maximum age for photos to be displayed.
 	 */
-	public void setMaxAge(int value) {
-		_maxAge = value;
+	public void setMaxAge(final int maxAge) {
+		_maxAge = maxAge;
 		_broadcastChange();
 	}
 	
@@ -115,9 +115,9 @@ public class ApplicationModel {
 	    for (int i = 0; i < numCallbacks; i++) {
 	        try {
 	            _remoteCallbacks.getBroadcastItem(i).onApplicationModelChange();
-	        } catch (DeadObjectException e) {
+	        } catch (final DeadObjectException e) {
 	            // the RemoteCallbackList will take care of removing the dead object
-	        } catch (RemoteException e) {
+	        } catch (final RemoteException e) {
 		    	Log.e(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
 	        }
 	    }

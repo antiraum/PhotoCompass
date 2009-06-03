@@ -32,7 +32,7 @@ import de.fraunhofer.fit.photocompass.services.OrientationService;
 /**
  * This class is the Activity component for the map view screen (phone held horizontally) of the application.
  */
-public class PhotoMapActivity extends MapActivity {
+public final class PhotoMapActivity extends MapActivity {
 	
 	private static final String MAPS_API_KEY = "02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw";
 
@@ -61,7 +61,7 @@ public class PhotoMapActivity extends MapActivity {
     	 * Creates the {@link #locationService} object from the service interface and
     	 * registers the {@link #locationServiceCallback}.
     	 */
-	    public void onServiceConnected(ComponentName className, IBinder service) {
+	    public void onServiceConnected(final ComponentName className, final IBinder service) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: connected to location service");
 	    	
 	    	// generate service object
@@ -70,9 +70,9 @@ public class PhotoMapActivity extends MapActivity {
 	    	// register at the service
             try {
             	locationService.registerCallback(locationServiceCallback);
-            } catch (DeadObjectException e) {
-            	// service crashed
-            } catch (RemoteException e) {
+            } catch (final DeadObjectException e) {
+    			Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: location service has crashed");
+            } catch (final RemoteException e) {
     			Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to register to location service");
             }
 	    }
@@ -81,7 +81,7 @@ public class PhotoMapActivity extends MapActivity {
     	 * Gets called when the service connection is closed down.
     	 * Frees {@link #locationService}.
     	 */
-	    public void onServiceDisconnected(ComponentName name) {
+	    public void onServiceDisconnected(final ComponentName name) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: disconnected from location service");
 	    	locationService = null;
 	    }
@@ -98,7 +98,7 @@ public class PhotoMapActivity extends MapActivity {
 		 * Gets called when new data is provided by the {@link LocationService}.
 		 * Stores the new location and initiates an update of the map view. 
 		 */
-        public void onLocationEvent(double lat, double lng, boolean hasAlt, double alt) {
+        public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
@@ -122,7 +122,7 @@ public class PhotoMapActivity extends MapActivity {
     	 * Creates the {@link #orientationService} object from the service interface and
     	 * registers the {@link #orientationServiceCallback}.
     	 */
-	    public void onServiceConnected(ComponentName className, IBinder service) {
+	    public void onServiceConnected(final ComponentName className, final IBinder service) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: connected to orientation service");
 	    	
 	    	// generate service object
@@ -131,9 +131,9 @@ public class PhotoMapActivity extends MapActivity {
 	    	// register at the service
             try {
             	orientationService.registerCallback(orientationServiceCallback);
-            } catch (DeadObjectException e) {
-            	// service crashed
-            } catch (RemoteException e) {
+            } catch (final DeadObjectException e) {
+    			Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: orientation service has crashed");
+            } catch (final RemoteException e) {
     			Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to register to orientation service");
             }
 	    }
@@ -142,7 +142,7 @@ public class PhotoMapActivity extends MapActivity {
     	 * Gets called when the service connection is closed down.
     	 * Frees {@link #orientationService}.
     	 */
-	    public void onServiceDisconnected(ComponentName name) {
+	    public void onServiceDisconnected(final ComponentName name) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: disconnected from orientation service");
 	    	orientationService = null;
 	    }
@@ -161,7 +161,7 @@ public class PhotoMapActivity extends MapActivity {
 		 * Gets called when new data is provided by the {@link OrientationService}.
 		 * Initiates switch to {@link FinderActivity} when the phone is held vertically. 
 		 */
-        public void onOrientationEvent(float yaw, float pitch, float roll) {
+        public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
@@ -199,7 +199,7 @@ public class PhotoMapActivity extends MapActivity {
      * Initializes the views and map components.
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onCreate");
         super.onCreate(savedInstanceState);
         
@@ -266,9 +266,9 @@ public class PhotoMapActivity extends MapActivity {
 	    	if (locationService != null) {
 	    		try {
 	    			locationService.unregisterCallback(locationServiceCallback);
-	            } catch (DeadObjectException e) {
-	            	// the service has crashed
-	    		} catch (RemoteException e) {
+	            } catch (final DeadObjectException e) {
+	    			Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: location service has crashed");
+	    		} catch (final RemoteException e) {
 	    			Log.w(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to unregister from location service");
 	    		}
 	    	}
@@ -284,9 +284,9 @@ public class PhotoMapActivity extends MapActivity {
 	    	if (orientationService != null) {
 	    		try {
 	    			orientationService.unregisterCallback(orientationServiceCallback);
-	            } catch (DeadObjectException e) {
-	            	// the service has crashed
-	    		} catch (RemoteException e) {
+	            } catch (final DeadObjectException e) {
+	    			Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: orientation service has crashed");
+	    		} catch (final RemoteException e) {
 	    			Log.w(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to unregister from orientation service");
 	    		}
 	    	}

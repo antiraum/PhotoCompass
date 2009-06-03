@@ -29,7 +29,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
  * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
  */
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
-public class PhotosView extends AbsoluteLayout {
+public final class PhotosView extends AbsoluteLayout {
 	
 	// photo height constants
 	private static final float MIN_PHOTO_HEIGHT_PERCENT = .25f; // percent of the AVAILABLE_HEIGHT
@@ -48,19 +48,21 @@ public class PhotosView extends AbsoluteLayout {
 	private AbsoluteLayout _photoLayer; // layer containing the photo views
 	private AbsoluteLayout _borderLayer; // layer containing the photo border views
 
-	private ArrayList<Integer> _photos; // resourceIds of the currently used photos sorted from farthest to nearest
-	private HashMap<Integer, PhotoMetrics> _photoMetrics; // metrics of photos (currently and previously used)
+	private ArrayList<Integer> _photos = new ArrayList<Integer>(); // resourceIds of the currently used photos
+																   // sorted from farthest to nearest
+	private HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>(); // metrics of photos
+																								 // (currently and previously used)
 	private float _direction; // current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
-	
+
 	/**
 	 * Constructor.
-	 * Sets constants, creates the layers for photo and border views, and initializes state variables.
+	 * Sets constants and creates the layers for photo and border views.
 	 * @param context
 	 * @param availableWidth  Maximum width for this view (the display width).
 	 * @param availableHeight Maximum height for this view (the display height minus status bar height and
 	 * 						  minus the height of the controls on the bottom)
 	 */
-	public PhotosView(Context context, int availableWidth, int availableHeight) {
+	public PhotosView(final Context context, final int availableWidth, final int availableHeight) {
         super(context);
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView");
         
@@ -81,9 +83,6 @@ public class PhotosView extends AbsoluteLayout {
         _borderLayer = new AbsoluteLayout(context);
         _borderLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_borderLayer);
-        
-        _photos = new ArrayList<Integer>();
-        _photoMetrics = new HashMap<Integer, PhotoMetrics>();
 	}
 	
 	/**
@@ -94,7 +93,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @param newPhotos ArrayList of resource ids of the photos to add.
 	 * @param doRedraw Redraw after changes.
 	 */
-	public void addPhotos(ArrayList<Integer> newPhotos, boolean doRedraw) {
+	public void addPhotos(final ArrayList<Integer> newPhotos, final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: addPhotos: newPhotos.size() = "+newPhotos.size());
     	
     	if (newPhotos.size() == 0) return; // nothing to do
@@ -153,7 +152,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * The photos are removed {@link #_photos}.
 	 * @param oldPhotos ArrayList of resource ids of the photos to remove.
 	 */
-	public void removePhotos(ArrayList<Integer> oldPhotos) {
+	public void removePhotos(final ArrayList<Integer> oldPhotos) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: addPhotos: oldPhotos.size() = "+oldPhotos.size());
     	
     	if (oldPhotos.size() == 0) return; // nothing to do
@@ -185,7 +184,7 @@ public class PhotosView extends AbsoluteLayout {
 	 */
 	private void _sortPhotos() {
 		Collections.sort(_photos, new Comparator() {
-	    	public int compare(Object o1, Object o2) {
+	    	public int compare(final Object o1, final Object o2) {
 	    		if (_photosModel.getPhoto((Integer) o1).getDistance() >
 	    			_photosModel.getPhoto((Integer) o2).getDistance()) return -1;
 	    		return 1;
@@ -228,7 +227,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * Updates the text overlay on the photo views.
 	 * @param doRedraw Redraw after changes.
 	 */
-	public void updateTextInfos(boolean doRedraw) {
+	public void updateTextInfos(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
 
 		for (int resourceId : _photos) ((PhotoView) _photoLayer.findViewById(resourceId)).updateText();
@@ -239,7 +238,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @param direction Current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	 * @param doRedraw Redraw after changes.
 	 */
-	public void updateXPositions(float direction, boolean doRedraw) {
+	public void updateXPositions(final float direction, final boolean doRedraw) {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateXPositions: direction = "+direction);
 		
 		_direction = direction;
@@ -255,7 +254,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @return 			 <code>true</code> if the x position has changed, or
 	 * 					 <code>false</code> if the x position has not changed.
 	 */
-	private boolean _updatePhotoXPosition(int resourceId) {
+	private boolean _updatePhotoXPosition(final int resourceId) {
 			
 		PhotoMetrics metrics = _photoMetrics.get(resourceId);
         
@@ -276,7 +275,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * Updates the y position of all photos and redraws the ones that changed.
 	 * @param doRedraw Redraw after changes.
 	 */
-	public void updateYPositions(boolean doRedraw) {
+	public void updateYPositions(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateYPositions");
     	
 		for (int resourceId : _photos) {
@@ -292,7 +291,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @return 			 <code>true</code> if the y position has changed, or
 	 * 					 <code>false</code> if the y position has not changed.
 	 */
-	private boolean _updatePhotoYPosition(int resourceId) {
+	private boolean _updatePhotoYPosition(final int resourceId) {
 			
 		Photo photo = _photosModel.getPhoto(resourceId);
 		PhotoMetrics metrics = _photoMetrics.get(resourceId);
@@ -326,7 +325,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * Updates the sizes of all photos and redraws the ones that changed.
 	 * @param doRedraw Redraw after changes.
 	 */
-	public void updateSizes(boolean doRedraw) {
+	public void updateSizes(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateSizes");
     	
 		for (int resourceId : _photos) {
@@ -347,7 +346,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @return 			 <code>true</code> if the height has changed, or
 	 * 					 <code>false</code> if the height has not changed.
 	 */
-	private boolean _updatePhotoSize(int resourceId) {
+	private boolean _updatePhotoSize(final int resourceId) {
 			
 		Photo photo = _photosModel.getPhoto(resourceId);
 		PhotoMetrics metrics = _photoMetrics.get(resourceId);
@@ -373,7 +372,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * Redraws the photo and border view for a photo by updating its {@link LayoutParams}.
 	 * @param resourceId Resource id of the photo to be redrawn.
 	 */
-	private void _redrawPhoto(int resourceId) {
+	private void _redrawPhoto(final int resourceId) {
 		
     	PhotoView photoView = (PhotoView) _photoLayer.findViewById(resourceId);
     	LayoutParams layoutParams = photoView.isMinimized() ? _photoMetrics.get(resourceId).getMinimizedLayoutParams()
@@ -401,7 +400,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @return       <code>true</code> if a photo is minimized, or
 	 * 				 <code>false</code> if no action is performed.
 	 */
-    public boolean onFling(float startX, float startY, float endX, float endY) {
+    public boolean onFling(final float startX, final float startY, final float endX, final float endY) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
     										   ", endX = "+endX+", endY = "+endY);
     	
@@ -439,7 +438,7 @@ public class PhotosView extends AbsoluteLayout {
 	 * @return  <code>true</code> if a photo is restored, or
 	 * 		    <code>false</code> if no action is performed.
 	 */
-    public boolean onSingleTapUp(float x, float y) {
+    public boolean onSingleTapUp(final float x, final float y) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp: x = "+x+", y = "+y);
 
     	// tap tolerance

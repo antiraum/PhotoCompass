@@ -6,7 +6,7 @@ import android.widget.AbsoluteLayout.LayoutParams;
  * This class is a custom data type for photo metrics.
  * It is used by views to store the current position and dimension of photo related views.
  */
-public class PhotoMetrics {
+public final class PhotoMetrics {
 
 	public static final int MINIMIZED_PHOTO_HEIGHT = 30; // height of a minimized photo in the PhotoView 
 	
@@ -20,7 +20,7 @@ public class PhotoMetrics {
 	/**
 	 * @param left Left position.
 	 */
-	public void setLeft(int left) {
+	public void setLeft(final int left) {
 		_x = left;
 		_setLayoutParams();
 		_setMinimizedLayoutParams();
@@ -36,7 +36,7 @@ public class PhotoMetrics {
 	/**
 	 * @param top Top position.
 	 */
-	public void setTop(int top) {
+	public void setTop(final int top) {
 		_y = top;
 		_setLayoutParams();
 		_setMinimizedLayoutParams();
@@ -52,7 +52,7 @@ public class PhotoMetrics {
 	/**
 	 * @param width
 	 */
-	public void setWidth(int width) {
+	public void setWidth(final int width) {
 		_width = width;
 		_setLayoutParams();
 		_setMinimizedLayoutParams();
@@ -68,7 +68,7 @@ public class PhotoMetrics {
 	/**
 	 * @param height
 	 */
-	public void setHeight(int height) {
+	public void setHeight(final int height) {
 		_height = height;
 		_setLayoutParams();
 		_setMinimizedLayoutParams();

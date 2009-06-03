@@ -8,14 +8,14 @@ import de.fraunhofer.fit.photocompass.R;
 /**
  * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and the UI controls.
  */
-public class ControlsView extends AbsoluteLayout {
+public final class ControlsView extends AbsoluteLayout {
 	
 	/**
 	 * Constructor.
 	 * Sets up the controls.
 	 * @param context
 	 */
-	public ControlsView(Context context) {
+	public ControlsView(final Context context) {
 		super(context);
 
         ImageView distanceSliderDummy = new ImageView(context);

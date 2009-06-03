@@ -23,7 +23,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  * Service only runs when needed. After the connection to the service is established activities can register as callbacks to get
  * notified when the location changes.
  */
-public class OrientationService extends Service {
+public final class OrientationService extends Service {
 
     /**
      * List of callbacks that have been registered with the service.
@@ -36,10 +36,10 @@ public class OrientationService extends Service {
      * Is provided to activities when they connect ({@see #onBind(Intent)}).
      */
     private final IOrientationService.Stub _binder = new IOrientationService.Stub() {
-        public void registerCallback(IOrientationServiceCallback cb) {
+        public void registerCallback(final IOrientationServiceCallback cb) {
             if (cb != null) remoteCallbacks.register(cb);
         }
-        public void unregisterCallback(IOrientationServiceCallback cb) {
+        public void unregisterCallback(final IOrientationServiceCallback cb) {
             if (cb != null) remoteCallbacks.unregister(cb);
         }
     };
@@ -58,7 +58,7 @@ public class OrientationService extends Service {
 		 * Called when sensor values have changed.
 		 * Broadcasts the new sensor data to all registered callbacks.
 		 */
-		public void onSensorChanged(int sensor, float[] values) {
+		public void onSensorChanged(final int sensor, final float[] values) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged: "+
 //	    										   "yaw = "+values[0]+", pitch = "+values[1]+", roll = "+values[2]);
 			
@@ -77,9 +77,9 @@ public class OrientationService extends Service {
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
 	                remoteCallbacks.getBroadcastItem(i).onOrientationEvent(yaw, pitch, roll);
-	            } catch (DeadObjectException e) {
+	            } catch (final DeadObjectException e) {
 	                // the RemoteCallbackList will take care of removing the dead object
-	            } catch (RemoteException e) {
+	            } catch (final RemoteException e) {
 	    	    	Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: broadcast to callback failed");
                 }
 	        }
@@ -89,7 +89,7 @@ public class OrientationService extends Service {
 		/**
 		 * Called when the accuracy of a sensor has changed.
 		 */
-		public void onAccuracyChanged(int sensor, int accuracy) {
+		public void onAccuracyChanged(final int sensor, final int accuracy) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onAccuracyChanged: sensor = "+sensor+", accuracy = "+accuracy);
 		}
     };
@@ -130,7 +130,7 @@ public class OrientationService extends Service {
      * @return The {@field #_binder} interface to the service.
      */
 	@Override
-	public IBinder onBind(Intent intent) {
+	public IBinder onBind(final Intent intent) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onBind");
 		return _binder;
 	}

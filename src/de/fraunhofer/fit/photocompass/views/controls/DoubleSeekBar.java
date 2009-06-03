@@ -14,7 +14,7 @@ import android.view.View;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
-public class DoubleSeekBar extends View {
+public final class DoubleSeekBar extends View {
 	public final static int HORIZONTAL = 0;
 	public final static int VERTICAL = 1;
 
@@ -36,7 +36,7 @@ public class DoubleSeekBar extends View {
 
 	private boolean startThumbDown = false;
 
-	public DoubleSeekBar(Context context, int orientation) {
+	public DoubleSeekBar(final Context context, int orientation) {
 		super(context);
 		if (orientation != DoubleSeekBar.HORIZONTAL
 				&& orientation != DoubleSeekBar.VERTICAL) {
@@ -74,7 +74,7 @@ public class DoubleSeekBar extends View {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(final Canvas canvas) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onDraw()");
 		this.updateAllBounds();
 
@@ -96,7 +96,7 @@ public class DoubleSeekBar extends View {
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+	protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
 
 		if (this.orientation == HORIZONTAL) {
@@ -109,11 +109,8 @@ public class DoubleSeekBar extends View {
 	}
 
 	@Override
-	protected void onFocusChanged(boolean gainFocus, int direction,
-			Rect previouslyFocusedRect) {
-		Log
-				.d(PhotoCompassApplication.LOG_TAG,
-						"DoubleSeekBar.onFocusChanged()");
+	protected void onFocusChanged(final boolean gainFocus, final int direction, final Rect previouslyFocusedRect) {
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onFocusChanged()");
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 	}
 
@@ -154,7 +151,7 @@ public class DoubleSeekBar extends View {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
 		Log.d(PhotoCompassApplication.LOG_TAG, "MotionEvent action "
 				+ event.getAction());
@@ -167,8 +164,7 @@ public class DoubleSeekBar extends View {
 
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
-			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
-					- this.endValue)) {
+			if (Math.abs(newValue - this.startValue) < Math.abs(newValue - this.endValue)) {
 				// distance to left is less than distance to right
 				this.startThumbDown = true;
 				this.startValue = newValue;
@@ -251,7 +247,7 @@ public class DoubleSeekBar extends View {
 		return this.endValue;
 	}
 
-	private int convertToConcrete(float abstractValue) {
+	private int convertToConcrete(final float abstractValue) {
 		if (this.orientation == HORIZONTAL) {
 			return Math.round(abstractValue * this.size) + this.startOffset;
 		} else { // VERTICAL
@@ -259,7 +255,7 @@ public class DoubleSeekBar extends View {
 		}
 	}
 
-	private float convertToAbstract(float concreteValue) {
+	private float convertToAbstract(final float concreteValue) {
 		if (this.orientation == HORIZONTAL) {
 			return (float) (concreteValue - this.startOffset) / this.size;
 		} else { // VERTICAL

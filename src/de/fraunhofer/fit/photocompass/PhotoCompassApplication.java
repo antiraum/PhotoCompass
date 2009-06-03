@@ -9,7 +9,7 @@ import de.fraunhofer.fit.photocompass.model.Photos;
  * This is the Application class of the PhotoCompass application. It gets initialized at application start.
  * We use it to store some global information and to initialize the model singletons.
  */
-public class PhotoCompassApplication extends Application {
+public final class PhotoCompassApplication extends Application {
 	
 	// tag for logging
     public static final String LOG_TAG = "PhotoCompass";
@@ -72,7 +72,7 @@ public class PhotoCompassApplication extends Application {
      * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
      * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
-    public static int getActivityForRoll(float roll) {
+    public static int getActivityForRoll(final float roll) {
     	if ((roll > -135 && roll < -45) || (roll > 45 && roll < 135)) {
     		return FINDER_ACTIVITY;
     	} else {

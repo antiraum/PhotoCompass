@@ -16,7 +16,7 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
  * This view is used by the {@link PhotosView} to display a photo.
  * It shows the photo and an overlaying text with information about the photo.
  */
-public class PhotoView extends AbsoluteLayout {
+final class PhotoView extends AbsoluteLayout {
 	
 	private int _resourceId; // resource id of the displayed photo
 	private TextView _textView;
@@ -28,7 +28,7 @@ public class PhotoView extends AbsoluteLayout {
 	 * @param context
 	 * @param resourceId Resource id of the photo to display.
 	 */
-	public PhotoView (Context context, Integer resourceId) { 
+	PhotoView (final Context context, final Integer resourceId) { 
 		super(context);
 		_resourceId = resourceId;
 		
@@ -36,6 +36,7 @@ public class PhotoView extends AbsoluteLayout {
 		ImageView imgView = new ImageView(context);
 		imgView.setScaleType(ImageView.ScaleType.FIT_XY); 
 		imgView.setImageResource(resourceId); 
+		// setImageURI  (Uri uri)
         addView(imgView);
         
         // distance and altitude offset text
@@ -50,7 +51,7 @@ public class PhotoView extends AbsoluteLayout {
 	 * Updates the Text View.
 	 * Call this when the distance or altitude offset of the photo has changed.
 	 */
-	public void updateText() {
+	void updateText() {
 		
 		Photo photo = Photos.getInstance().getPhoto(_resourceId);
         String text;
@@ -83,7 +84,7 @@ public class PhotoView extends AbsoluteLayout {
 	 * @param value <code>true</code> to minimize the photo, or
 	 * 				<code>false</code> to restore the photo.
 	 */
-	public void setMinimized(boolean value) {
+	void setMinimized(final boolean value) {
 		_minimized = value;
 		_textView.setVisibility(_minimized ? View.GONE : View.VISIBLE);
 	}
@@ -93,7 +94,7 @@ public class PhotoView extends AbsoluteLayout {
 	 * @return <code>true</code> when the photo is minimized, or
 	 * 		   <code>false</code> when the photo is not minimized.
 	 */
-	public boolean isMinimized() {
+	boolean isMinimized() {
 		return _minimized;
 	}
 }
