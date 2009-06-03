@@ -25,7 +25,7 @@ import de.fraunhofer.fit.photocompass.services.OrientationService;
  */
 public final class SplashActivity extends Activity {
 
-	SplashActivity splashActivity;
+	SplashActivity splashActivity; // package scoped for faster access by inner classes
 	
     private IOrientationService orientationService; // package scoped for faster access by inner classes
     private boolean _boundToOrientationService;

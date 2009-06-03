@@ -39,7 +39,7 @@ public final class FinderActivity extends Activity {
     private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
     private static final int BOTTOM_CONTROLS_HEIGHT = 35;
 
-	FinderActivity finderActivity;
+	FinderActivity finderActivity; // package scoped for faster access by inner classes
     
 	double currentLat = 0; // package scoped for faster access by inner classes
 	double currentLng = 0; // package scoped for faster access by inner classes
