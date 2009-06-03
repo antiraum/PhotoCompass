@@ -12,15 +12,16 @@ import android.os.RemoteException;
 import android.util.Log;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
+import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
-import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
 
 /**
  * This class is the Activity component for the splash screen of the application.
  * This is the Activity the application starts with.
- * It's only task is to determine the initial orientation of the phone and to switch to the right Activity for this orientation. 
+ * It determines the initial orientation of the phone and switches to the right Activity for this orientation.
+ * It also initializes the {@link Photos} model. 
  */
 public class SplashActivity extends Activity {
 
@@ -93,6 +94,7 @@ public class SplashActivity extends Activity {
      */
     public SplashActivity() {
     	super();
+    	
     	splashActivity = this;
         orientationService = null;
         _boundToOrientationService = false;
@@ -101,12 +103,16 @@ public class SplashActivity extends Activity {
     /**
      * Called when the activity is first created.
      * Connects to the {@link OrientationService}.
+     * Initializes the photo model.
      * Initializes the view.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: onCreate");
         super.onCreate(savedInstanceState);
+        
+        // initialize photos model
+        Photos.getInstance().initialize(this);
     	
         // connect to orientation service
     	Intent orientationServiceIntent = new Intent(this, OrientationService.class);

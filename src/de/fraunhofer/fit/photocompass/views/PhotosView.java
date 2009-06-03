@@ -44,6 +44,8 @@ public class PhotosView extends AbsoluteLayout {
 	
 	private static float DEGREE_WIDTH; // width of one degree direction  
 	
+	private Photos _photosModel;
+	
 	private AbsoluteLayout _photoLayer; // layer with all the photo views
 	private AbsoluteLayout _borderLayer; // layer with all the photo border views
 	private HashMap<Integer, PhotoView> _photoViews; // map of photo views (key is resourceId of the photo) (sorted back to front)
@@ -73,6 +75,8 @@ public class PhotosView extends AbsoluteLayout {
         MAX_PHOTO_HEIGHT = (int) Math.round(MAX_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
         MIN_PHOTO_HEIGHT = (int) Math.round(MIN_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
     	
+        _photosModel = Photos.getInstance();
+        
         _photoLayer = new AbsoluteLayout(context);
         _photoLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_photoLayer);
@@ -188,8 +192,8 @@ public class PhotosView extends AbsoluteLayout {
 	private void _sortPhotos() {
 		Collections.sort(_photos, new Comparator() {
 	    	public int compare(Object o1, Object o2) {
-	    		if (Photos.getInstance().getPhoto((Integer) o1).getDistance() >
-	    			Photos.getInstance().getPhoto((Integer) o2).getDistance()) return -1;
+	    		if (_photosModel.getPhoto((Integer) o1).getDistance() >
+	    			_photosModel.getPhoto((Integer) o2).getDistance()) return -1;
 	    		return 1;
 	        }
 	    });
@@ -262,7 +266,7 @@ public class PhotosView extends AbsoluteLayout {
 		PhotoMetrics metrics = _photoMetrics.get(resourceId);
         
         // calculate the x position of the photo
-		double directionOffset = Photos.getInstance().getPhoto(resourceId).getDirection() - _direction;
+		double directionOffset = _photosModel.getPhoto(resourceId).getDirection() - _direction;
         int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.getWidth() / 2);
         
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoXPosition: directionOffset = "+directionOffset+", photoX = "+photoX);
@@ -296,7 +300,7 @@ public class PhotosView extends AbsoluteLayout {
 	 */
 	private boolean _updatePhotoYPosition(int resourceId) {
 			
-		Photo photo = Photos.getInstance().getPhoto(resourceId);
+		Photo photo = _photosModel.getPhoto(resourceId);
 		PhotoMetrics metrics = _photoMetrics.get(resourceId);
 		
 		// calculate y position
@@ -351,7 +355,7 @@ public class PhotosView extends AbsoluteLayout {
 	 */
 	private boolean _updatePhotoSize(int resourceId) {
 			
-		Photo photo = Photos.getInstance().getPhoto(resourceId);
+		Photo photo = _photosModel.getPhoto(resourceId);
 		PhotoMetrics metrics = _photoMetrics.get(resourceId);
 
     	// calculate the photo height

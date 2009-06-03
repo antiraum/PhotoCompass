@@ -1,12 +1,27 @@
 package de.fraunhofer.fit.photocompass.model;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.ImageView;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
+import de.fraunhofer.fit.photocompass.views.PhotoView;
 
 /**
  * This model stores the informations about the photos used by the application.
@@ -17,6 +32,7 @@ public class Photos {
 
     private static Photos _instance;
 	private static HashMap<Integer, Photo> _photos; // map of all used photos (key is resource id, value is {@link Photo} object)
+	private static boolean _initialized = false;
 	
 	/**
 	 * Constructor.
@@ -25,7 +41,8 @@ public class Photos {
 	protected Photos() {
 		
 	    _photos = new HashMap<Integer, Photo>();
-	    // TODO: get camera photos (look into MediaStore.Images.Thumbnails and MediaStore.Images.Media)
+        
+	    if (! PhotoCompassApplication.USE_DUMMY_PHOTOS) return;
 	    
 	    // dummy Photos (stuff near B-IT)
 	    _photos.put(R.drawable.photo_0518, new Photo(R.drawable.photo_0518, Location.convert("50:43:11.4"), Location.convert("7:7:18"), 103));
@@ -51,6 +68,89 @@ public class Photos {
 		_photos.put(R.drawable.fit_1798151678_af72c8f78d, new Photo(R.drawable.fit_1798151678_af72c8f78d, Location.convert("50:44:58"), Location.convert("7:12:21"), 126));
 		_photos.put(R.drawable.fit_2580082727_1faf043ec1, new Photo(R.drawable.fit_2580082727_1faf043ec1, Location.convert("50:44:5"), Location.convert("7:12:19"), 125));
 		_photos.put(R.drawable.fit_2417313476_d588a4e2b5, new Photo(R.drawable.fit_2417313476_d588a4e2b5, Location.convert("50:44:56"), Location.convert("7:12:23"), 124));
+	}
+	
+	public void initialize(Activity activity) {
+		
+		if (_initialized) return;
+		
+		ArrayList<Integer> photoIds = new ArrayList<Integer>();
+
+	    Uri uris[] = {MediaStore.Images.Thumbnails.INTERNAL_CONTENT_URI, MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI};
+	    String column = MediaStore.Images.Thumbnails._ID;
+//	    String[] projection = {column}; 
+		for (Uri uri : uris) {
+            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: uri = "+uri.toString());
+		    Cursor cursor = activity.managedQuery(uri, null, null, null, null);
+		    if (cursor == null) continue;
+		    int colidx = cursor.getColumnIndex(column);
+	        int numrows = cursor.getCount();
+            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: numrows = "+numrows);
+	        cursor.moveToFirst();
+	        for (int i = 0; i < numrows; i++) {
+	        	photoIds.add(cursor.getInt(colidx));
+	            cursor.moveToNext();
+	        }
+		}
+		
+		for (int photoId : photoIds) {
+            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: "+photoId);
+		}
+
+//        int dataColIdx;
+//        String imageData;
+//
+//        try {
+//                //trying to fetch the photo's associated thumbnail Uri
+//                dataColIdx = thumbnail.getColumnIndex(android.provider.MediaStore.Images.Thumbnails.DATA);
+//                imageData = thumbnail.getString(dataColIdx); //Throws CursorIndexOutOfBoundsExceptions
+//                android.util.Log.d("lens","photoID="+photoID+" imageData="+imageData);
+//        } catch (CursorIndexOutOfBoundsException e) {
+//                try {
+//                        //when that fails, manually generate the thumbnail, and try again
+//                        MediaStore.Images.Media.insertImage(
+//                                        mContext.getContentResolver(),
+//                                        photo.getColumnName(photo.getColumnIndex(MediaStore.Images.Media.DATA)),
+//                                        "", "");
+//                        thumbnail.requery();
+//                        thumbnail.moveToFirst();
+//
+//                        imageData = thumbnail.getString(thumbnail.getColumnIndex(MediaStore.Images.Media.DATA));
+//                } catch (FileNotFoundException f) {
+//                        //at the very least, just fetch the actual photo
+//                        //this is bad because it's processor- and memory-intensive, but
+//                        //chances of getting this far are rare
+//                        //TODO: turn this into a proxy process, and generate the images in the background
+//                        dataColIdx = photo.getColumnIndex(android.provider.MediaStore.Images.Media.DATA);
+//                        imageData = photo.getString(dataColIdx);
+//                }
+//        }
+//
+//        final Uri dataURI = Uri.parse(imageData);
+//
+//        ImageView imageView = new ImageView(mContext);
+//        //TODO: formatting stuff, need to shove this to XML
+//        imageView.setLayoutParams(new GridView.LayoutParams(90, 90));
+//        imageView.setAdjustViewBounds(false);
+//        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//        imageView.setId(position);
+//        imageView.setOnClickListener(new View.OnClickListener() {
+//                private Uri imageURI = dataURI;
+//
+//                public void onClick(View view) {
+//                        Intent mIntent = new Intent(mContext, PhotoView.class);
+//
+//                        // need to pass in position of the photo, as well as point to it
+//                        mIntent.setData(imageURI);
+//                        mIntent.putExtra("position", position);
+//                        mIntent.putExtra(LensBlasterDB.PA_KEY_PHOTOID, String.valueOf(photoID));
+//                        mIntent.putExtra(LensBlasterDB.ALBUM_KEY_ROWID, mAlbumID);
+//
+//                        startActivityForResult(mIntent, ACTIVITY_PHOTOVIEW);
+//                }
+//        });
+	    
+        _initialized = true;
 	}
 
 	/**

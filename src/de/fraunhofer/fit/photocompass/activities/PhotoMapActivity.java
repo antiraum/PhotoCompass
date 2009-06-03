@@ -186,6 +186,7 @@ public class PhotoMapActivity extends MapActivity {
      */
     public PhotoMapActivity() {
     	super();
+    	
     	mapActivity = this;
         locationService = null;
         _boundToLocationService = false;

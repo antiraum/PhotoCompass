@@ -55,7 +55,8 @@ public class FinderActivity extends Activity {
     IOrientationService orientationService; // package scoped for faster access by inner classes
     private boolean _boundToOrientationService;
 
-    private ApplicationModel _applicationModel;
+    private Photos _photosModel;
+    private ApplicationModel _appModel;
 
     /**
      * {@link GestureDetector} with a {@link SimpleOnGestureListener} that detects the gestures used for interacting
@@ -239,9 +240,9 @@ public class FinderActivity extends Activity {
 
     /**
      * Callback object for the {@link ApplicationModel}.
-     * Gets registered and unregistered at the {@link #_applicationModel} object.
+     * Gets registered and unregistered at the {@link #_appModel} object.
      */
-	private final IApplicationModelCallback _applicationModelCallback = new IApplicationModelCallback.Stub() {
+	private final IApplicationModelCallback _appModelCallback = new IApplicationModelCallback.Stub() {
 
 		/**
 		 * Gets called when variables in the {@link ApplicationModel} change.
@@ -268,10 +269,11 @@ public class FinderActivity extends Activity {
         _boundToLocationService = false;
         orientationService = null;
         _boundToOrientationService = false;
-    	
-        // initialize application model and register as callback
-    	_applicationModel = ApplicationModel.getInstance();
-    	_applicationModel.registerCallback(_applicationModelCallback);
+        
+        // initialize model variables and register as callback
+        _photosModel = Photos.getInstance();
+    	_appModel = ApplicationModel.getInstance();
+    	_appModel.registerCallback(_appModelCallback);
     }
 
     /**
@@ -327,7 +329,7 @@ public class FinderActivity extends Activity {
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "failed to connect to orientation service");
     	
     	// let photos model check if the available photos have changed
-    	Photos.getInstance().updatePhotos();
+    	_photosModel.updatePhotos();
     }
     
     /**
@@ -398,14 +400,12 @@ public class FinderActivity extends Activity {
     														   // other updates first 
     		
     		// update photos
-        	Photos photosModel = Photos.getInstance();
-    		ApplicationModel appModel = ApplicationModel.getInstance();
-    		photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-    		photosView.addPhotos(photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
-    															   appModel.getMaxDistance(), appModel.getMinAge(), appModel.getMaxAge()),
-    															   doRedrawHere);
-    		photosView.removePhotos(photosModel.getNoLongerVisiblePhotos(photosView.getPhotos(),
-																 		 appModel.getMaxDistance(), appModel.getMinAge(), appModel.getMaxAge()));
+    		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
+    		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
+    															    _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
+    															    doRedrawHere);
+    		photosView.removePhotos(_photosModel.getNoLongerVisiblePhotos(photosView.getPhotos(),
+																 		  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
     	}
     	
     	if (latChanged || lngChanged || altChanged) {
@@ -447,6 +447,6 @@ public class FinderActivity extends Activity {
      */
     private void _updateCurrentPhotosProperties() {
     	for (int resourceId : photosView.getPhotos())
-    		Photos.getInstance().getPhoto(resourceId).updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
+    		_photosModel.getPhoto(resourceId).updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
     }
 }

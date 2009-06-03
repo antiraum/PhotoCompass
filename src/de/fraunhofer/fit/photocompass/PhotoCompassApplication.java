@@ -38,6 +38,9 @@ public class PhotoCompassApplication extends Application {
     public static final boolean USE_DUMMY_LOCATION = true;
     public static Location dummyLocation;
     
+    // dummy photo settings (enable for development when a fixed set of photos is needed)
+    public static final boolean USE_DUMMY_PHOTOS = true;
+    
     /**
      * Constructor.
      * Initializes the models {@link ApplicationModel} and {@link Photos}.
