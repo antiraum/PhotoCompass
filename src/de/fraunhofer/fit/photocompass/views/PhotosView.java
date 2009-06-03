@@ -25,7 +25,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
  * <p>For every photo the view creates an instance of {@link PhotoMetrics}, {@link PhotoView}, and {@link PhotoBorderView}. When a photo
  * is removed, these instances are not dismissed, but kept for later reuse (for better performance).</p>
  * <p>To initiate updates of the position and dimension of the photos use these methods: {@link #updateXPositions(float, boolean)}, 
- * {@link #updateYPositions(boolean)}, and {@link #updateSizes(boolean)}.</p>
+ * {@link #updateYPositions(boolean)}, {@link #updateSizes(boolean)}, and {@link #updateTextInfos(boolean)}.</p>
  * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
  * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
  */
