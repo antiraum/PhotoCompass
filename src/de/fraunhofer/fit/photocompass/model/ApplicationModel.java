@@ -15,7 +15,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 public final class ApplicationModel {
 	
 	// default values
-	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
+	private static final int DEFAULT_MAX_DISTANCE = 10 * 1000; // in meters
 	private static final long DEFAULT_MIN_AGE = 0L; // in milliseconds
 	private static final long DEFAULT_MAX_AGE = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 
