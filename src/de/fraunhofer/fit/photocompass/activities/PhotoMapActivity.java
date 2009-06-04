@@ -1,5 +1,7 @@
 package de.fraunhofer.fit.photocompass.activities;
 
+import java.util.List;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +19,11 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.Overlay;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
+import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
 import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
@@ -26,6 +31,8 @@ import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.views.overlays.CustomMyLocationOverlay;
+import de.fraunhofer.fit.photocompass.views.overlays.PhotosOverlay;
 
 /**
  * This class is the Activity component for the map view screen (phone held horizontally) of the application.
@@ -35,14 +42,26 @@ public final class PhotoMapActivity extends MapActivity {
 	private static final String MAPS_API_KEY = "02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw";
 
 	PhotoMapActivity mapActivity; // package scoped for faster access by inner classes
+    
+	double currentLat = 0; // package scoped for faster access by inner classes
+	double currentLng = 0; // package scoped for faster access by inner classes
+	double currentAlt = 0; // package scoped for faster access by inner classes
 
-	private MyLocationOverlay _myLocOverlay;
+	private MapView _mapView;
 	private MapController _mapController;
+	
+	// overlays
+	private MyLocationOverlay _myLocOverlay;
+	private CustomMyLocationOverlay _customMyLocOverlay;
+	private PhotosOverlay _photosOverlay;
 
     ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
     IOrientationService orientationService; // package scoped for faster access by inner classes
     private boolean _boundToOrientationService;
+
+    private Photos _photosModel;
+    private ApplicationModel _appModel;
 
     /**
      * Connection object for the connection with the {@link LocationService}.
@@ -96,8 +115,16 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
+        	boolean latChanged = (lat == currentLat) ? false : true;
+        	boolean lngChanged = (lng == currentLng) ? false : true;
+	    	
+	    	// update variables
+	    	currentLat = lat;
+	    	currentLng = lng;
+	    	if (hasAlt) currentAlt = alt;
+            
             // update map view
-	    	updateMapView(lat, lng);
+	    	updateMapView(latChanged, lngChanged, false);
         }
     };
 
@@ -168,19 +195,43 @@ public final class PhotoMapActivity extends MapActivity {
 	    	}
         }
     };
-    
+
+    /**
+     * Callback object for the {@link ApplicationModel}.
+     * Gets registered and unregistered at the {@link #_appModel} object.
+     */
+	private final IApplicationModelCallback _appModelCallback = new IApplicationModelCallback.Stub() {
+
+		/**
+		 * Gets called when variables in the {@link ApplicationModel} change.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onApplicationModelChange() {
+			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
+
+            // update map view
+	    	updateMapView(false, false, true);
+		}
+	};
+	
     /**
      * Constructor.
      * Initializes the state variables.
      */
     public PhotoMapActivity() {
     	super();
-    	
     	mapActivity = this;
+    	
+    	// initialize service variables
         locationService = null;
         _boundToLocationService = false;
         orientationService = null;
         _boundToOrientationService = false;
+        
+        // initialize model variables and register as callback
+        _photosModel = Photos.getInstance();
+    	_appModel = ApplicationModel.getInstance();
+    	_appModel.registerCallback(_appModelCallback);
     }
 
     /**
@@ -195,22 +246,30 @@ public final class PhotoMapActivity extends MapActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         // map view
-		MapView mapView = new MapView(this, MAPS_API_KEY);
-		mapView.setClickable(true);
-		mapView.setEnabled(true);
-		mapView.setBuiltInZoomControls(true);
-		setContentView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		_mapView = new MapView(this, MAPS_API_KEY);
+		_mapView.setClickable(true);
+		_mapView.setEnabled(true);
+		_mapView.setBuiltInZoomControls(true);
+		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
-		// current position
-		_myLocOverlay = new MyLocationOverlay(this, mapView);
-		mapView.getOverlays().add(_myLocOverlay);
+		// current position and compass overlay
+		_myLocOverlay = new MyLocationOverlay(this, _mapView);
+		List<Overlay> overlays = _mapView.getOverlays();
+		overlays.add(_myLocOverlay);
 
-//      RelativeLayout mapLayout = new RelativeLayout(this);
-//		mapLayout.addView(mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//        setContentView(mapLayout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-        
+		if (PhotoCompassApplication.USE_DUMMY_LOCATION) {
+		
+			// own current position overlay
+			_customMyLocOverlay = new CustomMyLocationOverlay();
+			overlays.add(_customMyLocOverlay);
+		}
+		
+		// photos overlay
+		_photosOverlay = new PhotosOverlay();
+//		overlays.add(_photosOverlay);
+		
         // initialize map controller
-		_mapController = mapView.getController();
+		_mapController = _mapView.getController();
 		_mapController.setZoom(12);
 	}
     
@@ -218,6 +277,7 @@ public final class PhotoMapActivity extends MapActivity {
      * Called before the activity becomes visible.
      * Connects to the {@link LocationService} and the {@link OrientationService}.
      * Initiates a update of the {@link Photos} model.
+     * Enables the current location and compass overlay.
      */
     @Override
     public void onStart() {
@@ -238,12 +298,13 @@ public final class PhotoMapActivity extends MapActivity {
     	Photos.getInstance().updatePhotos();
     	
     	// enable location and compass overlay
-		_myLocOverlay.enableMyLocation();
+		if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.enableMyLocation();
 		_myLocOverlay.enableCompass();
     }
     
     /**
      * Called when the activity is no longer visible.
+     * Disables the current location and compass overlay.
      * Unregisters the callbacks from the services and then disconnects from the services.
      */
     @Override
@@ -251,7 +312,7 @@ public final class PhotoMapActivity extends MapActivity {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onStop");
 
     	// disable location and compass overlay
-		_myLocOverlay.disableMyLocation();
+    	if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.disableMyLocation();
 		_myLocOverlay.disableCompass();
 		
     	if (_boundToLocationService) {
@@ -293,6 +354,9 @@ public final class PhotoMapActivity extends MapActivity {
         super.onStop();
     }
 
+    /**
+     * Tell the Google server that we are not displaying any kind of route information.
+     */
     @Override
     protected boolean isRouteDisplayed() {
         return false;
@@ -300,19 +364,38 @@ public final class PhotoMapActivity extends MapActivity {
     
     /**
      * Updates the map view based on the current location.
+     * Centers the map to the location and updates the photo overlays.
+     * Package scoped for faster access by inner classes.
      * 
-     * @param Current latitude.
-     * @param Current longitude.
+     * @param latChanged If current latitude has changed.
+     * @param lngChanged If current longitude has changed.
+     * @param modelChanged If the application model has changed.
      */
-    private void updateMapView(double lat, double lng) { // package scoped for faster access by inner classes
+    void updateMapView(final boolean latChanged, final boolean lngChanged, final boolean modelChanged) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
 		
     	// center map view
-		GeoPoint location = new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
-		// _mapController.centerMapTo(m_curLocation, false);
-		_mapController.animateTo(location);
+		GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
+		_mapController.animateTo(currentLocation);
 		
 		// TODO set zoom according to radius of displayed photos
-//		_mapController.zoomToSpan(latSpanE6, lonSpanE6);
+//		_mapController.zoomToSpan(latSpanE6, lngSpanE6);
+		
+		// add the current position overlay manually, as the one from _myLocOverlay is always displayed at the real location
+		if (PhotoCompassApplication.USE_DUMMY_LOCATION) _customMyLocOverlay.update(currentLocation);
+		
+		// update photos
+		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
+		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos(),
+															    	_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
+															    	modelChanged ? true : false);
+		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos(),
+															 		  	  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
+																	      modelChanged ? true : false);
+
+		if (latChanged || lngChanged) _photosOverlay.updatePositions(true);
+ 
+		// redraw map
+		_mapView.postInvalidate();
 	}
 }
