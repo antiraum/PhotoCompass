@@ -187,7 +187,7 @@ public final class LocationService extends Service {
      * Package scoped for faster access by inner classes.
      */
     void checkForBetterProvider() {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: checkForBetterProvider");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: checkForBetterProvider");
 
     	// check for better provider
     	chooseLocationProvider(locationProvider);
@@ -205,13 +205,13 @@ public final class LocationService extends Service {
      * 						  is available. 
      */
     void chooseLocationProvider(final String currentProvider) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: current location provider is "+currentProvider);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: current location provider is "+currentProvider);
     	
     	// first check for good and enabled provider
     	String newProvider = locationManager.getBestProvider(_criteria, true);
     	
     	if (currentProvider != null && (newProvider == null || newProvider.equals(currentProvider))) { // no better provider found
-        	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: no better provider found");
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: no better provider found");
     		return;
     	}
 
