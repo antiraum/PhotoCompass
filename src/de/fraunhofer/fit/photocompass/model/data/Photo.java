@@ -51,7 +51,7 @@ public final class Photo {
 	}
 	
 	/**
-	 * Constructor for dummy photos.
+	 * Constructor for a dummy photo.
 	 * 
 	 * @param resourceId Resource id of the photo file.
 	 * @param lat		 Latitude of the photo.
