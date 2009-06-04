@@ -16,17 +16,24 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
 /**
- * 
+ * This Overlay is used by {@link PhotoMapActivity} to display the current location on the map when a dummy location is used.
  */
 public final class CustomMyLocationOverlay extends Overlay {
 	
-	private GeoPoint _location;
+	private GeoPoint _location; // current location
 	
+	/**
+	 * Update current location.
+	 * @param location
+	 */
 	public void update(final GeoPoint location) {
         Log.d(PhotoCompassApplication.LOG_TAG, "CustomMyLocationOverlay: update");
 		_location = location;
 	}
 	
+	/**
+	 * Draws the overlay.
+	 */
 	@Override
 	public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
     	super.draw(canvas, mapView, shadow);
@@ -34,12 +41,12 @@ public final class CustomMyLocationOverlay extends Overlay {
 		if (_location == null) return;
 		
 		// Transform geoposition to Point on canvas
-		Projection projection = mapView.getProjection();
-		Point point = new Point();
+		final Projection projection = mapView.getProjection();
+		final Point point = new Point();
 		projection.toPixels(_location, point);
  
 		// the circle to mark the spot
-        Bitmap bitmap = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
+        final Bitmap bitmap = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
         canvas.drawBitmap(bitmap, point.x - bitmap.getWidth() / 2, point.y - bitmap.getHeight() / 2, new Paint());
         bitmap.recycle();
 	}

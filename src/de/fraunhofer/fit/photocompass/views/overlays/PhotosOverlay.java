@@ -19,12 +19,15 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 
+/**
+ * This Overlay is used by {@link PhotoMapActivity} to display the currently visible photos on the map.
+ */
 public final class PhotosOverlay extends ItemizedOverlay<OverlayItem> {
 
-	private ArrayList<OverlayItem> _items = new ArrayList<OverlayItem>();
+	private final ArrayList<OverlayItem> _items = new ArrayList<OverlayItem>();
 	
-	private ArrayList<Integer> _photos = new ArrayList<Integer>(); // resourceIds of the currently used photos
-	   															   // sorted from farthest to nearest
+	private final ArrayList<Integer> _photos = new ArrayList<Integer>(); // ids of the currently used photos
+	   															   		 // sorted from farthest to nearest
 
     private Photos _photosModel;
 	
@@ -65,18 +68,22 @@ public final class PhotosOverlay extends ItemizedOverlay<OverlayItem> {
     public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
     	super.draw(canvas, mapView, shadow);
 
-		Projection projection = mapView.getProjection();
+		final Projection projection = mapView.getProjection();
 		GeoPoint photoLocation;
-		Point point = new Point();
+		final Point point = new Point();
 		Bitmap bitmap;
-		for (int resourceId : _photos) {
+		for (int id : _photos) {
 
-			Photo photo = _photosModel.getPhoto(resourceId);
+			final Photo photo = _photosModel.getPhoto(id);
 			
 			photoLocation = new GeoPoint((int)(photo.getLat() * 1E6), (int)(photo.getLng() * 1E6));
 			projection.toPixels(photoLocation, point);
 
-            bitmap = BitmapFactory.decodeResource(mapView.getResources(), resourceId);
+			if (photo.isDummyPhoto()) {
+				bitmap = BitmapFactory.decodeResource(mapView.getResources(), id);
+			} else {
+				bitmap = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
+			}
             canvas.drawBitmap(bitmap, point.x - bitmap.getWidth() / 2, point.y - bitmap.getHeight() * 2/3, new Paint());
             bitmap.recycle();
         }
