@@ -19,7 +19,7 @@ public final class ControlsView extends AbsoluteLayout {
 	public ControlsView(final Context context) {
 		super(context);
 
-        ImageView distanceSliderDummy = new ImageView(context);
+        final ImageView distanceSliderDummy = new ImageView(context);
         distanceSliderDummy.setScaleType(ImageView.ScaleType.FIT_XY); 
         distanceSliderDummy.setImageResource(R.drawable.distance_slider_dummy); 
         distanceSliderDummy.setLayoutParams(new LayoutParams(62, 257, 6, 7));
@@ -29,7 +29,7 @@ public final class ControlsView extends AbsoluteLayout {
 //        distanceSlider.setLayoutParams(new LayoutParams(62, 257, 6, 7));
 //        addView(distanceSlider);
 
-        ImageView ageSliderDummy = new ImageView(context);
+        final ImageView ageSliderDummy = new ImageView(context);
         ageSliderDummy.setScaleType(ImageView.ScaleType.FIT_XY); 
         ageSliderDummy.setImageResource(R.drawable.age_slider_dummy); 
         ageSliderDummy.setLayoutParams(new LayoutParams(441, 41, 32, 249));

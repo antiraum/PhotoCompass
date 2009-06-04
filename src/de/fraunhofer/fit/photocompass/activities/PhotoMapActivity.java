@@ -115,8 +115,8 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
-        	boolean latChanged = (lat == currentLat) ? false : true;
-        	boolean lngChanged = (lng == currentLng) ? false : true;
+        	final boolean latChanged = (lat == currentLat) ? false : true;
+        	final boolean lngChanged = (lng == currentLng) ? false : true;
 	    	
 	    	// update variables
 	    	currentLat = lat;
@@ -187,7 +187,7 @@ public final class PhotoMapActivity extends MapActivity {
 	    	_roll = roll;
             
             // switch to activity based on orientation
-        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
@@ -285,17 +285,17 @@ public final class PhotoMapActivity extends MapActivity {
     	super.onStart();
     	
         // connect to location service
-    	Intent locationServiceIntent = new Intent(this, LocationService.class);
+    	final Intent locationServiceIntent = new Intent(this, LocationService.class);
     	_boundToLocationService = bindService(locationServiceIntent, _locationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToLocationService) Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to connect to location service");
     	
         // connect to orientation service
-    	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
+    	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to connect to orientation service");
     	
     	// let photos model check if the available photos have changed
-    	Photos.getInstance().updatePhotos();
+    	Photos.getInstance().updatePhotos(this);
     	
     	// enable location and compass overlay
 		if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.enableMyLocation();
@@ -375,7 +375,7 @@ public final class PhotoMapActivity extends MapActivity {
 		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
 		
     	// center map view
-		GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
+		final GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
 		_mapController.animateTo(currentLocation);
 		
 		// TODO set zoom according to radius of displayed photos

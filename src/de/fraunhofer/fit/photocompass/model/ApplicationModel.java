@@ -16,16 +16,16 @@ public final class ApplicationModel {
 	
 	// default values
 	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
-	private static final int DEFAULT_MIN_AGE = 0; // in milliseconds
-	private static final int DEFAULT_MAX_AGE = 14 * 24 * 60 * 60 * 1000; // in milliseconds
+	private static final long DEFAULT_MIN_AGE = 0L; // in milliseconds
+	private static final long DEFAULT_MAX_AGE = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 
     private static ApplicationModel _instance;
 
 	private float _maxDistance; // in meters
-	private int _minAge; // in milliseconds
-	private int _maxAge; // in milliseconds
+	private long _minAge; // in milliseconds
+	private long _maxAge; // in milliseconds
 
-    private RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
+    private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 	
     /**
      * Constructor.
@@ -79,14 +79,14 @@ public final class ApplicationModel {
     /**
      * @return The current minimum age for photos to be displayed.
      */
-	public int getMinAge() {
+	public long getMinAge() {
 		return _minAge;
 	}
 
 	/**
 	 * @param value The new minimum age for photos to be displayed.
 	 */
-	public void setMinAge(final int minAge) {
+	public void setMinAge(final long minAge) {
 		_minAge = minAge;
 		_broadcastChange();
 	}
@@ -94,14 +94,14 @@ public final class ApplicationModel {
     /**
      * @return The current maximum age for photos to be displayed.
      */
-	public int getMaxAge() {
+	public long getMaxAge() {
 		return _maxAge;
 	}
 
 	/**
 	 * @param value The new maximum age for photos to be displayed.
 	 */
-	public void setMaxAge(final int maxAge) {
+	public void setMaxAge(final long maxAge) {
 		_maxAge = maxAge;
 		_broadcastChange();
 	}

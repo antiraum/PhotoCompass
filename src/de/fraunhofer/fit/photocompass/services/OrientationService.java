@@ -60,7 +60,8 @@ public final class OrientationService extends Service {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged: "+
 //	    										   "yaw = "+values[0]+", pitch = "+values[1]+", roll = "+values[2]);
 			
-			float yaw = values[0], pitch, roll;
+			final float yaw = values[0];
+			float pitch, roll;
 			// the values are exchanged on the G1, so we have to switch them
 			if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
 				pitch = values[1];

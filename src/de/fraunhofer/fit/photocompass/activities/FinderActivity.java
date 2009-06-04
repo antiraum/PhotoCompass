@@ -62,7 +62,7 @@ public final class FinderActivity extends Activity {
      * {@link GestureDetector} with a {@link SimpleOnGestureListener} that detects the gestures used for interacting
      * with the displayed photos. Calls the {@link #photosView} to deal with the events.
      */
-	private GestureDetector _gestureDetector = new GestureDetector(
+	private final GestureDetector _gestureDetector = new GestureDetector(
 	    new GestureDetector.SimpleOnGestureListener() {
 	    	
 	    	/**
@@ -139,9 +139,9 @@ public final class FinderActivity extends Activity {
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
-        	boolean latChanged = (lat == currentLat) ? false : true;
-        	boolean lngChanged = (lng == currentLng) ? false : true;
-        	boolean altChanged = (! hasAlt || alt == currentAlt) ? false : true;
+        	final boolean latChanged = (lat == currentLat) ? false : true;
+        	final boolean lngChanged = (lng == currentLng) ? false : true;
+        	final boolean altChanged = (! hasAlt || alt == currentAlt) ? false : true;
 	    	
 	    	// update variables
 	    	currentLat = lat;
@@ -214,7 +214,7 @@ public final class FinderActivity extends Activity {
 		    	_roll = roll;
             
 	            // switch to activity based on orientation
-	        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
 		    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {
@@ -297,10 +297,10 @@ public final class FinderActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         // initialize views
-        FinderView finderView = new FinderView(this);
-        Display display = getWindowManager().getDefaultDisplay();
+        final FinderView finderView = new FinderView(this);
+        final Display display = getWindowManager().getDefaultDisplay();
         photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        ControlsView controlsView = new ControlsView(this);
+        final ControlsView controlsView = new ControlsView(this);
 
         // setup views
         setContentView(finderView);
@@ -319,17 +319,17 @@ public final class FinderActivity extends Activity {
     	super.onStart();
     	
         // connect to location service
-    	Intent locationServiceIntent = new Intent(this, LocationService.class);
+    	final Intent locationServiceIntent = new Intent(this, LocationService.class);
     	_boundToLocationService = bindService(locationServiceIntent, _locationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToLocationService) Log.e(PhotoCompassApplication.LOG_TAG, "failed to connect to location service");
     	
         // connect to orientation service
-    	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
+    	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "failed to connect to orientation service");
     	
     	// let photos model check if the available photos have changed
-    	_photosModel.updatePhotos();
+    	_photosModel.updatePhotos(this);
     }
     
     /**
@@ -453,7 +453,7 @@ public final class FinderActivity extends Activity {
      * Updates distance, direction, and altitude offset of the photos currently used by the photos view.
      */
     private void _updateCurrentPhotosProperties() {
-    	for (int resourceId : photosView.getPhotos())
-    		_photosModel.getPhoto(resourceId).updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
+    	for (int id : photosView.getPhotos())
+    		_photosModel.getPhoto(id).updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
     }
 }

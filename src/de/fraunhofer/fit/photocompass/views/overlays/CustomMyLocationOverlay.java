@@ -46,8 +46,8 @@ public final class CustomMyLocationOverlay extends Overlay {
 		projection.toPixels(_location, point);
  
 		// the circle to mark the spot
-        final Bitmap bitmap = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
-        canvas.drawBitmap(bitmap, point.x - bitmap.getWidth() / 2, point.y - bitmap.getHeight() / 2, new Paint());
-        bitmap.recycle();
+        final Bitmap bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
+        canvas.drawBitmap(bmp, point.x - bmp.getWidth() / 2, point.y - bmp.getHeight() / 2, new Paint());
+        bmp.recycle();
 	}
 }

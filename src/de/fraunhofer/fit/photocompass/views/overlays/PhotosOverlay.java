@@ -71,7 +71,7 @@ public final class PhotosOverlay extends ItemizedOverlay<OverlayItem> {
 		final Projection projection = mapView.getProjection();
 		GeoPoint photoLocation;
 		final Point point = new Point();
-		Bitmap bitmap;
+		Bitmap bmp;
 		for (int id : _photos) {
 
 			final Photo photo = _photosModel.getPhoto(id);
@@ -80,12 +80,12 @@ public final class PhotosOverlay extends ItemizedOverlay<OverlayItem> {
 			projection.toPixels(photoLocation, point);
 
 			if (photo.isDummyPhoto()) {
-				bitmap = BitmapFactory.decodeResource(mapView.getResources(), id);
+				bmp = BitmapFactory.decodeResource(mapView.getResources(), id);
 			} else {
-				bitmap = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
+				bmp = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
 			}
-            canvas.drawBitmap(bitmap, point.x - bitmap.getWidth() / 2, point.y - bitmap.getHeight() * 2/3, new Paint());
-            bitmap.recycle();
+            canvas.drawBitmap(bmp, point.x - bmp.getWidth() / 2, point.y - bmp.getHeight() * 2/3, new Paint());
+            bmp.recycle();
         }
     }
 	

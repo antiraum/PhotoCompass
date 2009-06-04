@@ -70,7 +70,7 @@ public final class SplashActivity extends Activity {
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
             // switch to activity based on orientation
-        	int activity = PhotoCompassApplication.getActivityForRoll(roll);
+        	final int activity = PhotoCompassApplication.getActivityForRoll(roll);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to finder activity");
 	    		startActivity(new Intent(splashActivity, FinderActivity.class));
@@ -115,7 +115,7 @@ public final class SplashActivity extends Activity {
         Photos.getInstance().initialize(this);
     	
         // connect to orientation service
-    	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
+    	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "SplashActivity: failed to connect to orientation service");
         

@@ -3,6 +3,8 @@ package de.fraunhofer.fit.photocompass.views;
 import java.util.Formatter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.AbsoluteLayout;
@@ -18,7 +20,7 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
  */
 final class PhotoView extends AbsoluteLayout {
 	
-	private int _resourceId; // resource id of the displayed photo
+	private Photo _photo; // Photo object for the displayed photo
 	private TextView _textView;
 	private boolean _minimized = false;
 	
@@ -27,17 +29,25 @@ final class PhotoView extends AbsoluteLayout {
 	 * Initializes Image and Text View.
 	 * 
 	 * @param context
-	 * @param resourceId Resource id of the photo to display.
+	 * @param id      Photo/resource id of the photo to display.
 	 */
-	PhotoView (final Context context, final Integer resourceId) { 
+	PhotoView (final Context context, final int id) { 
 		super(context);
-		_resourceId = resourceId;
+		
+		_photo = Photos.getInstance().getPhoto(id);
 		
 		// image view
-		ImageView imgView = new ImageView(context);
-		imgView.setScaleType(ImageView.ScaleType.FIT_XY); 
-		imgView.setImageResource(resourceId); 
-		// setImageURI  (Uri uri)
+		final ImageView imgView = new ImageView(context);
+		imgView.setScaleType(ImageView.ScaleType.FIT_XY);
+		if (_photo.isDummyPhoto()) {
+			imgView.setImageResource(id);
+		} else {
+			// TODO this should work without loading the bitmap data by hand
+			imgView.setImageURI(_photo.getThumbUri());
+			final Bitmap bmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
+			imgView.setImageBitmap(bmp);
+//			bmp.recycle();
+		}
         addView(imgView);
         
         // distance and altitude offset text
@@ -54,22 +64,21 @@ final class PhotoView extends AbsoluteLayout {
 	 */
 	void updateText() {
 		
-		Photo photo = Photos.getInstance().getPhoto(_resourceId);
         String text;
         
         // distance
-        float photoDistance = photo.getDistance();
+        final float photoDistance = _photo.getDistance();
         if (photoDistance < 1000) {
         	text = (int)Math.round(photoDistance)+" m";
         } else {
-        	Formatter fmt = new Formatter();
+        	final Formatter fmt = new Formatter();
             fmt.format("%.1f", photoDistance / 1000); 
             text = fmt+" km";
         }
         text += " away";
         
         // altitude offset
-        double photoAltOffset = photo.getAltOffset();
+        final double photoAltOffset = _photo.getAltOffset();
         if (photoAltOffset == 0) {
         	text += "\non same level";
         } else {

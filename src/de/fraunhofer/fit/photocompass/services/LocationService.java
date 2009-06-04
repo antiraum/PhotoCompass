@@ -29,15 +29,15 @@ public final class LocationService extends Service {
 	private static final int MIN_LOCATION_UPDATE_DISTANCE = 1; // in meters
 	
 	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 60 * 1000; // in milliseconds
-    private Handler _providerCheckHandler = new Handler();
-    private Runnable _providerCheckCaller = new Runnable() {
+    private final Handler _providerCheckHandler = new Handler();
+    private final Runnable _providerCheckCaller = new Runnable() {
         public void run() {
         	checkForBetterProvider();
         }
     };
 
-	private Criteria _criteria = new Criteria();
-	private Criteria _fallbackCriteria = new Criteria();
+	private final Criteria _criteria = new Criteria();
+	private final Criteria _fallbackCriteria = new Criteria();
 	
 	/**
 	 * Location provider that is currently used. Gets chosen by the {@link LocationManager} based on {@link #_criteria}.

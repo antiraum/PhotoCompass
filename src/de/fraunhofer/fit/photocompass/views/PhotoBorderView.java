@@ -23,7 +23,7 @@ final class PhotoBorderView extends View {
 	
 	private int _width = 0;
 	private int _height = 0;
-	private Paint _paint = new Paint();
+	private final Paint _paint = new Paint();
 	
 	/**
 	 * Constructor.
@@ -44,7 +44,7 @@ final class PhotoBorderView extends View {
 	 * @param numOcclusions Number of photos occluding the photo this border belongs to.
 	 */
 	void setNumberOfOcclusions(final int numOcclusions) {
-		int alpha = 255 - numOcclusions * ALPHA_DECREASE_PER_OCCLUSION;
+		final int alpha = 255 - numOcclusions * ALPHA_DECREASE_PER_OCCLUSION;
 		_paint.setAlpha(alpha);
 	}
 	

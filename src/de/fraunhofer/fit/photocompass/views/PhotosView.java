@@ -48,10 +48,10 @@ public final class PhotosView extends AbsoluteLayout {
 	private AbsoluteLayout _photoLayer; // layer containing the photo views
 	private AbsoluteLayout _borderLayer; // layer containing the photo border views
 
-	private ArrayList<Integer> _photos = new ArrayList<Integer>(); // resourceIds of the currently used photos
-																   // sorted from farthest to nearest
-	private HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>(); // metrics of photos
-																								 // (currently and previously used)
+	private final ArrayList<Integer> _photos = new ArrayList<Integer>(); // ids of the currently used photos
+																   		 // sorted from farthest to nearest
+	private final HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>(); // metrics of photos
+																								 	   // (currently and previously used)
 	private float _direction; // current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
 
 	/**
@@ -92,7 +92,7 @@ public final class PhotosView extends AbsoluteLayout {
 	 * If a photo has not been used before, metrics and views are created and updated. 
 	 * The photos are added to {@link #_photos} and the z orders of the photo and border views are updated.
 	 * 
-	 * @param newPhotos ArrayList of resource ids of the photos to add.
+	 * @param newPhotos ArrayList of photo/resource ids of the photos to add.
 	 * @param doRedraw Redraw after changes.
 	 */
 	public void addPhotos(final ArrayList<Integer> newPhotos, final boolean doRedraw) {
@@ -100,48 +100,47 @@ public final class PhotosView extends AbsoluteLayout {
     	
     	if (newPhotos.size() == 0) return; // nothing to do
 		
-		for (int resourceId : newPhotos) {
+		for (int id : newPhotos) {
 	    	
 			// check if photo has been used before
-			boolean usedBefore = _photoMetrics.containsKey(resourceId);
+			final boolean usedBefore = _photoMetrics.containsKey(id);
 			
 	    	if (usedBefore) {
 	    		
 	    		// show views
-	    		_photoLayer.findViewById(resourceId).setVisibility(View.VISIBLE);
-	    		_borderLayer.findViewById(resourceId).setVisibility(View.VISIBLE);
+	    		_photoLayer.findViewById(id).setVisibility(View.VISIBLE);
+	    		_borderLayer.findViewById(id).setVisibility(View.VISIBLE);
 	    		
 	    	} else {
 	    		
 	    		// create metrics
-	    		_photoMetrics.put(resourceId, new PhotoMetrics());
+	    		_photoMetrics.put(id, new PhotoMetrics());
 	    		
 		    	// create views
-	    		Context context = getContext();
-	    		PhotoView photoView = new PhotoView(context, resourceId);
-	    		photoView.setId(resourceId);
+	    		final Context context = getContext();
+	    		final PhotoView photoView = new PhotoView(context, id);
+	    		photoView.setId(id);
 	    		_photoLayer.addView(photoView);
-	    		PhotoBorderView borderView = new PhotoBorderView(context);
-	    		borderView.setId(resourceId);
+	    		final PhotoBorderView borderView = new PhotoBorderView(context);
+	    		borderView.setId(id);
 	    		_borderLayer.addView(borderView);
 	    	}
 	    	
 	    	// add to list of currently used photos
-			_photos.add(resourceId);
+			_photos.add(id);
 	    	
     		// update size and position and redraw if changed and wanted
-			if (doRedraw && 
-				(_updatePhotoSize(resourceId) || _updatePhotoXPosition(resourceId) || _updatePhotoYPosition(resourceId)))
-				_redrawPhoto(resourceId);
+			if (doRedraw && (_updatePhotoSize(id) || _updatePhotoXPosition(id) || _updatePhotoYPosition(id)))
+				_redrawPhoto(id);
 		}
 		
 		// sort photo order
 		_sortPhotos();
 		
 		// update views z orders
-		for (int resourceId : _photos) {
-			_photoLayer.findViewById(resourceId).bringToFront();
-			_borderLayer.findViewById(resourceId).bringToFront();
+		for (int id : _photos) {
+			_photoLayer.findViewById(id).bringToFront();
+			_borderLayer.findViewById(id).bringToFront();
 		}
 		
 		// set number of occlusions for border alpha value
@@ -153,18 +152,18 @@ public final class PhotosView extends AbsoluteLayout {
 	 * The views of the photos are set to {@link View#GONE} and their minimized state is reset.
 	 * The photos are removed {@link #_photos}.
 	 * 
-	 * @param oldPhotos ArrayList of resource ids of the photos to remove.
+	 * @param oldPhotos ArrayList of photo/resource ids of the photos to remove.
 	 */
 	public void removePhotos(final ArrayList<Integer> oldPhotos) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: addPhotos: oldPhotos.size() = "+oldPhotos.size());
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: removePhotos: oldPhotos.size() = "+oldPhotos.size());
     	
     	if (oldPhotos.size() == 0) return; // nothing to do
     	
-		for (int resourceId : oldPhotos) {
+		for (int id : oldPhotos) {
 		
 			// hide views
-			PhotoView photoView = (PhotoView) _photoLayer.findViewById(resourceId);
-			PhotoBorderView borderView = (PhotoBorderView) _borderLayer.findViewById(resourceId);
+			final PhotoView photoView = (PhotoView) _photoLayer.findViewById(id);
+			final PhotoBorderView borderView = (PhotoBorderView) _borderLayer.findViewById(id);
     		photoView.setVisibility(View.GONE);
 			borderView.setVisibility(View.GONE);
 			
@@ -172,7 +171,7 @@ public final class PhotosView extends AbsoluteLayout {
     		photoView.setMinimized(false);
 			
 			// remove from map of currently used photos
-    		_photos.remove(resourceId);
+    		_photos.remove(id);
 		}
 
 		// update photo order
@@ -202,12 +201,14 @@ public final class PhotosView extends AbsoluteLayout {
 	private void _setBorderOcclusions() {
 
 		for (int resId1 : _photos) {
-			PhotoMetrics met1 = _photoMetrics.get(resId1);
+			final PhotoMetrics met1 = _photoMetrics.get(resId1);
 			int numOccludingPhotos = 0;
+			int resId2;
+			PhotoMetrics met2;
 	        for (ListIterator<Integer> lit = _photos.listIterator(_photos.size()); lit.hasPrevious();) { // iterate front to back
-	        	int resId2 = lit.previous();
+	        	resId2 = lit.previous();
 				if (resId1 == resId2) break; 
-				PhotoMetrics met2 = _photoMetrics.get(resId2);
+				met2 = _photoMetrics.get(resId2);
 				if (((met2.getTop() >= met1.getTop() && met2.getTop() <= met1.getBottom()) ||
 					 (met2.getBottom() >= met1.getTop() && met2.getBottom() <= met1.getBottom()) ||
 					 (met2.getTop() < met1.getTop() && met2.getBottom() > met1.getBottom())) &&
@@ -234,7 +235,7 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateTextInfos(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
 
-		for (int resourceId : _photos) ((PhotoView) _photoLayer.findViewById(resourceId)).updateText();
+		for (int id : _photos) ((PhotoView) _photoLayer.findViewById(id)).updateText();
 	}
 
 	/**
@@ -248,25 +249,25 @@ public final class PhotosView extends AbsoluteLayout {
 		
 		_direction = direction;
 
-		for (int resourceId : _photos) {
-			if (_updatePhotoXPosition(resourceId) && doRedraw) _redrawPhoto(resourceId);
+		for (int id : _photos) {
+			if (_updatePhotoXPosition(id) && doRedraw) _redrawPhoto(id);
 		}
 	}
 	
 	/**
 	 * Updates the x position of a photo.
 	 * 
-	 * @param resourceId Resource id of the photo to be updated.
-	 * @return 			 <code>true</code> if the x position has changed, or
-	 * 					 <code>false</code> if the x position has not changed.
+	 * @param id Photo/resource id of the photo to be updated.
+	 * @return 	 <code>true</code> if the x position has changed, or
+	 * 			 <code>false</code> if the x position has not changed.
 	 */
-	private boolean _updatePhotoXPosition(final int resourceId) {
+	private boolean _updatePhotoXPosition(final int id) {
 			
-		PhotoMetrics metrics = _photoMetrics.get(resourceId);
+		final PhotoMetrics metrics = _photoMetrics.get(id);
         
         // calculate the x position of the photo
-		double directionOffset = _photosModel.getPhoto(resourceId).getDirection() - _direction;
-        int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.getWidth() / 2);
+		final double directionOffset = _photosModel.getPhoto(id).getDirection() - _direction;
+        final int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.getWidth() / 2);
         
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoXPosition: directionOffset = "+directionOffset+", photoX = "+photoX);
 
@@ -285,8 +286,8 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateYPositions(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateYPositions");
     	
-		for (int resourceId : _photos) {
-			if (_updatePhotoYPosition(resourceId) && doRedraw) _redrawPhoto(resourceId);
+		for (int id : _photos) {
+			if (_updatePhotoYPosition(id) && doRedraw) _redrawPhoto(id);
 		}
 	}
 	
@@ -295,24 +296,24 @@ public final class PhotosView extends AbsoluteLayout {
      * The y position of the photo is determined by calculating the ratio between the altitude offset of the photo and the maximum
      * visible height at the distance of the photo. This ratio is then mapped to the available screen height.
      * 
-	 * @param resourceId Resource id of the photo to be updated.
-	 * @return 			 <code>true</code> if the y position has changed, or
-	 * 					 <code>false</code> if the y position has not changed.
+	 * @param id Photo/resource id of the photo to be updated.
+	 * @return 	 <code>true</code> if the y position has changed, or
+	 * 			 <code>false</code> if the y position has not changed.
 	 */
-	private boolean _updatePhotoYPosition(final int resourceId) {
+	private boolean _updatePhotoYPosition(final int id) {
 			
-		Photo photo = _photosModel.getPhoto(resourceId);
-		PhotoMetrics metrics = _photoMetrics.get(resourceId);
+		final Photo photo = _photosModel.getPhoto(id);
+		final PhotoMetrics metrics = _photoMetrics.get(id);
 		
 		// calculate y position
 	    // TODO take the roll value of the orientation sensor into account, then the FinderActivity wouldn't need to subtract the
 	    // BOTTOM_CONTROLS_HEIGHT from the available height anymore -- also see the getPhotos method of the Photo model for this
-		int photoHeight = metrics.getHeight();
+		final int photoHeight = metrics.getHeight();
         int photoY = (AVAILABLE_HEIGHT - photoHeight) / 2;
-		double photoAltOffset = photo.getAltOffset();
+		final double photoAltOffset = photo.getAltOffset();
         if (photoAltOffset != 0) {
-	        double halfOfMaxVisibleMeters = Math.sin(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2)) * photo.getDistance() /
-	        							    Math.cos(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2));
+	        final double halfOfMaxVisibleMeters = Math.sin(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2)) * photo.getDistance() /
+	        							    	  Math.cos(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2));
 	        int pixelOffset = (int) Math.round(Math.abs(photoAltOffset) / halfOfMaxVisibleMeters *
 	        								   (AVAILABLE_HEIGHT - photoHeight) / 2);
 	        if (photoAltOffset > 0) pixelOffset *= -1;
@@ -337,11 +338,11 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateSizes(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateSizes");
     	
-		for (int resourceId : _photos) {
-			if (_updatePhotoSize(resourceId)) {
-				_updatePhotoXPosition(resourceId);
-				_updatePhotoYPosition(resourceId);
-				if (doRedraw) _redrawPhoto(resourceId);
+		for (int id : _photos) {
+			if (_updatePhotoSize(id)) {
+				_updatePhotoXPosition(id);
+				_updatePhotoYPosition(id);
+				if (doRedraw) _redrawPhoto(id);
 			}
 		}
 	}
@@ -352,25 +353,25 @@ public final class PhotosView extends AbsoluteLayout {
      * range between minimum photo height and maximum photo height.
      * To calculate the photo width the original aspect ratio of the photo is used.
      * 
-	 * @param resourceId Resource id of the photo to be updated.
-	 * @return 			 <code>true</code> if the height has changed, or
-	 * 					 <code>false</code> if the height has not changed.
+	 * @param id Photo/resource id of the photo to be updated.
+	 * @return 	 <code>true</code> if the height has changed, or
+	 * 			 <code>false</code> if the height has not changed.
 	 */
-	private boolean _updatePhotoSize(final int resourceId) {
+	private boolean _updatePhotoSize(final int id) {
 			
-		Photo photo = _photosModel.getPhoto(resourceId);
-		PhotoMetrics metrics = _photoMetrics.get(resourceId);
+		final Photo photo = _photosModel.getPhoto(id);
+		final PhotoMetrics metrics = _photoMetrics.get(id);
 
     	// calculate the photo height
-        int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
-        								   (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
+        final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
+        								   		 (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
         
         if (metrics.getHeight() == photoHeight) return false;
 
         // calculate the photo width
         photo.determineOrigSize(getResources());
-        float scale = (float) photoHeight / (float) photo.getOrigHeight();
-        int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
+        final float scale = (float) photoHeight / (float) photo.getOrigHeight();
+        final int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
         
         // update metrics
         metrics.setWidth(photoWidth);
@@ -381,13 +382,13 @@ public final class PhotosView extends AbsoluteLayout {
 	/** 
 	 * Redraws the photo and border view for a photo by updating its {@link LayoutParams}.
 	 * 
-	 * @param resourceId Resource id of the photo to be redrawn.
+	 * @param id Photo/Resource id of the photo to be redrawn.
 	 */
-	private void _redrawPhoto(final int resourceId) {
+	private void _redrawPhoto(final int id) {
 		
-    	PhotoView photoView = (PhotoView) _photoLayer.findViewById(resourceId);
-    	LayoutParams layoutParams = photoView.isMinimized() ? _photoMetrics.get(resourceId).getMinimizedLayoutParams()
-    														: _photoMetrics.get(resourceId).getLayoutParams();
+    	final PhotoView photoView = (PhotoView) _photoLayer.findViewById(id);
+    	final LayoutParams layoutParams = photoView.isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams()
+    															  : _photoMetrics.get(id).getLayoutParams();
     	
     	// skip if photo has layout parameters, and is not and will not be visible on screen
     	if (photoView.getLayoutParams() != null &&
@@ -395,10 +396,10 @@ public final class PhotosView extends AbsoluteLayout {
     		(photoView.getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) // right of screen
     		return;
     	
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _redrawPhoto: resourceId = "+resourceId+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _redrawPhoto: id = "+id+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
     	
     	photoView.setLayoutParams(layoutParams);
-    	_borderLayer.findViewById(resourceId).setLayoutParams(layoutParams);
+    	_borderLayer.findViewById(id).setLayoutParams(layoutParams);
     }
 
 	/**
@@ -419,15 +420,17 @@ public final class PhotosView extends AbsoluteLayout {
     	/*
     	 *  Detect which photo is flinged.
     	 */
-    	int flingedPhoto = 0; // resourceId of the flinged photo
+    	int flingedPhoto = 0; // id of the flinged photo
+    	int id;
+    	PhotoView view;
         for (ListIterator<Integer> lit = _photos.listIterator(_photos.size()); lit.hasPrevious();) { // iterate front to back
-        	int resourceId = lit.previous();
-        	PhotoView view = (PhotoView) _photoLayer.findViewById(resourceId);
+        	id = lit.previous();
+        	view = (PhotoView) _photoLayer.findViewById(id);
         	if (view.isMinimized()) continue; // ignore minimized photos
     		if (view.getLeft() < startX && view.getRight() > startX && // on the view in horizontal direction
     			view.getTop() < startY && view.getBottom() > startY && // on the view in vertical direction
     			endY - startY > view.getHeight() / 3) { // fling movement should run for at least one third of the photo height
-    			flingedPhoto = resourceId;
+    			flingedPhoto = id;
     			break;
     		}
     	}
@@ -462,14 +465,16 @@ public final class PhotosView extends AbsoluteLayout {
     	/*
     	 *  Detect which photo is tapped on.
     	 */
-    	int tappedPhoto = 0; // resourceId of the flinged photo
+    	int tappedPhoto = 0; // id of the tapped photo
+    	int id;
+    	PhotoView view;
         for (ListIterator<Integer> lit = _photos.listIterator(_photos.size()); lit.hasPrevious();) { // iterate front to back
-        	int resourceId = lit.previous();
-        	PhotoView view = (PhotoView) _photoLayer.findViewById(resourceId);
+        	id = lit.previous();
+        	view = (PhotoView) _photoLayer.findViewById(id);
         	if (! view.isMinimized()) continue; // ignore not minimized photos
     		if (view.getLeft() < x && view.getRight() > x && // on the view in horizontal direction
     			view.getTop() - y_tap_tolerance < y && view.getBottom() + y_tap_tolerance > y) { // on the view in vertical direction
-    			tappedPhoto = resourceId;
+    			tappedPhoto = id;
     			break;
     		}
     	}

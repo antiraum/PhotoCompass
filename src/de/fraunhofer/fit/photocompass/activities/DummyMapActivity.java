@@ -86,7 +86,7 @@ public final class DummyMapActivity extends Activity {
 	    	_roll = roll;
             
             // switch to activity based on orientation
-        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
@@ -131,7 +131,7 @@ public final class DummyMapActivity extends Activity {
     	super.onStart();
     	
         // connect to orientation service
-    	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
+    	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
     }
