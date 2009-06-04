@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,6 +23,8 @@ public final class DoubleSeekBar extends View {
 	private final int barPadding = 4;
 
 	private int orientation;
+	
+	private Resources _resources;
 
 	private float startValue = 0;
 	private float endValue = 1;
@@ -45,16 +48,17 @@ public final class DoubleSeekBar extends View {
 			orientation = DoubleSeekBar.HORIZONTAL;
 		}
 		this.orientation = orientation;
+		_resources = getResources();
 		if (orientation == HORIZONTAL) {
-			this.startThumb = this.getResources().getDrawable(
+			this.startThumb = _resources.getDrawable(
 					R.drawable.seek_thumb_normal);
-			this.endThumb = this.getResources().getDrawable(
+			this.endThumb = _resources.getDrawable(
 					R.drawable.seek_thumb_normal);
 			this.halfAThumb = this.startThumb.getIntrinsicWidth() / 2;
 		} else { // VERTICAL
-			this.startThumb = this.getResources().getDrawable(
+			this.startThumb = _resources.getDrawable(
 					R.drawable.seek_thumb_normal_vertical);
-			this.endThumb = this.getResources().getDrawable(
+			this.endThumb = _resources.getDrawable(
 					R.drawable.seek_thumb_normal_vertical);
 			this.halfAThumb = this.startThumb.getIntrinsicHeight() / 2;
 		}
@@ -169,10 +173,10 @@ public final class DoubleSeekBar extends View {
 				this.startThumbDown = true;
 				this.startValue = newValue;
 				if (this.orientation == HORIZONTAL) {
-					this.startThumb = this.getResources().getDrawable(
+					this.startThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_pressed);
 				} else { // VERTICAL
-					this.startThumb = this.getResources().getDrawable(
+					this.startThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_pressed_vertical);
 				}
 				this.updateStartBounds();
@@ -181,10 +185,10 @@ public final class DoubleSeekBar extends View {
 				this.startThumbDown = false;
 				this.endValue = newValue;
 				if (this.orientation == HORIZONTAL) {
-					this.endThumb = this.getResources().getDrawable(
+					this.endThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_pressed);
 				} else { // VERTICAL
-					this.endThumb = this.getResources().getDrawable(
+					this.endThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_pressed_vertical);
 				}
 				this.updateEndBounds();
@@ -203,20 +207,20 @@ public final class DoubleSeekBar extends View {
 			if (this.startThumbDown) {
 				this.startValue = newValue;
 				if (this.orientation == HORIZONTAL) {
-					this.startThumb = this.getResources().getDrawable(
+					this.startThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_normal);
 				} else { // VERTICAL
-					this.startThumb = this.getResources().getDrawable(
+					this.startThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_normal_vertical);
 				}
 				this.updateStartBounds();
 			} else {
 				this.endValue = newValue;
 				if (this.orientation == HORIZONTAL) {
-					this.endThumb = this.getResources().getDrawable(
+					this.endThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_normal);
 				} else { // VERTICAL
-					this.endThumb = this.getResources().getDrawable(
+					this.endThumb = _resources.getDrawable(
 							R.drawable.seek_thumb_normal_vertical);
 				}
 				this.updateEndBounds();
