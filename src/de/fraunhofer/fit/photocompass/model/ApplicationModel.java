@@ -16,14 +16,14 @@ public final class ApplicationModel {
 	
 	// default values
 	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
-	private static final int DEFAULT_MIN_AGE = 0; // milliseconds since January 1, 1970
-	private static final int DEFAULT_MAX_AGE = 100000; // milliseconds since January 1, 1970
+	private static final int DEFAULT_MIN_AGE = 0; // in milliseconds
+	private static final int DEFAULT_MAX_AGE = 14 * 24 * 60 * 60 * 1000; // in milliseconds
 
     private static ApplicationModel _instance;
 
 	private float _maxDistance; // in meters
-	private int _minAge; // in ...
-	private int _maxAge; // in ...
+	private int _minAge; // in milliseconds
+	private int _maxAge; // in milliseconds
 
     private RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 	
