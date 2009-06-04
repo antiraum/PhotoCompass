@@ -17,7 +17,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 final class PhotoBorderView extends View {
 
-	private static final float BORDER_WIDTH = 3.1f; // stroke width of the border
+	private static final float BORDER_WIDTH = 3.1F; // stroke width of the border
 	private static final int ALPHA_DECREASE_PER_OCCLUSION = 15; // number by which the alpha value gets decreased for 
 															    // each photo occluding the one this border belongs to
 	

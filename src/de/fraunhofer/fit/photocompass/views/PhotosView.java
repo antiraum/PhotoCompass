@@ -32,9 +32,9 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 public final class PhotosView extends AbsoluteLayout {
 	
 	// photo height constants
-	private static final float MIN_PHOTO_HEIGHT_PERCENT = .25f; // percent of the AVAILABLE_HEIGHT
+	private static final float MIN_PHOTO_HEIGHT_PERCENT = .25F; // percent of the AVAILABLE_HEIGHT
 	private static int MIN_PHOTO_HEIGHT;
-	private static final float MAX_PHOTO_HEIGHT_PERCENT = .75f; // percent of the AVAILABLE_HEIGHT
+	private static final float MAX_PHOTO_HEIGHT_PERCENT = .75F; // percent of the AVAILABLE_HEIGHT
 	private static int MAX_PHOTO_HEIGHT;
 	
 	// size constrains

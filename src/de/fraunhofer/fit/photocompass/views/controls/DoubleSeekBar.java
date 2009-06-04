@@ -23,8 +23,8 @@ public final class DoubleSeekBar extends View {
 
 	private int orientation;
 
-	private float startValue = 0f;
-	private float endValue = 1f;
+	private float startValue = 0;
+	private float endValue = 1;
 	private int startOffset;
 	private int endOffset;
 	private int size;
