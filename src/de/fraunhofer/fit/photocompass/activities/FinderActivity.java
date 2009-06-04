@@ -382,6 +382,13 @@ public final class FinderActivity extends Activity {
     /**
      * Updates the photo view based on the current location and phone orientation as well as the settings in the {@link ApplicationModel}.
      * Package scoped for faster access by inner classes.
+     * 
+     * @param latChanged If current latitude has changed.
+     * @param lngChanged If current longitude has changed.
+     * @param altChanged If current altitude has changed.
+     * @param yawChanged If current yaw has changed.
+     * @param modelChanged If the application model has changed.
+     * @param forceRedraw Force redraw of the view. Otherwise the {@field #PHOTO_VIEW_UPDATE_IVAL} is respected.
      */
     void updatePhotoView(final boolean latChanged, final boolean lngChanged, final boolean altChanged,
     					 final boolean yawChanged, final boolean modelChanged, boolean forceRedraw) {
@@ -413,7 +420,7 @@ public final class FinderActivity extends Activity {
     		doRedrawHere = false; // we do other updates first 
     		
     		// update photo text informations
-    		_updateCurrentPhotosProperties();
+    		if (altChanged && ! latChanged && ! lngChanged) _updateCurrentPhotosProperties(); // already did update on latChanged/lngChanged
     		photosView.updateTextInfos(doRedrawHere);
     	}
     	
