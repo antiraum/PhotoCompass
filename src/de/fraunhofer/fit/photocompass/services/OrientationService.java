@@ -8,8 +8,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
