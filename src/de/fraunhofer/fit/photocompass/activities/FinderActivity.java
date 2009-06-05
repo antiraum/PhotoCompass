@@ -380,7 +380,19 @@ public final class FinderActivity extends Activity {
     }
     
     /**
-     * Updates the photo view based on the current location and phone orientation as well as the settings in the {@link ApplicationModel}.
+     * This is called when the overall system is running low on memory, and would like actively running process to try to
+     * tighten their belt.
+     * We are nice and clear the unneeded photo and border views in the {@link #photosView}. 
+     */
+    @Override
+    public void onLowMemory() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLowMemory");
+    	photosView.clearUnneededViews();
+    }
+    
+    /**
+     * Updates the photo view based on the current location and phone orientation as well as the settings in the 
+     * {@link ApplicationModel}.
      * Package scoped for faster access by inner classes.
      * 
      * @param latChanged If current latitude has changed.

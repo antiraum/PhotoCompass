@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
@@ -487,5 +488,20 @@ public final class PhotosView extends AbsoluteLayout {
         _redrawPhoto(tappedPhoto);
         
         return true;
+    }
+    
+    /**
+     * Clears the currently not needed photo and border views to save memory.
+     */
+    public void clearUnneededViews() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: clearUnneededViews");
+    	View view;
+    	for (ViewGroup layer : new ViewGroup[] {_photoLayer, _borderLayer}) {
+    		for (int i = 0; i < layer.getChildCount(); i++) {
+    			view = layer.getChildAt(i);
+    			if (_photos.contains(view.getId())) continue; // is currently needed
+    			layer.removeView(view);
+    		}
+    	}
     }
 }
