@@ -21,6 +21,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
 import de.fraunhofer.fit.photocompass.model.Photos;
+import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.services.ILocationService;
 import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
@@ -465,7 +466,10 @@ public final class FinderActivity extends Activity {
      * Updates distance, direction, and altitude offset of the photos currently used by the photos view.
      */
     private void _updateCurrentPhotosProperties() {
-    	for (int id : photosView.getPhotos())
-    		_photosModel.getPhoto(id).updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
+    	Photo photo;
+    	for (int id : photosView.getPhotos()) {
+    		photo = _photosModel.getPhoto(id);
+    		if (photo != null) photo.updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
+    	}
     }
 }

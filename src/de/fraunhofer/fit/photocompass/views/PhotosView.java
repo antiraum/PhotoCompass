@@ -3,11 +3,11 @@ package de.fraunhofer.fit.photocompass.views;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.ListIterator;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
@@ -60,13 +60,13 @@ public final class PhotosView extends AbsoluteLayout {
 	 * {@link PhotoView}s for photos (currently and previously used).
 	 * Key is the resource/photo id.
 	 */
-	private final HashMap<Integer, PhotoView> _photoViews = new HashMap<Integer, PhotoView>();
+	private final SparseArray<PhotoView> _photoViews = new SparseArray<PhotoView>();
 
 	/**
 	 * {@link PhotoBorderView}s for photos (currently and previously used).
 	 * Key is the resource/photo id.
 	 */
-	private final HashMap<Integer, PhotoBorderView> _borderViews = new HashMap<Integer, PhotoBorderView>();
+	private final SparseArray<PhotoBorderView> _borderViews = new SparseArray<PhotoBorderView>();
 	
 	// TODO maybe we can increase performance if we don't hide and show the views directly but rather put them into ViewStubs
 	// which we then inflate
@@ -79,7 +79,7 @@ public final class PhotosView extends AbsoluteLayout {
 	/**
 	 * {@link PhotoMetrics} of photos (currently and previously used).
 	 */
-	private final HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>();
+	private final SparseArray<PhotoMetrics> _photoMetrics = new SparseArray<PhotoMetrics>();
 	
 	/**
 	 * Current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
@@ -133,11 +133,9 @@ public final class PhotosView extends AbsoluteLayout {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: addPhotos: newPhotos.size() = "+newPhotos.size());
     	
 		for (int id : newPhotos) {
+			if (_photosModel.getPhoto(id) == null) continue;
 	    	
-			// check if photo has been used before
-			final boolean usedBefore = _photoMetrics.containsKey(id);
-			
-	    	if (usedBefore) {
+	    	if (_photoMetrics.get(id) != null) { // has been used before
 	    		
 	    		// show views
 	    		_photoViews.get(id).setVisibility(View.VISIBLE);
@@ -146,15 +144,15 @@ public final class PhotosView extends AbsoluteLayout {
 	    	} else {
 	    		
 	    		// create metrics
-	    		_photoMetrics.put(id, new PhotoMetrics());
+	    		_photoMetrics.append(id, new PhotoMetrics());
 	    		
 		    	// create views
 	    		final Context context = getContext();
 	    		final PhotoView photoView = new PhotoView(context, id);
-	    		_photoViews.put(id, photoView);
+	    		_photoViews.append(id, photoView);
 	    		_photoLayer.addView(photoView);
 	    		final PhotoBorderView borderView = new PhotoBorderView(context);
-	    		_borderViews.put(id, borderView);
+	    		_borderViews.append(id, borderView);
 	    		_borderLayer.addView(borderView);
 	    	}
 	    	
@@ -217,7 +215,10 @@ public final class PhotosView extends AbsoluteLayout {
 	private void _sortPhotos() {
 		Collections.sort(_photos, new Comparator<Integer>() {
 	    	public int compare(final Integer id1, final Integer id2) {
-	    		if (_photosModel.getPhoto(id1).getDistance() > _photosModel.getPhoto(id2).getDistance()) return -1;
+	    		Photo photo1 = _photosModel.getPhoto(id1);
+	    		Photo photo2 = _photosModel.getPhoto(id2);
+	    		if (photo1 == null || photo2 == null) return 0;
+	    		if (photo1.getDistance() > photo2.getDistance()) return -1;
 	    		return 1;
 	        }
 	    });
@@ -293,10 +294,12 @@ public final class PhotosView extends AbsoluteLayout {
 	 */
 	private boolean _updatePhotoXPosition(final int id) {
 			
+		final Photo photo = _photosModel.getPhoto(id);
 		final PhotoMetrics metrics = _photoMetrics.get(id);
+		if (metrics == null || photo == null) return false;
         
         // calculate the x position of the photo
-		final double directionOffset = _photosModel.getPhoto(id).getDirection() - _direction;
+		final double directionOffset = photo.getDirection() - _direction;
         final int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.getWidth() / 2);
         
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoXPosition: directionOffset = "+directionOffset+", photoX = "+photoX);
@@ -331,9 +334,10 @@ public final class PhotosView extends AbsoluteLayout {
 	 * 			 <code>false</code> if the y position has not changed.
 	 */
 	private boolean _updatePhotoYPosition(final int id) {
-			
+
 		final Photo photo = _photosModel.getPhoto(id);
 		final PhotoMetrics metrics = _photoMetrics.get(id);
+		if (metrics == null || photo == null) return false;
 		
 		// calculate y position
 	    // TODO take the roll value of the orientation sensor into account, then the FinderActivity wouldn't need to subtract the
@@ -388,9 +392,10 @@ public final class PhotosView extends AbsoluteLayout {
 	 * 			 <code>false</code> if the height has not changed.
 	 */
 	private boolean _updatePhotoSize(final int id) {
-			
+
 		final Photo photo = _photosModel.getPhoto(id);
 		final PhotoMetrics metrics = _photoMetrics.get(id);
+		if (metrics == null || photo == null) return false;
 
     	// calculate the photo height
         final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *

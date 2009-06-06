@@ -3,7 +3,6 @@ package de.fraunhofer.fit.photocompass.views.overlays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
@@ -39,7 +39,7 @@ public final class PhotosOverlay extends Overlay {
 	 * Bitmaps of the currently and previously used photos (key is photo/resource id).
 	 * The bitmaps are pre-scaled for better performance.
 	 */
-	private final HashMap<Integer, Bitmap> _photoBitmaps = new HashMap<Integer, Bitmap>();
+	private final SparseArray<Bitmap> _photoBitmaps = new SparseArray<Bitmap>();
 	
     private Photos _photosModel;
 	private final Paint _borderPaint = new Paint();
@@ -91,8 +91,10 @@ public final class PhotosOverlay extends Overlay {
 	private void _sortPhotos() {
 		Collections.sort(_photos, new Comparator<Integer>() {
 	    	public int compare(final Integer id1, final Integer id2) {
-	    		if (_photosModel.getPhoto(id1).getGeoPoint().getLatitudeE6() >
-	    			_photosModel.getPhoto(id2).getGeoPoint().getLatitudeE6()) return -1;
+	    		final Photo photo1 = _photosModel.getPhoto(id1);
+	    		final Photo photo2 = _photosModel.getPhoto(id2);
+	    		if (photo1 == null || photo2 == null) return 0;
+	    		if (photo1.getGeoPoint().getLatitudeE6() > photo2.getGeoPoint().getLatitudeE6()) return -1;
 	    		return 1;
 	        }
 	    });
@@ -115,34 +117,37 @@ public final class PhotosOverlay extends Overlay {
 
 		final Projection projection = mapView.getProjection();
 		Photo photo;
-		Bitmap rawBmp;
+		Bitmap bmp;
+		float width, height, xScale, yScale, scale;
 		final Path path = new Path();
 		final Point point = new Point();
-		float width, height, xScale, yScale, scale;
 		for (int id : _photos) {
 
 			// get photo
 			photo = _photosModel.getPhoto(id);
+			if (photo == null) continue;
 
-			if (! _photoBitmaps.containsKey(id)) {
+			bmp = _photoBitmaps.get(id);
+			if (bmp == null) {
 				
 				// create pre-scaled bitmap
 				if (photo.isDummyPhoto()) {
-					rawBmp = BitmapFactory.decodeResource(mapView.getResources(), id);
+					bmp = BitmapFactory.decodeResource(mapView.getResources(), id);
 				} else {
-					rawBmp = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
+					bmp = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
 				}
-				width = rawBmp.getWidth();
-				height = rawBmp.getHeight();
+				width = bmp.getWidth();
+				height = bmp.getHeight();
 				xScale = PHOTO_SIZE / width;
 				yScale = PHOTO_SIZE / height;
 				scale = (xScale > yScale) ? xScale : yScale;
-				_photoBitmaps.put(id, Bitmap.createScaledBitmap(rawBmp, Math.round(width * scale), Math.round(height * scale), true));
+				bmp = Bitmap.createScaledBitmap(bmp, Math.round(width * scale), Math.round(height * scale), true);
+				_photoBitmaps.append(id, bmp);
 			}
 			
 			// get position and dimension
-			width = _photoBitmaps.get(id).getWidth();
-			height = _photoBitmaps.get(id).getHeight();
+			width = bmp.getWidth();
+			height = bmp.getHeight();
 			projection.toPixels(photo.getGeoPoint(), point);
 			
 			// draw border
@@ -159,7 +164,7 @@ public final class PhotosOverlay extends Overlay {
 			canvas.drawPath(path, _borderPaint);
 			
 			// draw bitmap
-			canvas.drawBitmap(_photoBitmaps.get(id), point.x - 1/3 * width, point.y - 4/3 * height - BORDER_WIDTH, null);
+			canvas.drawBitmap(bmp, point.x - 1/3 * width, point.y - 4/3 * height - BORDER_WIDTH, null);
 			
 //			break;
         }
@@ -169,9 +174,9 @@ public final class PhotosOverlay extends Overlay {
      * Removes the currently not needed bitmaps to save memory.
      */
     public void clearUnneededBitmaps() {
-    	for (int id : _photoBitmaps.keySet()) {
-    		if (_photos.contains(id)) continue; // currently needed
-    		_photoBitmaps.remove(id);
+    	for (int i = 0; i < _photoBitmaps.size(); i++) {
+    		if (_photos.contains(_photoBitmaps.keyAt(i))) continue; // currently needed
+    		_photoBitmaps.remove(_photoBitmaps.keyAt(i));
     	}
     }
 }
