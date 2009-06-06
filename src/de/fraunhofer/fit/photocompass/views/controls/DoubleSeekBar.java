@@ -31,7 +31,11 @@ public abstract class DoubleSeekBar extends View {
 
 	protected RectF backgroundRect;
 	protected Drawable startThumb;
+	protected Drawable startThumbNormal;
+	protected Drawable startThumbActive;
 	protected Drawable endThumb;
+	protected Drawable endThumbNormal;
+	protected Drawable endThumbActive;
 	protected Rect selectionRect;
 	protected int halfAThumb = -1;
 
@@ -109,10 +113,10 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		Log.d(PhotoCompassApplication.LOG_TAG, "MotionEvent action "
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onTouchEvent(): MotionEvent action "
 				+ event.getAction());
 		float newValue = convertToAbstract(getEventCoordinate(event));
-
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onTouchEvent(): Got new value " + newValue);		
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
@@ -120,13 +124,13 @@ public abstract class DoubleSeekBar extends View {
 				// distance to left is less than distance to right
 				this.startThumbDown = true;
 				this.startValue = newValue;
-				this.setStartThumbActive();
+				this.startThumb = this.startThumbActive;
 				this.updateStartBounds();
 			} else {
 				// distance to right is less than to left
 				this.startThumbDown = false;
 				this.endValue = newValue;
-				this.setEndThumbActive();
+				this.endThumb = this.endThumbActive;
 				this.updateEndBounds();
 			}
 			this.invalidate(); // TODO determine "dirty" region
@@ -142,11 +146,11 @@ public abstract class DoubleSeekBar extends View {
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
 				this.startValue = newValue;
-				this.setStartThumbNormal();
+				this.startThumb = this.startThumbNormal;
 				this.updateStartBounds();
 			} else {
 				this.endValue = newValue;
-				this.setEndThumbNormal();
+				this.endThumb = this.endThumbNormal;
 				this.updateEndBounds();
 			}
 			this.invalidate();
@@ -175,11 +179,11 @@ public abstract class DoubleSeekBar extends View {
 		return this.endValue;
 	}
 
-	protected abstract void setStartThumbActive();
-	protected abstract void setStartThumbNormal();
-	protected abstract void setEndThumbActive();
-	protected abstract void setEndThumbNormal();
-	
+//	protected abstract void setStartThumbActive();
+//	protected abstract void setStartThumbNormal();
+//	protected abstract void setEndThumbActive();
+//	protected abstract void setEndThumbNormal();
+//	
 	protected abstract float getEventCoordinate(final MotionEvent event);
 	
 	protected abstract int convertToConcrete(final float abstractValue);

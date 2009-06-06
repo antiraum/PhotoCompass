@@ -2,7 +2,9 @@ package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
@@ -56,39 +58,42 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 
 	@Override
 	protected float convertToAbstract(final float concreteValue) {
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"HorizontalDoubleSeekBar.convertToAbstract(" + concreteValue
+						+ ")");
 		return (float) (concreteValue - this.startOffset) / this.size;
 
 	}
 
 	@Override
 	protected float getEventCoordinate(final MotionEvent event) {
-		return event.getY();
+		return event.getX();
 	}
 
-	@Override
-	protected void setEndThumbActive() {
-		this.endThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_pressed);
-	}
-
-	@Override
-	protected void setEndThumbNormal() {
-
-		this.endThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_normal);
-	}
-
-	@Override
-	protected void setStartThumbActive() {
-		this.startThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_pressed);
-	}
-
-	@Override
-	protected void setStartThumbNormal() {
-
-		this.startThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_normal);
-	}
+	// @Override
+	// protected void setEndThumbActive() {
+	// this.endThumb = this.getResources().getDrawable(
+	// R.drawable.seek_thumb_pressed);
+	// }
+	//
+	// @Override
+	// protected void setEndThumbNormal() {
+	//
+	// this.endThumb = this.getResources().getDrawable(
+	// R.drawable.seek_thumb_normal);
+	// }
+	//
+	// @Override
+	// protected void setStartThumbActive() {
+	// this.startThumb = this.getResources().getDrawable(
+	// R.drawable.seek_thumb_pressed);
+	// }
+	//
+	// @Override
+	// protected void setStartThumbNormal() {
+	//
+	// this.startThumb = this.getResources().getDrawable(
+	// R.drawable.seek_thumb_normal);
+	// }
 
 }
