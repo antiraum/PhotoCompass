@@ -61,9 +61,6 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 	@Override
 	protected float convertToAbstract(final float concreteValue) {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"VerticalDoubleSeekBar.convertToAbstract(" + concreteValue
-						+ ")");
 			return 1 - (float) (concreteValue - this.endOffset) / this.size;
 
 	}

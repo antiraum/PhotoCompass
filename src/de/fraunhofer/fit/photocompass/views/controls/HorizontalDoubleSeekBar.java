@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -10,10 +11,13 @@ import de.fraunhofer.fit.photocompass.R;
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	public HorizontalDoubleSeekBar(final Context context) {
 		super(context);
-		this.startThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_normal);
-		this.endThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_normal);
+		Resources res = this.getResources();
+		this.startThumbNormal = res.getDrawable(R.drawable.seek_thumb_normal);
+		this.startThumbActive = res.getDrawable(R.drawable.seek_thumb_pressed);
+		this.endThumbNormal = res.getDrawable(R.drawable.seek_thumb_normal);
+		this.endThumbActive = res.getDrawable(R.drawable.seek_thumb_pressed);
+		this.startThumb = this.startThumbNormal;
+		this.endThumb = this.endThumbNormal;
 		this.halfAThumb = this.startThumb.getIntrinsicWidth() / 2;
 		this.initialize();
 		this.selectionRect.top = this.barPadding;
@@ -58,9 +62,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 
 	@Override
 	protected float convertToAbstract(final float concreteValue) {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"HorizontalDoubleSeekBar.convertToAbstract(" + concreteValue
-						+ ")");
 		return (float) (concreteValue - this.startOffset) / this.size;
 
 	}
