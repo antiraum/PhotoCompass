@@ -46,21 +46,45 @@ public final class PhotosView extends AbsoluteLayout {
 	
 	private Photos _photosModel;
 	
-	private AbsoluteLayout _photoLayer; // layer containing the photo views
-	private AbsoluteLayout _borderLayer; // layer containing the photo border views
-	private final HashMap<Integer, PhotoView> _photoViews = new HashMap<Integer, PhotoView>(); // photo views for photos
-																							   // (currently and previously used)
-	private final HashMap<Integer, PhotoBorderView> _borderViews = new HashMap<Integer, PhotoBorderView>(); // border views for photos
-	   																										// (currently and previously used)
+	/**
+	 * Layer containing the {@link #_photoViews}.
+	 */
+	private AbsoluteLayout _photoLayer;
+	
+	/**
+	 * Layer containing the photo {@link #_borderViews}.
+	 */
+	private AbsoluteLayout _borderLayer;
+	
+	/**
+	 * {@link PhotoView}s for photos (currently and previously used).
+	 * Key is the resource/photo id.
+	 */
+	private final HashMap<Integer, PhotoView> _photoViews = new HashMap<Integer, PhotoView>();
+
+	/**
+	 * {@link PhotoBorderView}s for photos (currently and previously used).
+	 * Key is the resource/photo id.
+	 */
+	private final HashMap<Integer, PhotoBorderView> _borderViews = new HashMap<Integer, PhotoBorderView>();
+	
 	// TODO maybe we can increase performance if we don't hide and show the views directly but rather put them into ViewStubs
 	// which we then inflate
 
-	private final ArrayList<Integer> _photos = new ArrayList<Integer>(); // ids of the currently used photos
-																   		 // sorted from farthest to nearest
-	private final HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>(); // metrics of photos
-																								 	   // (currently and previously used)
+	/**
+	 * Resource/photo ids of the currently used photos (sorted from farthest to nearest).
+	 */
+	private final ArrayList<Integer> _photos = new ArrayList<Integer>();
+
+	/**
+	 * {@link PhotoMetrics} of photos (currently and previously used).
+	 */
+	private final HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>();
 	
-	private float _direction; // current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
+	/**
+	 * Current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
+	 */
+	private float _direction;
 
 	/**
 	 * Constructor.
