@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,7 +22,11 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
 final class PhotoView extends AbsoluteLayout {
 	
 	private Photo _photo; // Photo object for the displayed photo
+	private Bitmap _bmp; // Bitmap of the displayed photo (pre-scaled to the current dimensions)
+	private ImageView _imgView;
 	private TextView _textView;
+	private int _width; // current width
+	private int _height; // current height
 	private boolean _minimized = false;
 	
 	/**
@@ -34,26 +39,18 @@ final class PhotoView extends AbsoluteLayout {
 	PhotoView (final Context context, final int id) { 
 		super(context);
 		
+		setId(id);
 		_photo = Photos.getInstance().getPhoto(id);
 		
 		// image view
-		final ImageView imgView = new ImageView(context);
-		imgView.setScaleType(ImageView.ScaleType.FIT_XY);
-		if (_photo.isDummyPhoto()) {
-			imgView.setImageResource(id);
-		} else {
-			// TODO this should work without loading the bitmap data by hand
-			imgView.setImageURI(_photo.getThumbUri());
-			final Bitmap bmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
-			imgView.setImageBitmap(bmp);
-//			bmp.recycle();
-		}
-        addView(imgView);
+		_imgView = new ImageView(context);
+//		_imgView.setScaleType(ImageView.ScaleType.FIT_XY);
+        addView(_imgView);
         
         // distance and altitude offset text
         _textView = new TextView(context);
         updateText();
-        _textView.setTextColor(Color.parseColor(PhotoCompassApplication.ORANGE));
+        _textView.setTextColor(PhotoCompassApplication.ORANGE);
         _textView.setPadding(5, 0, 5, 0);
         addView(_textView);
 	}
@@ -88,6 +85,31 @@ final class PhotoView extends AbsoluteLayout {
         
         _textView.setText(text);
 	}
+    
+    /**
+     * Called by the {@link PhotosView} when the view is repositioned or resized.
+     * We intercept to get the new dimensions and pre-scale the bitmap for better performance.
+     */
+    @Override
+    public void setLayoutParams(final ViewGroup.LayoutParams params) {
+		
+		// create pre-scaled bitmap if the dimensions changed
+		if (_width != params.width || _height != params.height) {
+    	
+			_width = params.width;
+			_height = params.height;
+			
+			Bitmap rawBmp;
+			if (_photo.isDummyPhoto()) {
+				rawBmp = BitmapFactory.decodeResource(getResources(), getId());
+			} else {
+				rawBmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
+			}
+			_imgView.setImageBitmap(Bitmap.createScaledBitmap(rawBmp, _width, _height, false));
+		}
+		
+        super.setLayoutParams(params);
+    }
 	
 	/**
 	 * Changes the minimized state.
