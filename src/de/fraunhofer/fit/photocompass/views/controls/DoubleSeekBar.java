@@ -1,7 +1,6 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,68 +14,60 @@ import android.view.View;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
-public final class DoubleSeekBar extends View {
-	public final static int HORIZONTAL = 0;
-	public final static int VERTICAL = 1;
+public abstract class DoubleSeekBar extends View {
+//	public final static int HORIZONTAL = 0;
+//	public final static int VERTICAL = 1;
 
-	private final int barThickness = 22;
-	private final int barPadding = 4;
+	protected final int barThickness = 22;
+	protected final int barPadding = 4;
 
-	private int orientation;
-	
-	private Resources _resources;
+//	private int orientation;
 
-	private float startValue = 0;
-	private float endValue = 1;
-	private int startOffset;
-	private int endOffset;
-	private int size;
+	protected float startValue = 0f;
+	protected float endValue = 1f;
+	protected int startOffset;
+	protected int endOffset;
+	protected int size;
 
-	private Drawable startThumb;
-	private Drawable endThumb;
-	private Rect selectionRect;
-	private int halfAThumb;
+	protected RectF backgroundRect;
+	protected Drawable startThumb;
+	protected Drawable startThumbNormal;
+	protected Drawable startThumbActive;
+	protected Drawable endThumb;
+	protected Drawable endThumbNormal;
+	protected Drawable endThumbActive;
+	protected Rect selectionRect;
+	protected int halfAThumb = -1;
 
 	private boolean startThumbDown = false;
 
-	public DoubleSeekBar(final Context context, int orientation) {
+	public DoubleSeekBar(final Context context) {
 		super(context);
-		if (orientation != DoubleSeekBar.HORIZONTAL
-				&& orientation != DoubleSeekBar.VERTICAL) {
-			// throw new
-			// IllegalArgumentException("Parameter orientation must be one of the static class members");
-			orientation = DoubleSeekBar.HORIZONTAL;
-		}
-		this.orientation = orientation;
-		_resources = getResources();
-		if (orientation == HORIZONTAL) {
-			this.startThumb = _resources.getDrawable(
-					R.drawable.seek_thumb_normal);
-			this.endThumb = _resources.getDrawable(
-					R.drawable.seek_thumb_normal);
-			this.halfAThumb = this.startThumb.getIntrinsicWidth() / 2;
-		} else { // VERTICAL
-			this.startThumb = _resources.getDrawable(
-					R.drawable.seek_thumb_normal_vertical);
-			this.endThumb = _resources.getDrawable(
-					R.drawable.seek_thumb_normal_vertical);
-			this.halfAThumb = this.startThumb.getIntrinsicHeight() / 2;
-		}
-		this.startOffset = this.halfAThumb;
-		this.endOffset = this.halfAThumb;
+//		if (orientation != DoubleSeekBar.HORIZONTAL
+//				&& orientation != DoubleSeekBar.VERTICAL) {
+//			// throw new
+//			// IllegalArgumentException("Parameter orientation must be one of the static class members");
+//			orientation = DoubleSeekBar.HORIZONTAL;
+//		}
+//		this.orientation = orientation;
+//		if (orientation == HORIZONTAL) {
+
+//		} else { // VERTICAL
+//		}
 		this.selectionRect = new Rect();
-		if (orientation == HORIZONTAL) {
-			this.selectionRect.top = this.barPadding;
-			this.selectionRect.bottom = this.barThickness + this.barPadding;
-		} else { // VERTICAL
-			this.selectionRect.left = this.barPadding;
-			this.selectionRect.right = this.barThickness + this.barPadding;
-		}
+//		if (orientation == HORIZONTAL) {
+//		} else { // VERTICAL
+//		}
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 
 	}
 
+	protected void initialize() {
+		this.startOffset = this.halfAThumb;
+		this.endOffset = this.halfAThumb;
+	}
+	
 	@Override
 	protected void onDraw(final Canvas canvas) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onDraw()");
@@ -86,13 +77,7 @@ public final class DoubleSeekBar extends View {
 		Paint p = new Paint();
 		p.setColor(Color.GRAY);
 		p.setStyle(Style.FILL);
-		if (this.orientation == HORIZONTAL) {
-			canvas.drawRoundRect(new RectF(0f, barPadding, this.getWidth(),
-					barThickness + barPadding), 5f, 5f, p);
-		} else { // VERTICAL
-			canvas.drawRoundRect(new RectF(barPadding, 0f, barThickness
-					+ barPadding, this.getHeight()), 5f, 5f, p);
-		}
+		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, p);
 		p.setColor(Color.YELLOW);
 		canvas.drawRect(this.selectionRect, p);
 		startThumb.draw(canvas);
@@ -103,18 +88,16 @@ public final class DoubleSeekBar extends View {
 	protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
 
-		if (this.orientation == HORIZONTAL) {
-			this.size = w - this.startOffset - this.endOffset;
-		} else { // VERTICAL
-			this.size = h - this.startOffset - this.endOffset;
-		}
 		this.updateAllBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
 	@Override
-	protected void onFocusChanged(final boolean gainFocus, final int direction, final Rect previouslyFocusedRect) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onFocusChanged()");
+	protected void onFocusChanged(final boolean gainFocus, final int direction,
+			final Rect previouslyFocusedRect) {
+		Log
+				.d(PhotoCompassApplication.LOG_TAG,
+						"DoubleSeekBar.onFocusChanged()");
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 	}
 
@@ -123,74 +106,31 @@ public final class DoubleSeekBar extends View {
 		this.updateEndBounds();
 	}
 
-	private void updateStartBounds() {
-		int begin = convertToConcrete(startValue) - halfAThumb;
-		if (orientation == HORIZONTAL) {
-			this.startThumb.setBounds(begin, 0, begin
-					+ this.startThumb.getIntrinsicHeight(), this.startThumb
-					.getIntrinsicHeight());
-			this.selectionRect.left = begin + halfAThumb;
-		} else { // VERTICAL
-			this.startThumb.setBounds(0, begin, this.startThumb
-					.getIntrinsicHeight(), begin
-					+ this.startThumb.getIntrinsicWidth());
-			this.selectionRect.top = begin + halfAThumb;
-		}
-	}
+	protected abstract void updateStartBounds(); 
 
-	private void updateEndBounds() {
-		int begin = convertToConcrete(endValue) - halfAThumb;
-		if (orientation == HORIZONTAL) {
-			this.endThumb.setBounds(begin, 0, begin
-					+ this.startThumb.getIntrinsicHeight(), this.startThumb
-					.getIntrinsicHeight());
-			this.selectionRect.right = begin + halfAThumb;
-		} else { // VERTICAL
-			this.endThumb.setBounds(0, begin, this.startThumb
-					.getIntrinsicHeight(), begin
-					+ this.startThumb.getIntrinsicWidth());
-			this.selectionRect.bottom = begin + halfAThumb;
-		}
-
-	}
+	protected abstract void updateEndBounds();
 
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		Log.d(PhotoCompassApplication.LOG_TAG, "MotionEvent action "
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onTouchEvent(): MotionEvent action "
 				+ event.getAction());
-		float newValue;
-		if (this.orientation == HORIZONTAL) {
-			newValue = convertToAbstract(event.getX());
-		} else { // VERTICAL
-			newValue = convertToAbstract(event.getY());
-		}
-
+		float newValue = convertToAbstract(getEventCoordinate(event));
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onTouchEvent(): Got new value " + newValue);		
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
-			if (Math.abs(newValue - this.startValue) < Math.abs(newValue - this.endValue)) {
+			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
+					- this.endValue)) {
 				// distance to left is less than distance to right
 				this.startThumbDown = true;
 				this.startValue = newValue;
-				if (this.orientation == HORIZONTAL) {
-					this.startThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_pressed);
-				} else { // VERTICAL
-					this.startThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_pressed_vertical);
-				}
+				this.startThumb = this.startThumbActive;
 				this.updateStartBounds();
 			} else {
 				// distance to right is less than to left
 				this.startThumbDown = false;
 				this.endValue = newValue;
-				if (this.orientation == HORIZONTAL) {
-					this.endThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_pressed);
-				} else { // VERTICAL
-					this.endThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_pressed_vertical);
-				}
+				this.endThumb = this.endThumbActive;
 				this.updateEndBounds();
 			}
 			this.invalidate(); // TODO determine "dirty" region
@@ -206,23 +146,11 @@ public final class DoubleSeekBar extends View {
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
 				this.startValue = newValue;
-				if (this.orientation == HORIZONTAL) {
-					this.startThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_normal);
-				} else { // VERTICAL
-					this.startThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_normal_vertical);
-				}
+				this.startThumb = this.startThumbNormal;
 				this.updateStartBounds();
 			} else {
 				this.endValue = newValue;
-				if (this.orientation == HORIZONTAL) {
-					this.endThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_normal);
-				} else { // VERTICAL
-					this.endThumb = _resources.getDrawable(
-							R.drawable.seek_thumb_normal_vertical);
-				}
+				this.endThumb = this.endThumbNormal;
 				this.updateEndBounds();
 			}
 			this.invalidate();
@@ -251,20 +179,14 @@ public final class DoubleSeekBar extends View {
 		return this.endValue;
 	}
 
-	private int convertToConcrete(final float abstractValue) {
-		if (this.orientation == HORIZONTAL) {
-			return Math.round(abstractValue * this.size) + this.startOffset;
-		} else { // VERTICAL
-			return Math.round((1 - abstractValue) * this.size) + this.endOffset;
-		}
-	}
+//	protected abstract void setStartThumbActive();
+//	protected abstract void setStartThumbNormal();
+//	protected abstract void setEndThumbActive();
+//	protected abstract void setEndThumbNormal();
+//	
+	protected abstract float getEventCoordinate(final MotionEvent event);
+	
+	protected abstract int convertToConcrete(final float abstractValue);
 
-	private float convertToAbstract(final float concreteValue) {
-		if (this.orientation == HORIZONTAL) {
-			return (float) (concreteValue - this.startOffset) / this.size;
-		} else { // VERTICAL
-			return 1 - (float) (concreteValue - this.endOffset) / this.size;
-		}
-	}
-
+	protected abstract float convertToAbstract(final float concreteValue);
 }
