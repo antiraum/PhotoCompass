@@ -15,8 +15,13 @@
     	</activity>
         <activity android:name=".activities.FinderActivity"
         		  android:screenOrientation="landscape"
-        		  android:launchMode="singleTop"></activity>
+        		  android:launchMode="singleTop"
+        		  android:theme="@style/ThemeNoBackground"></activity>
     	<activity android:name=".activities.PhotoMapActivity"
+    			  android:screenOrientation="landscape"
+        		  android:launchMode="singleTop"
+        		  android:theme="@style/ThemeNoBackground"></activity>
+    	<activity android:name=".activities.DummyMapActivity"
     			  android:screenOrientation="landscape"
         		  android:launchMode="singleTop"></activity>
 		<service android:name=".services.LocationService"></service>
