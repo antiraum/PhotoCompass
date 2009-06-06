@@ -28,7 +28,7 @@ public final class LocationService extends Service {
 	private static final int MIN_LOCATION_UPDATE_TIME = 3 * 1000; // in milliseconds
 	private static final int MIN_LOCATION_UPDATE_DISTANCE = 1; // in meters
 	
-	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 60 * 1000; // in milliseconds
+	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000; // in milliseconds
     private final Handler _providerCheckHandler = new Handler();
     private final Runnable _providerCheckCaller = new Runnable() {
         public void run() {
