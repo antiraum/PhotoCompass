@@ -5,7 +5,6 @@ import java.util.Formatter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
@@ -22,7 +21,6 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
 final class PhotoView extends AbsoluteLayout {
 	
 	private Photo _photo; // Photo object for the displayed photo
-	private Bitmap _bmp; // Bitmap of the displayed photo (pre-scaled to the current dimensions)
 	private ImageView _imgView;
 	private TextView _textView;
 	private int _width; // current width
@@ -39,7 +37,6 @@ final class PhotoView extends AbsoluteLayout {
 	PhotoView (final Context context, final int id) { 
 		super(context);
 		
-		setId(id);
 		_photo = Photos.getInstance().getPhoto(id);
 		
 		// image view
@@ -101,7 +98,7 @@ final class PhotoView extends AbsoluteLayout {
 			
 			Bitmap rawBmp;
 			if (_photo.isDummyPhoto()) {
-				rawBmp = BitmapFactory.decodeResource(getResources(), getId());
+				rawBmp = BitmapFactory.decodeResource(getResources(), _photo.getId());
 			} else {
 				rawBmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
 			}
