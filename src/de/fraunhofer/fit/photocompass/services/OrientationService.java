@@ -110,6 +110,7 @@ public final class OrientationService extends Service {
 			SensorManagerSimulator.connectSimulator(); 
 		} else {
 			// running on phone
+			_sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
 
 			// check if there is no orientation sensor
 			if (_sensorManager.getSensorList(SensorManager.SENSOR_ORIENTATION).size() == 0) {
@@ -117,8 +118,6 @@ public final class OrientationService extends Service {
 	        	// TODO notify the user and tell him that he cannot use the application
 	    		return;
 	    	}
-			
-			_sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
 		}
     	
     	// start listening to sensors
