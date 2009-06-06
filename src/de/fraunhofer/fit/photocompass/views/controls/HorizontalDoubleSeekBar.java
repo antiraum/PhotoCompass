@@ -6,7 +6,7 @@ import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.R;
 
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
-	public HorizontalDoubleSeekBar(Context context) {
+	public HorizontalDoubleSeekBar(final Context context) {
 		super(context);
 		this.startThumb = this.getResources().getDrawable(
 				R.drawable.seek_thumb_normal);
@@ -19,7 +19,8 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+	protected void onSizeChanged(final int w, final int h, final int oldw,
+			final int oldh) {
 		this.size = w - this.startOffset - this.endOffset;
 		this.backgroundRect = new RectF(0f, barPadding, w, barThickness
 				+ barPadding);
@@ -47,19 +48,20 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected int convertToConcrete(float abstractValue) {
+	protected int convertToConcrete(final float abstractValue) {
 
 		return Math.round(abstractValue * this.size) + this.startOffset;
 
 	}
+
 	@Override
-	protected float convertToAbstract(float concreteValue) {
-			return (float) (concreteValue - this.startOffset) / this.size;
+	protected float convertToAbstract(final float concreteValue) {
+		return (float) (concreteValue - this.startOffset) / this.size;
 
 	}
-	
+
 	@Override
-	protected float getEventCoordinate(MotionEvent event) {
+	protected float getEventCoordinate(final MotionEvent event) {
 		return event.getY();
 	}
 
@@ -79,15 +81,14 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	@Override
 	protected void setStartThumbActive() {
 		this.startThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_pressed);	
+				R.drawable.seek_thumb_pressed);
 	}
 
 	@Override
 	protected void setStartThumbNormal() {
 
 		this.startThumb = this.getResources().getDrawable(
-				R.drawable.seek_thumb_normal);	
+				R.drawable.seek_thumb_normal);
 	}
-	
-	
+
 }

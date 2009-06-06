@@ -37,7 +37,7 @@ public abstract class DoubleSeekBar extends View {
 
 	private boolean startThumbDown = false;
 
-	public DoubleSeekBar(Context context) {
+	public DoubleSeekBar(final Context context) {
 		super(context);
 //		if (orientation != DoubleSeekBar.HORIZONTAL
 //				&& orientation != DoubleSeekBar.VERTICAL) {
@@ -65,7 +65,7 @@ public abstract class DoubleSeekBar extends View {
 	}
 	
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(final Canvas canvas) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onDraw()");
 		this.updateAllBounds();
 
@@ -81,7 +81,7 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+	protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
 
 		this.updateAllBounds();
@@ -89,8 +89,8 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	@Override
-	protected void onFocusChanged(boolean gainFocus, int direction,
-			Rect previouslyFocusedRect) {
+	protected void onFocusChanged(final boolean gainFocus, final int direction,
+			final Rect previouslyFocusedRect) {
 		Log
 				.d(PhotoCompassApplication.LOG_TAG,
 						"DoubleSeekBar.onFocusChanged()");
@@ -107,7 +107,7 @@ public abstract class DoubleSeekBar extends View {
 	protected abstract void updateEndBounds();
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
 		Log.d(PhotoCompassApplication.LOG_TAG, "MotionEvent action "
 				+ event.getAction());
@@ -180,9 +180,9 @@ public abstract class DoubleSeekBar extends View {
 	protected abstract void setEndThumbActive();
 	protected abstract void setEndThumbNormal();
 	
-	protected abstract float getEventCoordinate(MotionEvent event);
+	protected abstract float getEventCoordinate(final MotionEvent event);
 	
-	protected abstract int convertToConcrete(float abstractValue);
+	protected abstract int convertToConcrete(final float abstractValue);
 
-	protected abstract float convertToAbstract(float concreteValue);
+	protected abstract float convertToAbstract(final float concreteValue);
 }

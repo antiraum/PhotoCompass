@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 public class VerticalDoubleSeekBar extends DoubleSeekBar {
 
-	public VerticalDoubleSeekBar(Context context) {
+	public VerticalDoubleSeekBar(final Context context) {
 		super(context);
 		this.startThumb = this.getResources().getDrawable(
 				R.drawable.seek_thumb_normal_vertical);
@@ -20,7 +20,7 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+	protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
 		this.size = h - this.startOffset - this.endOffset;
 		this.backgroundRect = new RectF(barPadding, 0f, barThickness
 				+ barPadding, h);
@@ -47,20 +47,20 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected int convertToConcrete(float abstractValue) {
+	protected int convertToConcrete(final float abstractValue) {
 
 		return Math.round((1 - abstractValue) * this.size) + this.endOffset;
 
 	}
 	@Override
-	protected float convertToAbstract(float concreteValue) {
+	protected float convertToAbstract(final float concreteValue) {
 
 			return 1 - (float) (concreteValue - this.endOffset) / this.size;
 
 	}
 	
 	@Override
-	protected float getEventCoordinate(MotionEvent event) {
+	protected float getEventCoordinate(final MotionEvent event) {
 		return event.getX();
 	}
 
