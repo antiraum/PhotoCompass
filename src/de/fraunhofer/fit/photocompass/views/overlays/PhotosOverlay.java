@@ -57,10 +57,10 @@ public final class PhotosOverlay extends Overlay {
 	 * @param newPhotos ArrayList of photo/resource ids of the photos to add.
 	 */
 	public void addPhotos(final ArrayList<Integer> newPhotos) {
+    	if (newPhotos.size() == 0) return; // nothing to do
+
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: addPhotos: newPhotos.size() = "+newPhotos.size());
     	
-    	if (newPhotos.size() == 0) return; // nothing to do
-	    	
     	// add to list of currently used photos
 		_photos.addAll(newPhotos);
 		
@@ -74,9 +74,9 @@ public final class PhotosOverlay extends Overlay {
 	 * @param oldPhotos ArrayList of photo/resource ids of the photos to remove.
 	 */
 	public void removePhotos(final ArrayList<Integer> oldPhotos) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: removePhotos: oldPhotos.size() = "+oldPhotos.size());
-    	
     	if (oldPhotos.size() == 0) return; // nothing to do
+
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: removePhotos: oldPhotos.size() = "+oldPhotos.size());
     	
     	// remove from list of currently used photos
 		_photos.removeAll(oldPhotos);

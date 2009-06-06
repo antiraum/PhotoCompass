@@ -149,7 +149,7 @@ public final class Photos {
                 	continue;
                 }
                 
-                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: id = "+id+", lat = "+lat+", lng = "+lng+", date = "+date+", thumb = "+thumb);
+//                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: id = "+id+", lat = "+lat+", lng = "+lng+", date = "+date+", thumb = "+thumb);
                 
                 _photosNew.put(id, new Photo(id, Uri.parse(Uri.encode(thumb)), lat, lng, 0, Long.parseLong(date)));
                 

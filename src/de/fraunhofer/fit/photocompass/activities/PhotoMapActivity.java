@@ -383,7 +383,7 @@ public final class PhotoMapActivity extends MapActivity {
      * @param modelChanged If the application model has changed.
      */
     void updateMapView(final boolean latChanged, final boolean lngChanged, final boolean modelChanged) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
+//		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
 		
     	// center map view
 		final GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));

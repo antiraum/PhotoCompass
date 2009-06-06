@@ -128,10 +128,10 @@ public final class PhotosView extends AbsoluteLayout {
 	 * @param doRedraw Redraw after changes.
 	 */
 	public void addPhotos(final ArrayList<Integer> newPhotos, final boolean doRedraw) {
+    	if (newPhotos.size() == 0) return; // nothing to do
+
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: addPhotos: newPhotos.size() = "+newPhotos.size());
     	
-    	if (newPhotos.size() == 0) return; // nothing to do
-		
 		for (int id : newPhotos) {
 	    	
 			// check if photo has been used before
@@ -187,9 +187,9 @@ public final class PhotosView extends AbsoluteLayout {
 	 * @param oldPhotos ArrayList of photo/resource ids of the photos to remove.
 	 */
 	public void removePhotos(final ArrayList<Integer> oldPhotos) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: removePhotos: oldPhotos.size() = "+oldPhotos.size());
-    	
     	if (oldPhotos.size() == 0) return; // nothing to do
+
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: removePhotos: oldPhotos.size() = "+oldPhotos.size());
     	
 		for (int id : oldPhotos) {
 		

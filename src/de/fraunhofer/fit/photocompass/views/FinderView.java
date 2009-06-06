@@ -38,7 +38,7 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
      * Acquires the camera and tells it where to draw.
      */
     public void surfaceCreated(final SurfaceHolder holder) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceCreated");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceCreated");
     	
         _camera = Camera.open();
         try {
@@ -53,7 +53,7 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
      * Stops the preview and releases the camera.
      */
     public void surfaceDestroyed(final SurfaceHolder holder) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceDestroyed");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceDestroyed");
     	
         // stop the preview
         _camera.stopPreview();
@@ -69,7 +69,7 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
      * Sets up the camera to the surface size and starts the preview.
      */
     public void surfaceChanged(final SurfaceHolder holder, final int format, final int w, final int h) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceChanged");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceChanged");
     	
         // set up the camera parameters
         Camera.Parameters parameters = _camera.getParameters();

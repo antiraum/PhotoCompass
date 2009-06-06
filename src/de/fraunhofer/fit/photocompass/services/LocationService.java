@@ -88,7 +88,7 @@ public final class LocationService extends Service {
 			if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
 			
 			if (location == null) return;
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
 			
 	        // broadcast the new location to all registered callbacks
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();

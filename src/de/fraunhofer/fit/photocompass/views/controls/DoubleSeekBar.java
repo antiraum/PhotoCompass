@@ -74,7 +74,7 @@ public abstract class DoubleSeekBar extends View {
 	
 	@Override
 	protected void onDraw(final Canvas canvas) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onDraw()");
+//		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onDraw()");
 		this.updateAllBounds();
 
 		super.onDraw(canvas);
