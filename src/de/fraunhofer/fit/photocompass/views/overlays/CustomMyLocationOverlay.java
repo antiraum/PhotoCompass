@@ -3,7 +3,6 @@ package de.fraunhofer.fit.photocompass.views.overlays;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.Log;
 
@@ -14,6 +13,7 @@ import com.google.android.maps.Projection;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
+import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
 
 /**
  * This Overlay is used by {@link PhotoMapActivity} to display the current location on the map when a dummy location is used.
@@ -21,6 +21,7 @@ import de.fraunhofer.fit.photocompass.R;
 public final class CustomMyLocationOverlay extends Overlay {
 	
 	private GeoPoint _location; // current location
+	private Bitmap _bmp; // marker bitmap
 	
 	/**
 	 * Update current location.
@@ -40,14 +41,17 @@ public final class CustomMyLocationOverlay extends Overlay {
     	
 		if (_location == null) return;
 		
-		// Transform geoposition to Point on canvas
+		// transform current position to point on canvas
 		final Projection projection = mapView.getProjection();
 		final Point point = new Point();
 		projection.toPixels(_location, point);
  
-		// the circle to mark the spot
-        final Bitmap bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
-        canvas.drawBitmap(bmp, point.x - bmp.getWidth() / 2, point.y - bmp.getHeight() / 2, new Paint());
-        bmp.recycle();
+		// create bitmap
+		if (_bmp == null) {
+	        _bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
+		}
+		
+		// draw the marker
+        canvas.drawBitmap(_bmp, point.x - _bmp.getWidth() / 2, point.y - _bmp.getHeight() / 2, null);
 	}
 }
