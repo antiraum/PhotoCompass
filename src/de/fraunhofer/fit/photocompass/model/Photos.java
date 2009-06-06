@@ -217,7 +217,7 @@ public final class Photos {
     	Photo photo;
     	for (int id : currentPhotos) {
     		photo = getPhoto(id);
-    		if (photo != null && _isPhotoVisible(photo, maxDistance, minAge, maxAge))  results.add(id);
+    		if (photo == null || ! _isPhotoVisible(photo, maxDistance, minAge, maxAge)) results.add(id);
     	}
     	
     	return results;

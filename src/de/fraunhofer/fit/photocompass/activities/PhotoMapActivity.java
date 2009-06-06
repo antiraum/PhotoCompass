@@ -266,7 +266,7 @@ public final class PhotoMapActivity extends MapActivity {
 		
 		// photos overlay
 		_photosOverlay = new PhotosOverlay();
-//		overlays.add(_photosOverlay);
+		overlays.add(_photosOverlay);
 		
         // initialize map controller
 		_mapController = _mapView.getController();
@@ -353,6 +353,17 @@ public final class PhotoMapActivity extends MapActivity {
         
         super.onStop();
     }
+    
+    /**
+     * This is called when the overall system is running low on memory, and would like actively running process to try to
+     * tighten their belt.
+     * We are nice and clear the unneeded bitmaps in the {@link #_photosOverlay}. 
+     */
+    @Override
+    public void onLowMemory() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLowMemory");
+    	_photosOverlay.clearUnneededBitmaps();
+    }
 
     /**
      * Tell the Google server that we are not displaying any kind of route information.
@@ -387,13 +398,9 @@ public final class PhotoMapActivity extends MapActivity {
 		// update photos
 		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
 		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos(),
-															    	_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
-															    	modelChanged ? true : false);
+																	_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
 		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos(),
-															 		  	  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
-																	      modelChanged ? true : false);
-
-		if (latChanged || lngChanged) _photosOverlay.updatePositions(true);
+																		  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
  
 		// redraw map
 		_mapView.postInvalidate();

@@ -199,10 +199,10 @@ public final class PhotosView extends AbsoluteLayout {
 			
 			// reset minimized state
 			_photoViews.get(id).setMinimized(false);
-			
-			// remove from list of currently used photos
-    		_photos.remove(id);
 		}
+		
+		// remove from list of currently used photos
+		_photos.removeAll(oldPhotos);
 
 		// update photo order
 		_sortPhotos();

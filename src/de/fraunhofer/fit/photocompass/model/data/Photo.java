@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
+import com.google.android.maps.GeoPoint;
 
 /**
  * This class is a custom data type for photos.
@@ -20,6 +21,7 @@ public final class Photo {
 	private long _date; // The date & time that the image was taken in units of milliseconds since January 1, 1970
 	private Uri _thumbUri; // URI of the Thumbnail file
 	
+	private GeoPoint _geoPoint;
 	private int _origWidth = 0;
 	private int _origHeight = 0;
 	private float _distance = 0;
@@ -106,6 +108,14 @@ public final class Photo {
 	 */
 	public double getLng() {
 		return _lng;
+	}
+	
+	/**
+	 * @return GeoPoint of the photo location for use in Google maps.
+	 */
+	public GeoPoint getGeoPoint() {
+		if (_geoPoint == null) _geoPoint = new GeoPoint((int)(_lat * 1E6), (int)(_lng * 1E6));
+		return _geoPoint;
 	}
 
 	/**
