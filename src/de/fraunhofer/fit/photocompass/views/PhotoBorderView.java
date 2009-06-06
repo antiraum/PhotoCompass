@@ -33,7 +33,7 @@ final class PhotoBorderView extends View {
 	 */
 	PhotoBorderView(final Context context) {
 		super(context);
-		_paint.setColor(Color.parseColor(PhotoCompassApplication.ORANGE));
+		_paint.setColor(PhotoCompassApplication.ORANGE);
 		_paint.setStrokeWidth(BORDER_WIDTH);
 	}
 	
