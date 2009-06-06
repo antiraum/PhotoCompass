@@ -15,24 +15,24 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  * The border is a thin {@link #PhotoCompassApplication.ORANGE} line than is less opaque the more photos occlude the 
  * one this border belongs to.
  */
-public class PhotoBorderView extends View {
+final class PhotoBorderView extends View {
 
-	private static final float BORDER_WIDTH = 3.1f; // stroke width of the border
+	private static final float BORDER_WIDTH = 3.1F; // stroke width of the border
 	private static final int ALPHA_DECREASE_PER_OCCLUSION = 15; // number by which the alpha value gets decreased for 
 															    // each photo occluding the one this border belongs to
 	
 	private int _width = 0;
 	private int _height = 0;
-	private Paint _paint;
+	private final Paint _paint = new Paint();
 	
 	/**
 	 * Constructor.
 	 * Initializes the {@link #_paint}.
+	 * 
 	 * @param context
 	 */
-	public PhotoBorderView(Context context) {
+	PhotoBorderView(final Context context) {
 		super(context);
-		_paint = new Paint();
 		_paint.setColor(Color.parseColor(PhotoCompassApplication.ORANGE));
 		_paint.setStrokeWidth(BORDER_WIDTH);
 	}
@@ -40,10 +40,11 @@ public class PhotoBorderView extends View {
 	/**
 	 * Set the number of photo occluding the one this border belongs to.
 	 * The more occlusions, the lower the alpha value of the {@link #_paint} is set.
+	 * 
 	 * @param numOcclusions Number of photos occluding the photo this border belongs to.
 	 */
-	public void setNumberOfOcclusions(int numOcclusions) {
-		int alpha = 255 - numOcclusions * ALPHA_DECREASE_PER_OCCLUSION;
+	void setNumberOfOcclusions(final int numOcclusions) {
+		final int alpha = 255 - numOcclusions * ALPHA_DECREASE_PER_OCCLUSION;
 		_paint.setAlpha(alpha);
 	}
 	
@@ -52,7 +53,7 @@ public class PhotoBorderView extends View {
 	 * All drawing is done here.
 	 */
     @Override 
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(final Canvas canvas) {
     	canvas.drawLine(0, 0, _width, 0, _paint); 
     	canvas.drawLine(_width, 0, _width, _height, _paint); 
     	canvas.drawLine(_width, _height, 0, _height, _paint); 
@@ -64,7 +65,7 @@ public class PhotoBorderView extends View {
      * We intercept to get the new dimensions.
      */
     @Override
-    public void setLayoutParams(ViewGroup.LayoutParams params) {
+    public void setLayoutParams(final ViewGroup.LayoutParams params) {
 		_width = params.width;
 		_height = params.height;
         super.setLayoutParams(params);

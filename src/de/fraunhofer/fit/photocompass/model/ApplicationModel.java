@@ -12,20 +12,20 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  * This is an active model, where Activities can register as callbacks in order to get updates when the values change.
  * This is a Singleton.
  */
-public class ApplicationModel {
+public final class ApplicationModel {
 	
 	// default values
-	private static final int DEFAULT_MAX_DISTANCE = 5000; // in meters
-	private static final int DEFAULT_MIN_AGE = 0; // in ...
-	private static final int DEFAULT_MAX_AGE = 100000;
+	private static final int DEFAULT_MAX_DISTANCE = 10 * 1000; // in meters
+	private static final long DEFAULT_MIN_AGE = 0L; // in milliseconds
+	private static final long DEFAULT_MAX_AGE = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 
     private static ApplicationModel _instance;
 
 	private float _maxDistance; // in meters
-	private int _minAge; // in ...
-	private int _maxAge; // in ...
+	private long _minAge; // in milliseconds
+	private long _maxAge; // in milliseconds
 
-    private RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
+    private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 	
     /**
      * Constructor.
@@ -50,14 +50,14 @@ public class ApplicationModel {
     /**
      * Register a callback object.
      */
-    public void registerCallback(IApplicationModelCallback cb) {
+    public void registerCallback(final IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.register(cb);
     }
     
     /**
      * Unregister a callback object.
      */
-    public void unregisterCallback(IApplicationModelCallback cb) {
+    public void unregisterCallback(final IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.unregister(cb);
     }
 
@@ -71,38 +71,38 @@ public class ApplicationModel {
 	/**
 	 * @param value The new maximum distance for photos to be displayed.
 	 */
-	public void setMaxDistance(float value) {
-		_maxDistance = value;
+	public void setMaxDistance(final float maxDistance) {
+		_maxDistance = maxDistance;
 		_broadcastChange();
 	}
 
     /**
      * @return The current minimum age for photos to be displayed.
      */
-	public int getMinAge() {
+	public long getMinAge() {
 		return _minAge;
 	}
 
 	/**
 	 * @param value The new minimum age for photos to be displayed.
 	 */
-	public void setMinAge(int value) {
-		_minAge = value;
+	public void setMinAge(final long minAge) {
+		_minAge = minAge;
 		_broadcastChange();
 	}
 
     /**
      * @return The current maximum age for photos to be displayed.
      */
-	public int getMaxAge() {
+	public long getMaxAge() {
 		return _maxAge;
 	}
 
 	/**
 	 * @param value The new maximum age for photos to be displayed.
 	 */
-	public void setMaxAge(int value) {
-		_maxAge = value;
+	public void setMaxAge(final long maxAge) {
+		_maxAge = maxAge;
 		_broadcastChange();
 	}
 	
@@ -115,9 +115,9 @@ public class ApplicationModel {
 	    for (int i = 0; i < numCallbacks; i++) {
 	        try {
 	            _remoteCallbacks.getBroadcastItem(i).onApplicationModelChange();
-	        } catch (DeadObjectException e) {
+	        } catch (final DeadObjectException e) {
 	            // the RemoteCallbackList will take care of removing the dead object
-	        } catch (RemoteException e) {
+	        } catch (final RemoteException e) {
 		    	Log.e(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
 	        }
 	    }

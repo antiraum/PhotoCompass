@@ -4,21 +4,27 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 /**
  * This class is a custom data type for photos.
  */
-public class Photo {
+public final class Photo {
 
-	private int _resourceId;
+	private int _resourceId = 0;
+	private int _photoId = 0; // MediaStore.Images.Thumbnails.IMAGE_ID of the photo
 	private double _lat;
 	private double _lng;
-	private double _alt;
-	private int _origWidth;
-	private int _origHeight;
-	private float _distance;
-	private double _direction;
-	private double _altOffset;
+	private double _alt = 0;
+	private long _date; // The date & time that the image was taken in units of milliseconds since January 1, 1970
+	private Uri _thumbUri; // URI of the Thumbnail file
+	
+	private int _origWidth = 0;
+	private int _origHeight = 0;
+	private float _distance = 0;
+	private double _direction = 0;
+	private double _altOffset = 0;
 	
 	// position on the last updateDistanceAndDirection call
 	private double _lastUpdateLat;
@@ -27,27 +33,65 @@ public class Photo {
 	
 	/**
 	 * Constructor.
-	 * @param resourceId Resource id of the photo.
+	 * 
+	 * @param photoId  {@link MediaStore.Images.Thumbnails.IMAGE_ID} of the photo.
+	 * @param thumbUri URI of the thumbnail file.
+	 * @param lat	   Latitude of the photo.
+	 * @param lng	   Longitude of the photo.
+	 * @param alt	   Altitude of the photo.
+	 * @param date	   The date & time that the image was taken in units of milliseconds since January 1, 1970.
+	 */
+	public Photo(final int photoId, final Uri thumbUri, final double lat, final double lng, final double alt, final long date) {
+		_photoId = photoId;
+		_lat = lat;
+		_lng = lng;
+		_alt = alt;
+		_date = date;
+		_thumbUri = thumbUri;
+	}
+	
+	/**
+	 * Constructor for a dummy photo.
+	 * 
+	 * @param resourceId Resource id of the photo file.
 	 * @param lat		 Latitude of the photo.
 	 * @param lng		 Longitude of the photo.
 	 * @param alt		 Altitude of the photo.
+	 * @param date	     The date & time that the image was taken in units of milliseconds since January 1, 1970.
 	 */
-	public Photo(int resourceId, double lat, double lng, double alt) {
+	public Photo(final int resourceId, final double lat, final double lng, final double alt, final long date) {
 		_resourceId = resourceId;
 		_lat = lat;
 		_lng = lng;
-		_alt  = alt;
-		_origWidth = 0;
-		_origHeight = 0;
-		_distance = 0f;
-		_direction = 0f;
+		_alt = alt;
+		_date = date;
 	}
-
+	
 	/**
-	 * @return Resource id of the photo.
+	 * Get the unique id for the photo.
+	 * 
+	 * @return {@link MediaStore.Images.Thumbnails.IMAGE_ID} of the photo (if MediaStore photo), or
+	 * 		   the resource id of the photo file (if dummy photo).
 	 */
-	public int getResourceId() {
-		return _resourceId;
+	public int getId() {
+		return isDummyPhoto() ? _resourceId : _photoId;
+	}
+	
+	/**
+	 * Used to check if this is a photo from the MediaStore or a dummy photo.
+	 * 
+	 * @return <code>true</code> if it's a dummy photo (use resourceId to access it), or,
+	 * 		   <code>false</code> if it's a MediaStore photo (use photoId and thumbUri to access it).
+	 */
+	public boolean isDummyPhoto() {
+		return (_photoId == 0) ? true : false;
+	}
+	
+	/**
+	 * @return URI of the thumbnail file.
+	 */
+	public Uri getThumbUri() {
+		return _thumbUri;
 	}
 
 	/**
@@ -65,30 +109,36 @@ public class Photo {
 	}
 
 	/**
-	 * Determines the original size of the resource.
-	 * Loads the bitmap data of the resource and sets {@link #_origWidth} and {@link #_origHeight}.
+	 * Determines the original size of the photo.
+	 * Loads the bitmap data and sets {@link #_origWidth} and {@link #_origHeight}.
 	 * Always call this method before accessing {@link #getOrigWidth()} or {@link #getOrigHeight()} to ensure
 	 * the size has been determined. 
+	 * 
 	 * @param resources {@link Resources} of the application.
 	 */
-	public void determineOrigSize(Resources resources) {
+	public void determineOrigSize(final Resources resources) {
 		if (_origWidth != 0 && _origHeight != 0) return; // already determined
-		Bitmap bitmap = BitmapFactory.decodeResource(resources, _resourceId);
-		_origWidth = bitmap.getWidth();
-		_origHeight = bitmap.getHeight();
-		bitmap = null;
+		Bitmap bmp;
+		if (isDummyPhoto()) {
+			bmp = BitmapFactory.decodeResource(resources, _resourceId);
+		} else {
+			bmp = BitmapFactory.decodeFile(_thumbUri.getPath());
+		}
+		_origWidth = bmp.getWidth();
+		_origHeight = bmp.getHeight();
+		bmp.recycle();
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: _origWidth = "+_origWidth+", _origHeight = "+_origHeight);
 	}
 
 	/**
-	 * @return Original width of the photo resource.
+	 * @return Original width of the photo.
 	 */
 	public int getOrigWidth() {
 		return _origWidth;
 	}
 
 	/**
-	 * @return Original height of the photo resource.
+	 * @return Original height of the photo.
 	 */
 	public int getOrigHeight() {
 		return _origHeight;
@@ -97,11 +147,12 @@ public class Photo {
 	/**
 	 * Updates {@link #_distance}, {@link #_direction}, and {@link #_altOffset} relative to a given position.
 	 * Only performs calculations if the position parameters have changed since the last call.
-	 * @param lat Latitude of the current location.
-	 * @param lng Longitude of the current location.
-	 * @param alt Altitude of the current location.
+	 * 
+	 * @param currentLat Latitude of the current location.
+	 * @param currentLng Longitude of the current location.
+	 * @param currentAlt Altitude of the current location.
 	 */
-	public void updateDistanceDirectionAndAltitudeOffset(double currentLat, double currentLng, double currentAlt) {
+	public void updateDistanceDirectionAndAltitudeOffset(final double currentLat, final double currentLng, final double currentAlt) {
 		
 		if (_lastUpdateLat != currentLat && _lastUpdateLng != currentLng) { // position has changed
 		
@@ -111,16 +162,16 @@ public class Photo {
 			_distance = results[0];
 	
 			// direction calculation - taken from com.google.android.radar.GeoUtils (http://code.google.com/p/apps-for-android)
-	        double lat1Rad = Math.toRadians(currentLat);
-	        double lat2Rad = Math.toRadians(_lat);
-	        double deltaLonRad = Math.toRadians(_lng - currentLng);
-	        double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
-	        double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad);
+	        final double lat1Rad = Math.toRadians(currentLat);
+	        final double lat2Rad = Math.toRadians(_lat);
+	        final double deltaLonRad = Math.toRadians(_lng - currentLng);
+	        final double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
+	        final double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad);
 	        _direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
 	        // end direction calculation
 		}
 
-		if (_lastUpdateAlt != currentAlt) { // altitude has changed
+		if (_lastUpdateAlt != currentAlt && _alt != 0) { // altitude has changed
 			
 			// altitude offset calculation
 	        _altOffset = (currentAlt == 0) ? 0 // no valid altitude -> no valid offset possible
@@ -136,6 +187,7 @@ public class Photo {
 	
 	/**
 	 * Returns the saved distance.
+	 * 
 	 * @return Distance in meters.
 	 */
 	public float getDistance() {
@@ -144,6 +196,7 @@ public class Photo {
 	
 	/**
 	 * Returns the saved direction.
+	 * 
 	 * @return Direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	 */
 	public double getDirection() {
@@ -152,6 +205,7 @@ public class Photo {
 	
 	/**
 	 * Returns the saved altitude offset.
+	 * 
 	 * @return Altitude offset in meters.
 	 */
 	public double getAltOffset() {
@@ -159,10 +213,9 @@ public class Photo {
 	}
 	
 	/**
-	 * @return Age of the photo in ... (maybe minutes or seconds)
+	 * @return Age of the photo in milliseconds.
 	 */
-	public int getAge() {
-		// FIXME 
-		return 24 * 60;
+	public long getAge() {
+		return System.currentTimeMillis() - _date;
 	}
 }

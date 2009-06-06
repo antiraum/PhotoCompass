@@ -8,17 +8,18 @@ import de.fraunhofer.fit.photocompass.R;
 /**
  * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and the UI controls.
  */
-public class ControlsView extends AbsoluteLayout {
+public final class ControlsView extends AbsoluteLayout {
 	
 	/**
 	 * Constructor.
 	 * Sets up the controls.
+	 * 
 	 * @param context
 	 */
-	public ControlsView(Context context) {
+	public ControlsView(final Context context) {
 		super(context);
 
-        ImageView distanceSliderDummy = new ImageView(context);
+        final ImageView distanceSliderDummy = new ImageView(context);
         distanceSliderDummy.setScaleType(ImageView.ScaleType.FIT_XY); 
         distanceSliderDummy.setImageResource(R.drawable.distance_slider_dummy); 
         distanceSliderDummy.setLayoutParams(new LayoutParams(62, 257, 6, 7));
@@ -28,7 +29,7 @@ public class ControlsView extends AbsoluteLayout {
 //        distanceSlider.setLayoutParams(new LayoutParams(62, 257, 6, 7));
 //        addView(distanceSlider);
 
-        ImageView ageSliderDummy = new ImageView(context);
+        final ImageView ageSliderDummy = new ImageView(context);
         ageSliderDummy.setScaleType(ImageView.ScaleType.FIT_XY); 
         ageSliderDummy.setImageResource(R.drawable.age_slider_dummy); 
         ageSliderDummy.setLayoutParams(new LayoutParams(441, 41, 32, 249));

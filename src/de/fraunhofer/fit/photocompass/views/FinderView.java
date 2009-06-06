@@ -10,7 +10,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 /**
  * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the image from the camera finder.
  */
-public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
+public final class FinderView extends SurfaceView implements SurfaceHolder.Callback {
 	
     private SurfaceHolder _surfaceHolder;
     private Camera _camera;
@@ -18,9 +18,10 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
     /**
      * Constructor.
      * Initializes the {@field #_surfaceHolder}.
+     * 
      * @param context
      */
-    public FinderView(Context context) {
+    public FinderView(final Context context) {
         super(context);
 
         // setup the surface holder
@@ -36,13 +37,13 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
      * This is called after the surface is first created.
      * Acquires the camera and tells it where to draw.
      */
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void surfaceCreated(final SurfaceHolder holder) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceCreated");
     	
         _camera = Camera.open();
         try {
         	_camera.setPreviewDisplay(holder);
-        } catch (Exception e) {
+        } catch (final Exception e) {
         	Log.e(PhotoCompassApplication.LOG_TAG, "FinderView: setting camera preview display failed");
         }
     }
@@ -51,7 +52,7 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
      * This is called before a surface is being destroyed.
      * Stops the preview and releases the camera.
      */
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    public void surfaceDestroyed(final SurfaceHolder holder) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceDestroyed");
     	
         // stop the preview
@@ -67,7 +68,7 @@ public class FinderView extends SurfaceView implements SurfaceHolder.Callback {
      * This is called after any structural changes (format or size) have been made to the surface.
      * Sets up the camera to the surface size and starts the preview.
      */
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+    public void surfaceChanged(final SurfaceHolder holder, final int format, final int w, final int h) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceChanged");
     	
         // set up the camera parameters

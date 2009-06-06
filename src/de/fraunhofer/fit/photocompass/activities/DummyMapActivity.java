@@ -21,7 +21,7 @@ import de.fraunhofer.fit.photocompass.services.OrientationService;
  * This class is a dummy replacement of the {@link PhotoMapActivity} for running the application on a platform without Google libraries.
  * If this class or {@link PhotoMapActivity} is used is controlled by the {@link PhotoCompassApplication#TARGET_PLATFORM} constant.
  */
-public class DummyMapActivity extends Activity {
+public final class DummyMapActivity extends Activity {
 
 	DummyMapActivity mapActivity; // package scoped for faster access by inner classes
     IOrientationService orientationService; // package scoped for faster access by inner classes
@@ -37,7 +37,7 @@ public class DummyMapActivity extends Activity {
     	 * Creates the {@link #orientationService} object from the service interface and
     	 * registers the {@link #orientationServiceCallback}.
     	 */
-	    public void onServiceConnected(ComponentName className, IBinder service) {
+	    public void onServiceConnected(final ComponentName className, final IBinder service) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: connected to orientation service");
 	    	
 	    	// generate service object
@@ -46,9 +46,9 @@ public class DummyMapActivity extends Activity {
 	    	// register at the service
             try {
             	orientationService.registerCallback(orientationServiceCallback);
-            } catch (DeadObjectException e) {
-            	// service crashed
-            } catch (RemoteException e) {
+            } catch (final DeadObjectException e) {
+    			Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: orientation service has crashed");
+            } catch (final RemoteException e) {
     			Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to register to orientation service");
             }
 	    }
@@ -57,7 +57,7 @@ public class DummyMapActivity extends Activity {
     	 * Gets called when the service connection is closed down.
     	 * Frees {@link #orientationService}.
     	 */
-	    public void onServiceDisconnected(ComponentName name) {
+	    public void onServiceDisconnected(final ComponentName name) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: disconnected from orientation service");
 	    	orientationService = null;
 	    }
@@ -76,7 +76,7 @@ public class DummyMapActivity extends Activity {
 		 * Gets called when new data is provided by the {@link OrientationService}.
 		 * Initiates switch to {@link FinderActivity} when the phone is held vertically. 
 		 */
-        public void onOrientationEvent(float yaw, float pitch, float roll) {
+        public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
@@ -86,7 +86,7 @@ public class DummyMapActivity extends Activity {
 	    	_roll = roll;
             
             // switch to activity based on orientation
-        	int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
@@ -111,7 +111,7 @@ public class DummyMapActivity extends Activity {
      * Initializes the views.
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: onCreate");
         super.onCreate(savedInstanceState);
         
@@ -131,7 +131,7 @@ public class DummyMapActivity extends Activity {
     	super.onStart();
     	
         // connect to orientation service
-    	Intent orientationServiceIntent = new Intent(this, OrientationService.class);
+    	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
     }
@@ -151,9 +151,9 @@ public class DummyMapActivity extends Activity {
 	    	if (orientationService != null) {
 	    		try {
 	    			orientationService.unregisterCallback(orientationServiceCallback);
-	            } catch (DeadObjectException e) {
-	            	// the service has crashed
-	    		} catch (RemoteException e) {
+	            } catch (final DeadObjectException e) {
+	    			Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: orientation service has crashed");
+	    		} catch (final RemoteException e) {
 	    			Log.w(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to unregister from orientation service");
 	    		}
 	    	}

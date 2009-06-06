@@ -9,7 +9,7 @@ import de.fraunhofer.fit.photocompass.model.Photos;
  * This is the Application class of the PhotoCompass application. It gets initialized at application start.
  * We use it to store some global information and to initialize the model singletons.
  */
-public class PhotoCompassApplication extends Application {
+public final class PhotoCompassApplication extends Application {
 	
 	// tag for logging
     public static final String LOG_TAG = "PhotoCompass";
@@ -35,8 +35,11 @@ public class PhotoCompassApplication extends Application {
     public static final int MIN_TAP_SIZE = 50; // minimum size of an area that can be tapped on
 	
     // dummy location settings (enable for development when a fixed location is needed)
-    public static final boolean USE_DUMMY_LOCATION = true;
+    public static final boolean USE_DUMMY_LOCATION = false;
     public static Location dummyLocation;
+    
+    // dummy photo settings (enable for development when a fixed set of photos is needed)
+    public static final boolean USE_DUMMY_PHOTOS = true;
     
     /**
      * Constructor.
@@ -64,12 +67,13 @@ public class PhotoCompassApplication extends Application {
     /**
      * Returns the activity constant for a roll value from the orientation sensor.
      * Is used by the activities to determine when they have to switch to another activity.
+     * 
      * @param roll Roll value of the orientation sensor (values from -180 to 180).
      * @return Activity constant of the correct activity at this roll value.
      * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
      * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
-    public static int getActivityForRoll(float roll) {
+    public static int getActivityForRoll(final float roll) {
     	if ((roll > -135 && roll < -45) || (roll > 45 && roll < 135)) {
     		return FINDER_ACTIVITY;
     	} else {

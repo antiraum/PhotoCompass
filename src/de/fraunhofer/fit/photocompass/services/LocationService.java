@@ -23,17 +23,21 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  * Service only runs when needed. After the connection to the service is established activities can register as callbacks to get
  * notified when the location changes.
  */
-public class LocationService extends Service {
+public final class LocationService extends Service {
 	
 	private static final int MIN_LOCATION_UPDATE_TIME = 3 * 1000; // in milliseconds
 	private static final int MIN_LOCATION_UPDATE_DISTANCE = 1; // in meters
 	
 	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 60 * 1000; // in milliseconds
-    private Handler _providerCheckHandler;
-    private Runnable _providerCheckCaller;
+    private final Handler _providerCheckHandler = new Handler();
+    private final Runnable _providerCheckCaller = new Runnable() {
+        public void run() {
+        	checkForBetterProvider();
+        }
+    };
 
-	private Criteria _criteria;
-	private Criteria _fallbackCriteria;
+	private final Criteria _criteria = new Criteria();
+	private final Criteria _fallbackCriteria = new Criteria();
 	
 	/**
 	 * Location provider that is currently used. Gets chosen by the {@link LocationManager} based on {@link #_criteria}.
@@ -52,13 +56,13 @@ public class LocationService extends Service {
      * Is provided to activities when they connect ({@see #onBind(Intent)}).
      */
     private final ILocationService.Stub _binder = new ILocationService.Stub() {
-        public void registerCallback(ILocationServiceCallback cb) {
+        public void registerCallback(final ILocationServiceCallback cb) {
             if (cb != null) remoteCallbacks.register(cb);
         	
         	// send immediate initial broadcast
             locationListener.onLocationChanged((locationProvider != null) ? locationManager.getLastKnownLocation(locationProvider) : null);
         }
-        public void unregisterCallback(ILocationServiceCallback cb) {
+        public void unregisterCallback(final ILocationServiceCallback cb) {
             if (cb != null) remoteCallbacks.unregister(cb);
         }
     };
@@ -92,9 +96,9 @@ public class LocationService extends Service {
 	            try {
 	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(location.getLatitude(), location.getLongitude(),
 	                													location.hasAltitude(), location.getAltitude());
-	            } catch (DeadObjectException e) {
+	            } catch (final DeadObjectException e) {
 	                // the RemoteCallbackList will take care of removing the dead object
-	            } catch (RemoteException e) {
+	            } catch (final RemoteException e) {
 	    	    	Log.w(PhotoCompassApplication.LOG_TAG, "broadcast to callback failed");
                 }
 	        }
@@ -105,7 +109,7 @@ public class LocationService extends Service {
 		 * Called when the provider is disabled by the user.
 		 * Re-choose the location provider. 
 		 */
-		public void onProviderDisabled(String provider) {
+		public void onProviderDisabled(final String provider) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onProviderDisabled: provider = "+provider);
 	    	chooseLocationProvider(null); // choose new provider
 		}
@@ -113,7 +117,7 @@ public class LocationService extends Service {
 		/**
 		 * Called when the provider is enabled by the user.
 		 */
-		public void onProviderEnabled(String provider) {
+		public void onProviderEnabled(final String provider) {
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onProviderEnabled: provider = "+provider);
 		}
 		
@@ -123,7 +127,7 @@ public class LocationService extends Service {
 		 * If the status changes to {@link #LocationProvider.TEMPORARILY_UNAVAILABLE} we check for an available better provider,
 		 * otherwise we keep checking the current one.
 		 */
-		public void onStatusChanged(String provider, int status, Bundle extras) {
+		public void onStatusChanged(final String provider, final int status, final Bundle extras) {
 	    	
 	    	if (status == LocationProvider.OUT_OF_SERVICE) {
 	    		// provider is out of service, and this is not expected to change in the near future
@@ -156,14 +160,12 @@ public class LocationService extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         	
     	// setup criteria for choosing the location provider
-    	_criteria = new Criteria();
     	_criteria.setAccuracy(Criteria.ACCURACY_FINE);
     	_criteria.setAltitudeRequired(true);
     	_criteria.setBearingRequired(false);
     	_criteria.setCostAllowed(false);
     	_criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
     	_criteria.setSpeedRequired(false);
-    	_fallbackCriteria = new Criteria();
     	_fallbackCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
     	_fallbackCriteria.setAltitudeRequired(false);
     	_fallbackCriteria.setBearingRequired(false);
@@ -173,16 +175,8 @@ public class LocationService extends Service {
     	
     	// choose initial provider
     	chooseLocationProvider(null);
-    	
-    	// setup handler and runnable for regular checks for a better provider
-        _providerCheckHandler = new Handler();
-        _providerCheckCaller = new Runnable() {
-            public void run() {
-            	checkForBetterProvider();
-            }
-        };
 
-        // start the regular checks
+        // start the regular checks for a better provider
         checkForBetterProvider();
     }
     
@@ -193,7 +187,7 @@ public class LocationService extends Service {
      * Package scoped for faster access by inner classes.
      */
     void checkForBetterProvider() {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: checkForBetterProvider");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: checkForBetterProvider");
 
     	// check for better provider
     	chooseLocationProvider(locationProvider);
@@ -206,17 +200,18 @@ public class LocationService extends Service {
      * Chooses a location provider and starts getting updates from it.
      * First stops listening to the current provider, then tries to find the best possible provider, and starts listening to it. 
      * Package scoped for faster access by inner classes.
+     * 
      * @param currentProvider Current provider. Pass this argument when the provider should only be switched if a better provider
      * 						  is available. 
      */
-    void chooseLocationProvider(String currentProvider) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: current location provider is "+currentProvider);
+    void chooseLocationProvider(final String currentProvider) {
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: current location provider is "+currentProvider);
     	
     	// first check for good and enabled provider
     	String newProvider = locationManager.getBestProvider(_criteria, true);
     	
     	if (currentProvider != null && (newProvider == null || newProvider.equals(currentProvider))) { // no better provider found
-        	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: no better provider found");
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: chooseLocationProvider: no better provider found");
     		return;
     	}
 
@@ -250,10 +245,11 @@ public class LocationService extends Service {
 
     /**
      * Called when an activity connects to the service.
+     * 
      * @return The {@field #_binder} interface to the service.
      */
 	@Override
-	public IBinder onBind(Intent intent) {
+	public IBinder onBind(final Intent intent) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onBind");
 		return _binder;
 	}
