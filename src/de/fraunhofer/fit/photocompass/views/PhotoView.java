@@ -23,6 +23,8 @@ final class PhotoView extends AbsoluteLayout {
 	private Photo _photo; // Photo object for the displayed photo
 	private ImageView _imgView;
 	private TextView _textView;
+	private final StringBuilder _stringBuilder = new StringBuilder();
+	private final Formatter _fmt = new Formatter();
 	private int _width; // current width
 	private int _height; // current height
 	private boolean _minimized = false;
@@ -58,29 +60,30 @@ final class PhotoView extends AbsoluteLayout {
 	 */
 	void updateText() {
 		
-        String text;
+		_stringBuilder.setLength(0); // reset
         
         // distance
         final float photoDistance = _photo.getDistance();
         if (photoDistance < 1000) {
-        	text = (int)Math.round(photoDistance)+" m";
+        	_stringBuilder.append(Math.round(photoDistance));
+        	_stringBuilder.append(" m");
         } else {
-        	final Formatter fmt = new Formatter();
-            fmt.format("%.1f", photoDistance / 1000); 
-            text = fmt+" km";
+        	_stringBuilder.append(_fmt.format("%.1f", photoDistance / 1000)); 
+        	_stringBuilder.append(" km");
         }
-        text += " away";
+        _stringBuilder.append(" away\n");
         
         // altitude offset
         final double photoAltOffset = _photo.getAltOffset();
         if (photoAltOffset == 0) {
-        	text += "\non same level";
+        	_stringBuilder.append("on same level");
         } else {
-        	text += "\n"+Math.abs(Math.round(photoAltOffset))+" m ";
-        	text += (photoAltOffset > 0) ? "higher" : "lower";
+        	_stringBuilder.append(Math.abs(Math.round(photoAltOffset)));
+        	_stringBuilder.append(" m ");
+        	_stringBuilder.append((photoAltOffset > 0) ? "higher" : "lower");
         }
         
-        _textView.setText(text);
+        _textView.setText(_stringBuilder.toString());
 	}
     
     /**
@@ -103,6 +106,7 @@ final class PhotoView extends AbsoluteLayout {
 				rawBmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
 			}
 			_imgView.setImageBitmap(Bitmap.createScaledBitmap(rawBmp, _width, _height, true));
+			rawBmp.recycle();
 		}
 		
         super.setLayoutParams(params);
