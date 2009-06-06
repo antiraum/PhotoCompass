@@ -42,14 +42,6 @@ public final class Photos {
 	private final HashMap<Integer, Photo> _dummies = new HashMap<Integer, Photo>();
 
 	/**
-	 * Ids of the currently used (visible) photos.
-	 * Sorted from farthest to nearest.
-	 * This gets updated by {@link #getNewlyVisiblePhotos(ArrayList, float, long, long)} and 
-	 * {@link #getNoLongerVisiblePhotos(ArrayList, float, long, long)} and gets accessed by the photo displaying views.
-	 */
-	public final ArrayList<Integer> currentPhotos = new ArrayList<Integer>();
-
-	/**
 	 * @return The instance of this Singleton model.
 	 */
     public static Photos getInstance() {
@@ -185,12 +177,14 @@ public final class Photos {
     /**
      * Determines which photos are newly visible for the current viewing settings.
      * 
+     * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
      * @param maxDistance   Maximum distance from the current position (in meters).
      * @param minAge 	    Minimum age of the photos (in milliseconds).
      * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the newly visible photos.
      */
-    public ArrayList<Integer> getNewlyVisiblePhotos(final float maxDistance, final long minAge, final long maxAge) {
+    public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos,
+    												final float maxDistance, final long minAge, final long maxAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
@@ -203,39 +197,28 @@ public final class Photos {
 	    	}
     	}
     	
-    	// update currentPhotos
-    	currentPhotos.addAll(results);
-		_sortCurrentPhotos();
-    	
     	return results;
     }
 
     /**
      * Determines which photos are no longer visible for the current viewing settings.
      * 
+     * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
      * @param maxDistance   Maximum distance from the current position (in meters).
      * @param minAge 	    Minimum age of the photos (in milliseconds).
      * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the no longer visible photos.
      */
-    public ArrayList<Integer> getNoLongerVisiblePhotos(final float maxDistance, final long minAge, final long maxAge) {
+    public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos,
+    												   final float maxDistance, final long minAge, final long maxAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
     	Photo photo;
     	for (int id : currentPhotos) {
     		photo = getPhoto(id);
-    		if (photo != null && _isPhotoVisible(photo, maxDistance, minAge, maxAge)) continue;
-    		
-    		// add to results
-    		results.add(id);
-			
-			// remove from currentPhotos
-    		currentPhotos.remove(id);
+    		if (photo != null && _isPhotoVisible(photo, maxDistance, minAge, maxAge))  results.add(id);
     	}
-		
-		// sort currentPhotos
-		_sortCurrentPhotos();
     	
     	return results;
     }
@@ -264,18 +247,6 @@ public final class Photos {
 		}
 		return true;
     }
-	
-	/**
-	 * Sorts ({@link #currentPhotos}) based on their distance.
-	 */
-	private void _sortCurrentPhotos() {
-		Collections.sort(currentPhotos, new Comparator<Integer>() {
-	    	public int compare(final Integer id1, final Integer id2) {
-	    		if (getPhoto(id1).getDistance() > getPhoto(id2).getDistance()) return -1;
-	    		return 1;
-	        }
-	    });
-	}
     
     /**
      * Updates distance, direction, and altitude offset of all photos stored in the model.
@@ -288,18 +259,6 @@ public final class Photos {
     	for (HashMap<Integer, Photo> photosMap : new HashMap[] {_photos, _dummies}) {
     		for (Photo photo : photosMap.values()) photo.updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
     	}
-    }
-    
-    /**
-     * Updates distance, direction, and altitude offset of the photos currently used by the photos views.
-     * 
-     * @param lat Current latitude.
-     * @param lng Current longitude.
-     * @param alt Current altitude.
-     */
-    public void updateCurrentPhotosProperties(final double lat, final double lng, final double alt) {
-    	for (int id : currentPhotos)
-    		getPhoto(id).updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
     }
 	
 	/**

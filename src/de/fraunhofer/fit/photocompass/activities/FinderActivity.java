@@ -36,7 +36,7 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
  */
 public final class FinderActivity extends Activity {
 
-    private static final int STATUSBAR_HEIGHT = 25; // FIXME no hardcoded values
+    private static final int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
     private static final int BOTTOM_CONTROLS_HEIGHT = 35;
 
 	FinderActivity finderActivity; // package scoped for faster access by inner classes
@@ -48,7 +48,7 @@ public final class FinderActivity extends Activity {
 	
     PhotosView photosView; // package scoped for faster access by inner classes
 	private long _lastPhotoViewUpdate;
-	private static final int PHOTO_VIEW_UPDATE_IVAL = 350; // in milliseconds
+	private static final int PHOTO_VIEW_UPDATE_IVAL = 250; // in milliseconds
 
     ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
@@ -421,10 +421,10 @@ public final class FinderActivity extends Activity {
     		// update photos
     		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
     		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
-    															    _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
+    																_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()),
     															    doRedrawHere);
     		photosView.removePhotos(_photosModel.getNoLongerVisiblePhotos(photosView.getPhotos(),
-																 		  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    																	  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
     	}
     	
     	if (latChanged || lngChanged || altChanged) {

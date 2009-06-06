@@ -1,6 +1,8 @@
 package de.fraunhofer.fit.photocompass.views;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ListIterator;
 
@@ -50,7 +52,11 @@ public final class PhotosView extends AbsoluteLayout {
 																							   // (currently and previously used)
 	private final HashMap<Integer, PhotoBorderView> _borderViews = new HashMap<Integer, PhotoBorderView>(); // border views for photos
 	   																										// (currently and previously used)
+	// TODO maybe we can increase performance if we don't hide and show the views directly but rather put them into ViewStubs
+	// which we then inflate
 
+	private final ArrayList<Integer> _photos = new ArrayList<Integer>(); // ids of the currently used photos
+																   		 // sorted from farthest to nearest
 	private final HashMap<Integer, PhotoMetrics> _photoMetrics = new HashMap<Integer, PhotoMetrics>(); // metrics of photos
 																								 	   // (currently and previously used)
 	
@@ -128,13 +134,19 @@ public final class PhotosView extends AbsoluteLayout {
 	    		_borderLayer.addView(borderView);
 	    	}
 	    	
+	    	// add to list of currently used photos
+			_photos.add(id);
+	    	
     		// update size and position and redraw if changed and wanted
 			if (doRedraw && (_updatePhotoSize(id) || _updatePhotoXPosition(id) || _updatePhotoYPosition(id)))
 				_redrawPhoto(id);
 		}
 		
+		// sort photo order
+		_sortPhotos();
+		
 		// update views z orders
-		for (int id : _photosModel.currentPhotos) {
+		for (int id : _photos) {
 			_photoViews.get(id).bringToFront();
 			_borderViews.get(id).bringToFront();
 		}
@@ -163,10 +175,28 @@ public final class PhotosView extends AbsoluteLayout {
 			
 			// reset minimized state
 			_photoViews.get(id).setMinimized(false);
+			
+			// remove from list of currently used photos
+    		_photos.remove(id);
 		}
+
+		// update photo order
+		_sortPhotos();
 		
 		// set number of occlusions for border alpha value
 		_setBorderOcclusions();
+	}
+	
+	/**
+	 * Sorts ({@link #_photos}) based on their distance. Farthest to nearest.
+	 */
+	private void _sortPhotos() {
+		Collections.sort(_photos, new Comparator<Integer>() {
+	    	public int compare(final Integer id1, final Integer id2) {
+	    		if (_photosModel.getPhoto(id1).getDistance() > _photosModel.getPhoto(id2).getDistance()) return -1;
+	    		return 1;
+	        }
+	    });
 	}
 	
 	/**
@@ -175,12 +205,12 @@ public final class PhotosView extends AbsoluteLayout {
 	 */
 	private void _setBorderOcclusions() {
 
-		for (int resId1 : _photosModel.currentPhotos) {
+		for (int resId1 : _photos) {
 			final PhotoMetrics met1 = _photoMetrics.get(resId1);
 			int numOccludingPhotos = 0;
 			int resId2;
 			PhotoMetrics met2;
-			ListIterator<Integer> lit = _photosModel.currentPhotos.listIterator(_photosModel.currentPhotos.size());
+			ListIterator<Integer> lit = _photos.listIterator(_photos.size());
 	        while (lit.hasPrevious()) { // iterate front to back
 	        	resId2 = lit.previous();
 				if (resId1 == resId2) break; 
@@ -197,6 +227,13 @@ public final class PhotosView extends AbsoluteLayout {
 	}
 	
 	/**
+	 * @return The photos currently used by the view.
+	 */
+	public ArrayList<Integer> getPhotos() {
+		return _photos;
+	}
+	
+	/**
 	 * Updates the text overlay on the photo views.
 	 * 
 	 * @param doRedraw Redraw after changes.
@@ -204,7 +241,7 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateTextInfos(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
 
-		for (int id : _photosModel.currentPhotos)  _photoViews.get(id).updateText();
+		for (int id : _photos)  _photoViews.get(id).updateText();
 	}
 
 	/**
@@ -218,7 +255,7 @@ public final class PhotosView extends AbsoluteLayout {
 		
 		_direction = direction;
 
-		for (int id : _photosModel.currentPhotos) {
+		for (int id : _photos) {
 			if (_updatePhotoXPosition(id) && doRedraw) _redrawPhoto(id);
 		}
 	}
@@ -255,7 +292,7 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateYPositions(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateYPositions");
     	
-		for (int id : _photosModel.currentPhotos) {
+		for (int id : _photos) {
 			if (_updatePhotoYPosition(id) && doRedraw) _redrawPhoto(id);
 		}
 	}
@@ -307,7 +344,7 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateSizes(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateSizes");
     	
-		for (int id : _photosModel.currentPhotos) {
+		for (int id : _photos) {
 			if (_updatePhotoSize(id)) {
 				_updatePhotoXPosition(id);
 				_updatePhotoYPosition(id);
@@ -390,7 +427,7 @@ public final class PhotosView extends AbsoluteLayout {
     	 */
     	int flingedPhoto = 0; // id of the flinged photo
     	int id;
-		ListIterator<Integer> lit = _photosModel.currentPhotos.listIterator(_photosModel.currentPhotos.size());
+		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
         while (lit.hasPrevious()) { // iterate front to back
         	id = lit.previous();
         	if (_photoViews.get(id).isMinimized()) continue; // ignore minimized photos
@@ -434,7 +471,7 @@ public final class PhotosView extends AbsoluteLayout {
     	 */
     	int tappedPhoto = 0; // id of the tapped photo
     	int id;
-		ListIterator<Integer> lit = _photosModel.currentPhotos.listIterator(_photosModel.currentPhotos.size());
+		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
         while (lit.hasPrevious()) { // iterate front to back
         	id = lit.previous();
         	if (! _photoViews.get(id).isMinimized()) continue; // ignore not minimized photos
@@ -464,7 +501,7 @@ public final class PhotosView extends AbsoluteLayout {
     	for (ViewGroup layer : new ViewGroup[] {_photoLayer, _borderLayer}) {
     		for (int i = 0; i < layer.getChildCount(); i++) {
     			view = layer.getChildAt(i);
-    			if (_photosModel.currentPhotos.contains(view.getId())) continue; // is currently needed
+    			if (_photos.contains(view.getId())) continue; // is currently needed
     			layer.removeView(view);
     		}
     	}
