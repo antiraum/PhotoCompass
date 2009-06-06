@@ -249,7 +249,7 @@ public final class PhotoMapActivity extends MapActivity {
 		_mapView = new MapView(this, MAPS_API_KEY);
 		_mapView.setClickable(true);
 		_mapView.setEnabled(true);
-//		_mapView.setBuiltInZoomControls(true); XXX commented for 1.1 compatibility
+		_mapView.setBuiltInZoomControls(true);
 		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
 		// current position and compass overlay

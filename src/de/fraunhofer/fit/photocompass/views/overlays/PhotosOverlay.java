@@ -161,7 +161,7 @@ public final class PhotosOverlay extends Overlay {
 			// draw bitmap
 			canvas.drawBitmap(_photoBitmaps.get(id), point.x - 1/3 * width, point.y - 4/3 * height - BORDER_WIDTH, null);
 			
-//			break;
+			break;
         }
     }
     

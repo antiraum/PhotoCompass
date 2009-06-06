@@ -110,16 +110,17 @@ public final class OrientationService extends Service {
 			SensorManagerSimulator.connectSimulator(); 
 		} else {
 			// running on phone
+
+			// check if there is no orientation sensor
+			if (_sensorManager.getSensorList(SensorManager.SENSOR_ORIENTATION).size() == 0) {
+	        	Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: no orientation sensor found");
+	        	// TODO notify the user and tell him that he cannot use the application
+	    		return;
+	    	}
+			
 			_sensorManager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
 		}
-//XXX commented for 1.1 compatibility
-//		// check if there is no orientation sensor
-//		if (_sensorManager.getSensorList(SensorManager.SENSOR_ORIENTATION).size() == 0) {
-//        	Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: no orientation sensor found");
-//        	// TODO notify the user and tell him that he cannot use the application
-//    		return;
-//    	}
-//    	
+    	
     	// start listening to sensors
     	_sensorManager.registerListener(_sensorListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_NORMAL);
     }
