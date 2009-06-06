@@ -270,7 +270,7 @@ public final class PhotoMapActivity extends MapActivity {
 		
         // initialize map controller
 		_mapController = _mapView.getController();
-		_mapController.setZoom(12);
+		_mapController.setZoom(15);
 	}
     
     /**

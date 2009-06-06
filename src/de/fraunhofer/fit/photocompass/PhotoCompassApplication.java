@@ -29,7 +29,9 @@ public final class PhotoCompassApplication extends Application {
 	public static final int CAMERA_VDEGREES = 32; // vertical degrees out of 360 that are visible on the screen
     
     // colors
+	public static final int LIGHT_ORANGE = Color.parseColor("#ffd050");
     public static final int ORANGE = Color.parseColor("#ffd300");
+    public static final int DARK_ORANGE = Color.parseColor("#eba000");
     
     // tap interaction constants
     public static final int MIN_TAP_SIZE = 50; // minimum size of an area that can be tapped on

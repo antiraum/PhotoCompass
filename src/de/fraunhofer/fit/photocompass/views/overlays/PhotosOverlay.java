@@ -7,9 +7,11 @@ import java.util.Comparator;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.Shader;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -28,7 +30,9 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
 public final class PhotosOverlay extends Overlay {
 	
 	private static final float PHOTO_SIZE = 60;
-	private static final float BORDER_WIDTH = 2; // stroke width of the border
+	private static final float ARROW_WIDTH = 15;
+	private static final float ARROW_HEIGHT = 15;
+	private static final float BORDER_WIDTH = 2.1F; // stroke width of the border
 	
 	/**
 	 * Ids of the currently used photos (sorted from north to south).
@@ -41,16 +45,22 @@ public final class PhotosOverlay extends Overlay {
 	 */
 	private final SparseArray<Bitmap> _photoBitmaps = new SparseArray<Bitmap>();
 	
+	/**
+	 * Paths for the borders of the currently and previously used photos (key is photo/resource id).
+	 */
+	private final SparseArray<Path> _borderPaths = new SparseArray<Path>();
+	
     private Photos _photosModel;
 	private final Paint _borderPaint = new Paint();
+	private final Point _point = new Point();
 	
 	public PhotosOverlay() {
         _photosModel = Photos.getInstance();
-        _borderPaint.setColor(PhotoCompassApplication.ORANGE);
-//        _borderPaint.setStrokeWidth(BORDER_WIDTH);
+        
+        _borderPaint.setStrokeWidth(BORDER_WIDTH);
+        _borderPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 	}
 
-	
 	/**
 	 * Adds photos to the list of currently used photos.
 	 * 
@@ -119,8 +129,8 @@ public final class PhotosOverlay extends Overlay {
 		Photo photo;
 		Bitmap bmp;
 		float width, height, xScale, yScale, scale;
-		final Path path = new Path();
-		final Point point = new Point();
+		Path path;
+		final Path drawPath = new Path();
 		for (int id : _photos) {
 
 			// get photo
@@ -148,25 +158,32 @@ public final class PhotosOverlay extends Overlay {
 			// get position and dimension
 			width = bmp.getWidth();
 			height = bmp.getHeight();
-			projection.toPixels(photo.getGeoPoint(), point);
+			projection.toPixels(photo.getGeoPoint(), _point);
+			
+			path = _borderPaths.get(id);
+			if (path == null) {
+			
+				// create border path
+				path = new Path();
+				path.rLineTo(width + BORDER_WIDTH, 0); // top border
+				path.rLineTo(0, height + BORDER_WIDTH); // right border
+				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
+				path.rLineTo(-1 * ARROW_WIDTH / 2, ARROW_HEIGHT); // arrow right border
+				path.rLineTo(-1 * ARROW_WIDTH / 2, -1 * ARROW_HEIGHT); // arrow left border
+				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
+				path.close(); // left border
+				_borderPaths.append(id, path);
+			}
 			
 			// draw border
-			path.reset();
-			path.moveTo(point.x - 1/3 * width - BORDER_WIDTH, point.y - 4/3 * height - 2 * BORDER_WIDTH);
-			path.rLineTo(width + 2 * BORDER_WIDTH, 0);
-			path.rLineTo(0, height + 2 * BORDER_WIDTH);
-			path.rLineTo(-1 * (width / 2 + BORDER_WIDTH), 0);
-			path.rLineTo(-1 * width / 6, 1/3 * height);
-			path.rLineTo(-1 * width / 6, -1 * 1/3 * height);
-			path.rLineTo(-1 * (width / 6 + BORDER_WIDTH), 0);
-			path.rLineTo(0, -1 * (height + 2 * BORDER_WIDTH));
-			path.close();
-			canvas.drawPath(path, _borderPaint);
+			path.offset(_point.x - (width + BORDER_WIDTH) / 2, _point.y - (height + ARROW_HEIGHT + BORDER_WIDTH), drawPath);
+			_borderPaint.setShader(new LinearGradient(_point.x - (width + BORDER_WIDTH) / 2, 0, _point.x, 0,
+													  PhotoCompassApplication.DARK_ORANGE, PhotoCompassApplication.LIGHT_ORANGE,
+													  Shader.TileMode.MIRROR));
+			canvas.drawPath(drawPath, _borderPaint);
 			
 			// draw bitmap
-			canvas.drawBitmap(bmp, point.x - 1/3 * width, point.y - 4/3 * height - BORDER_WIDTH, null);
-			
-//			break;
+			canvas.drawBitmap(bmp, _point.x - width / 2, _point.y - (height + ARROW_HEIGHT + BORDER_WIDTH / 2), null);
         }
     }
     
