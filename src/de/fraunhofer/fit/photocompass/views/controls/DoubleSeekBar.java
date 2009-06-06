@@ -40,6 +40,8 @@ public abstract class DoubleSeekBar extends View {
 	protected int halfAThumb = -1;
 
 	private boolean startThumbDown = false;
+	
+	private final Paint paint = new Paint();
 
 	public DoubleSeekBar(final Context context) {
 		super(context);
@@ -58,6 +60,8 @@ public abstract class DoubleSeekBar extends View {
 //		if (orientation == HORIZONTAL) {
 //		} else { // VERTICAL
 //		}
+		
+		paint.setStyle(Style.FILL);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 
@@ -74,12 +78,10 @@ public abstract class DoubleSeekBar extends View {
 		this.updateAllBounds();
 
 		super.onDraw(canvas);
-		Paint p = new Paint();
-		p.setColor(Color.GRAY);
-		p.setStyle(Style.FILL);
-		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, p);
-		p.setColor(Color.YELLOW);
-		canvas.drawRect(this.selectionRect, p);
+		paint.setColor(Color.GRAY);
+		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, paint);
+		paint.setColor(PhotoCompassApplication.ORANGE);
+		canvas.drawRect(this.selectionRect, paint);
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
 	}
