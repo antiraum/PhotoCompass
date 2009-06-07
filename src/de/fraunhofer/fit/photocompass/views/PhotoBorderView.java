@@ -60,6 +60,14 @@ final class PhotoBorderView extends View {
     }
     
     /**
+     * Called to determine the size requirements for this view and all of its children.
+     */
+    @Override 
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) { 
+        setMeasuredDimension(_width, _height); 
+    }
+    
+    /**
      * Called by the {@link PhotosView} when the view is repositioned or resized.
      * We intercept to get the new dimensions.
      */
