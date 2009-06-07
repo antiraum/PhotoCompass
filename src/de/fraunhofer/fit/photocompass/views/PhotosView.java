@@ -57,8 +57,6 @@ public final class PhotosView extends AbsoluteLayout {
 	 */
 	private AbsoluteLayout _borderLayer;
 	
-	// TODO use SoftReferences in the caches of _photoViews, _borderViews, and _photoMetrics. See PhotosOverlay.
-	
 	/**
 	 * {@link PhotoView}s for photos (currently and previously used).
 	 * Key is the resource/photo id.
@@ -81,6 +79,7 @@ public final class PhotosView extends AbsoluteLayout {
 
 	/**
 	 * {@link PhotoMetrics} of photos (currently and previously used).
+	 * Key is the resource/photo id.
 	 */
 	private final SparseArray<PhotoMetrics> _photoMetrics = new SparseArray<PhotoMetrics>();
 	
@@ -501,7 +500,7 @@ public final class PhotosView extends AbsoluteLayout {
     		y_tap_tolerance = (PhotoCompassApplication.MIN_TAP_SIZE - PhotoMetrics.MINIMIZED_PHOTO_HEIGHT) / 2;
     	
     	/*
-    	 *  Detect which photo is tapped on.
+    	 * Detect which photo is tapped on.
     	 */
     	int tappedPhoto = 0; // id of the tapped photo
     	int id;
