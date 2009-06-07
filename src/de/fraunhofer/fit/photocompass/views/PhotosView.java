@@ -1,5 +1,6 @@
 package de.fraunhofer.fit.photocompass.views;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +56,8 @@ public final class PhotosView extends AbsoluteLayout {
 	 * Layer containing the photo {@link #_borderViews}.
 	 */
 	private AbsoluteLayout _borderLayer;
+	
+	// TODO use SoftReferences in the caches of _photoViews, _borderViews, and _photoMetrics. See PhotosOverlay.
 	
 	/**
 	 * {@link PhotoView}s for photos (currently and previously used).
