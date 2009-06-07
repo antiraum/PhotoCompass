@@ -33,6 +33,7 @@ import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
 import de.fraunhofer.fit.photocompass.views.overlays.CustomMyLocationOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.PhotosOverlay;
+import de.fraunhofer.fit.photocompass.views.overlays.ViewingDirectionOverlay;
 
 /**
  * This class is the Activity component for the map view screen (phone held horizontally) of the application.
@@ -46,11 +47,13 @@ public final class PhotoMapActivity extends MapActivity {
 	double currentLat = 0; // package scoped for faster access by inner classes
 	double currentLng = 0; // package scoped for faster access by inner classes
 	double currentAlt = 0; // package scoped for faster access by inner classes
+	float currentYaw = 0; // package scoped for faster access by inner classes
 
 	private MapView _mapView;
 	private MapController _mapController;
 	
 	// overlays
+	private ViewingDirectionOverlay _viewDirOverlay;
 	private MyLocationOverlay _myLocOverlay;
 	private CustomMyLocationOverlay _customMyLocOverlay;
 	private PhotosOverlay _photosOverlay;
@@ -125,7 +128,7 @@ public final class PhotoMapActivity extends MapActivity {
 	    	if (hasAlt) currentAlt = alt;
             
             // update map view
-	    	updateMapView(latChanged, lngChanged, false);
+	    	updateMapView(latChanged, lngChanged, false, false);
         }
     };
 
@@ -183,17 +186,25 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
 	    	
-        	// we are only interested in the roll value
-	    	if (roll == _roll) return; // value has not changed
-	    	_roll = roll;
-            
-            // switch to activity based on orientation
-        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
-	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
-	    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
-	    		startActivity(new Intent(mapActivity, FinderActivity.class));
-		        finish(); // close this activity
+	    	if (roll != _roll) {
+		    	_roll = roll;
+	            
+	            // switch to activity based on orientation
+	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
+		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
+		    		startActivity(new Intent(mapActivity, FinderActivity.class));
+			        finish(); // close this activity
+		    	}
 	    	}
+	    	
+        	final boolean yawChanged = (yaw == currentYaw) ? false : true;
+	    	
+	    	// update variables
+	    	currentYaw = yaw;
+
+            // update map view
+	    	updateMapView(false, false, yawChanged, false);
         }
     };
 
@@ -211,7 +222,7 @@ public final class PhotoMapActivity extends MapActivity {
 			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
 
             // update map view
-	    	updateMapView(false, false, true);
+	    	updateMapView(false, false, false, true);
 		}
 	};
 	
@@ -253,16 +264,21 @@ public final class PhotoMapActivity extends MapActivity {
 		_mapView.setBuiltInZoomControls(true);
 		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
-		// current position and compass overlay
-		_myLocOverlay = new MyLocationOverlay(this, _mapView);
+		// viewing direction overlay
+		_viewDirOverlay = new ViewingDirectionOverlay();
 		List<Overlay> overlays = _mapView.getOverlays();
-		overlays.add(_myLocOverlay);
+		overlays.add(_viewDirOverlay);
 
 		if (PhotoCompassApplication.USE_DUMMY_LOCATION) {
 		
 			// own current position overlay
 			_customMyLocOverlay = new CustomMyLocationOverlay();
 			overlays.add(_customMyLocOverlay);
+		} else {
+			
+			// build-in current position overlay
+			_myLocOverlay = new MyLocationOverlay(this, _mapView);
+			overlays.add(_myLocOverlay);
 		}
 		
 		// photos overlay
@@ -300,7 +316,6 @@ public final class PhotoMapActivity extends MapActivity {
     	
     	// enable location and compass overlay
 		if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.enableMyLocation();
-		_myLocOverlay.enableCompass();
     }
     
     /**
@@ -314,7 +329,6 @@ public final class PhotoMapActivity extends MapActivity {
 
     	// disable location and compass overlay
     	if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.disableMyLocation();
-		_myLocOverlay.disableCompass();
 		
     	if (_boundToLocationService) {
 	    	
@@ -383,25 +397,43 @@ public final class PhotoMapActivity extends MapActivity {
      * @param lngChanged If current longitude has changed.
      * @param modelChanged If the application model has changed.
      */
-    void updateMapView(final boolean latChanged, final boolean lngChanged, final boolean modelChanged) {
+    void updateMapView(final boolean latChanged, final boolean lngChanged, final boolean yawChanged, final boolean modelChanged) {
 //		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
 		
-    	// center map view
-		final GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
-		_mapController.animateTo(currentLocation);
+    	if (latChanged || lngChanged) {
+    	
+	    	// center map view
+			final GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
+			_mapController.animateTo(currentLocation);
+			
+			// update viewing direction overlay
+			_viewDirOverlay.updateLocation(currentLocation);
+			
+			// add the current position overlay manually, as the one from _myLocOverlay is always displayed at the real location
+			if (PhotoCompassApplication.USE_DUMMY_LOCATION) _customMyLocOverlay.update(currentLocation);
+    	}
 		
-		// TODO set zoom according to radius of displayed photos
-//		_mapController.zoomToSpan(latSpanE6, lngSpanE6);
+    	if (modelChanged) {
+
+    		// TODO set zoom according to radius of displayed photos
+//    		_mapController.zoomToSpan(latSpanE6, lngSpanE6);
+    	}
 		
-		// add the current position overlay manually, as the one from _myLocOverlay is always displayed at the real location
-		if (PhotoCompassApplication.USE_DUMMY_LOCATION) _customMyLocOverlay.update(currentLocation);
+    	if (latChanged || lngChanged || modelChanged) {
+    		
+    		// update photos
+    		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
+    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos(),
+    				_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos(),
+    				_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    	}
 		
-		// update photos
-		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos(),
-																	_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
-		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos(),
-																		  _appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    	if (yawChanged) {
+    		
+			// update viewing direction overlay
+			_viewDirOverlay.updateDirection(currentYaw);
+    	}
  
 		// redraw map
 		_mapView.postInvalidate();
