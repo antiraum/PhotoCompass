@@ -22,6 +22,8 @@ public final class CustomMyLocationOverlay extends Overlay {
 	
 	private GeoPoint _location; // current location
 	private Bitmap _bmp; // marker bitmap
+
+	private final Point _point = new Point();
 	
 	/**
 	 * Update current location.
@@ -43,8 +45,7 @@ public final class CustomMyLocationOverlay extends Overlay {
 		
 		// transform current position to point on canvas
 		final Projection projection = mapView.getProjection();
-		final Point point = new Point();
-		projection.toPixels(_location, point);
+		projection.toPixels(_location, _point);
  
 		// create bitmap
 		if (_bmp == null) {
@@ -52,6 +53,6 @@ public final class CustomMyLocationOverlay extends Overlay {
 		}
 		
 		// draw the marker
-        canvas.drawBitmap(_bmp, point.x - _bmp.getWidth() / 2, point.y - _bmp.getHeight() / 2, null);
+        canvas.drawBitmap(_bmp, _point.x - _bmp.getWidth() / 2, _point.y - _bmp.getHeight() / 2, null);
 	}
 }
