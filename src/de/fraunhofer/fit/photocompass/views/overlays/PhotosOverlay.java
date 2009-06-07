@@ -3,11 +3,13 @@ package de.fraunhofer.fit.photocompass.views.overlays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ListIterator;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -15,6 +17,7 @@ import android.graphics.Shader;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
@@ -23,6 +26,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
+import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 
 /**
  * This Overlay is used by {@link PhotoMapActivity} to display the currently visible photos on the map.
@@ -40,19 +44,34 @@ public final class PhotosOverlay extends Overlay {
 	private final ArrayList<Integer> _photos = new ArrayList<Integer>();
 
 	/**
-	 * Bitmaps of the currently and previously used photos (key is photo/resource id).
+	 * {@link PhotoMetrics} of photos (currently and previously used).
+	 * Key is the resource/photo id.
+	 */
+	private final SparseArray<PhotoMetrics> _photoMetrics = new SparseArray<PhotoMetrics>();
+	
+	/**
+	 * Ids of the currently minimized photos.
+	 */
+	private final ArrayList<Integer> _minimizedPhotos = new ArrayList<Integer>();
+	
+	/**
+	 * Bitmaps for currently and previously used photos (key is photo/resource id).
 	 * The bitmaps are pre-scaled for better performance.
 	 */
 	private final SparseArray<Bitmap> _photoBitmaps = new SparseArray<Bitmap>();
 	
 	/**
-	 * Paths for the borders of the currently and previously used photos (key is photo/resource id).
+	 * Border paths for currently and previously used photos (key is photo/resource id).
 	 */
 	private final SparseArray<Path> _borderPaths = new SparseArray<Path>();
 	
+	/**
+	 * Minimized border paths for currently and previously used photos (key is photo/resource id).
+	 */
+	private final SparseArray<Path> _minimizedBorderPaths = new SparseArray<Path>();
+	
     private Photos _photosModel;
 	private final Paint _borderPaint = new Paint();
-	private final Point _point = new Point();
 	
 	public PhotosOverlay() {
         _photosModel = Photos.getInstance();
@@ -116,6 +135,11 @@ public final class PhotosOverlay extends Overlay {
 	public ArrayList<Integer> getPhotos() {
 		return _photos;
 	}
+	
+	// variables for draw
+	private final Point _point = new Point();
+	private final Path _drawPath = new Path();
+	private final Matrix _matrix = new Matrix();
 
 	/**
 	 * Draws the photos and their borders on the canvas.
@@ -129,8 +153,9 @@ public final class PhotosOverlay extends Overlay {
 		Photo photo;
 		Bitmap bmp;
 		float width, height, xScale, yScale, scale;
+		PhotoMetrics metrics;
 		Path path;
-		final Path drawPath = new Path();
+		float bmpXPos, bmpYPos;
 		for (int id : _photos) {
 
 			// get photo
@@ -152,15 +177,31 @@ public final class PhotosOverlay extends Overlay {
 				yScale = PHOTO_SIZE / height;
 				scale = (xScale > yScale) ? xScale : yScale;
 				bmp = Bitmap.createScaledBitmap(bmp, Math.round(width * scale), Math.round(height * scale), true);
+				
+				// save bitmap
 				_photoBitmaps.append(id, bmp);
-			}
+			}	
 			
 			// get position and dimension
 			width = bmp.getWidth();
-			height = bmp.getHeight();
+			height = _minimizedPhotos.contains(id) ? PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT : bmp.getHeight();
 			projection.toPixels(photo.getGeoPoint(), _point);
 			
-			path = _borderPaths.get(id);
+			metrics = _photoMetrics.get(id);
+			if (metrics == null) {
+				
+				// create metrics
+				metrics = new PhotoMetrics();
+				_photoMetrics.append(id, metrics);
+			}
+			
+			// update metrics
+			metrics.setLeft(Math.round(_point.x - (width + BORDER_WIDTH) / 2));
+			metrics.setTop(Math.round(_point.y - (height + ARROW_HEIGHT + BORDER_WIDTH)));
+			metrics.setWidth(Math.round(width + BORDER_WIDTH));
+			metrics.setHeight(Math.round(height + BORDER_WIDTH));
+
+			path = _minimizedPhotos.contains(id) ? _minimizedBorderPaths.get(id) : _borderPaths.get(id);
 			if (path == null) {
 			
 				// create border path
@@ -172,18 +213,29 @@ public final class PhotosOverlay extends Overlay {
 				path.rLineTo(-1 * ARROW_WIDTH / 2, -1 * ARROW_HEIGHT); // arrow left border
 				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
 				path.close(); // left border
-				_borderPaths.append(id, path);
+				
+				// save path
+				if (_minimizedPhotos.contains(id)) {
+					_minimizedBorderPaths.append(id, path);
+				} else {
+					_borderPaths.append(id, path);
+				}
 			}
 			
 			// draw border
-			path.offset(_point.x - (width + BORDER_WIDTH) / 2, _point.y - (height + ARROW_HEIGHT + BORDER_WIDTH), drawPath);
+			path.offset(metrics.getLeft(), metrics.getTop(), _drawPath);
 			_borderPaint.setShader(new LinearGradient(_point.x - (width + BORDER_WIDTH) / 2, 0, _point.x, 0,
 													  PhotoCompassApplication.DARK_ORANGE, PhotoCompassApplication.LIGHT_ORANGE,
 													  Shader.TileMode.MIRROR));
-			canvas.drawPath(drawPath, _borderPaint);
+			canvas.drawPath(_drawPath, _borderPaint);
 			
 			// draw bitmap
-			canvas.drawBitmap(bmp, _point.x - width / 2, _point.y - (height + ARROW_HEIGHT + BORDER_WIDTH / 2), null);
+			_matrix.reset();
+			bmpXPos = _point.x - width / 2;
+			bmpYPos = _point.y - (height + ARROW_HEIGHT + BORDER_WIDTH / 2);
+			_matrix.postTranslate(bmpXPos, bmpYPos);
+			if (_minimizedPhotos.contains(id)) _matrix.postScale(1, height / bmp.getHeight(), bmpXPos, bmpYPos);
+			canvas.drawBitmap(bmp, _matrix, null);
         }
     }
     
@@ -195,5 +247,50 @@ public final class PhotosOverlay extends Overlay {
     		if (_photos.contains(_photoBitmaps.keyAt(i))) continue; // currently needed
     		_photoBitmaps.remove(_photoBitmaps.keyAt(i));
     	}
+    }
+    
+    /**
+     * Handle a tap event.
+     * A tap on a photo minimizes it. A tap on a minimized photo restores it.
+     * @return <code>true</code> if the tap was handled by this overlay, or
+     * 		   <code>false</code> if the tap was not handled with.
+     */
+    public boolean onTap(final GeoPoint geoPoint, final MapView mapView) {
+
+    	// translate geopoint
+		final Projection projection = mapView.getProjection();
+		projection.toPixels(geoPoint, _point);
+
+    	// tap tolerance
+    	int y_tap_tolerance = 0;
+    	if (PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE)
+    		y_tap_tolerance = (PhotoCompassApplication.MIN_TAP_SIZE - PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT) / 2;
+    	
+    	/*
+    	 * Detect which photo is tapped on.
+    	 */
+    	Integer tappedPhoto = 0; // id of the tapped photo
+    	int id;
+    	PhotoMetrics metrics;
+		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
+        while (lit.hasPrevious()) { // iterate south to north
+        	id = lit.previous();
+        	metrics = _photoMetrics.get(id);
+    		if (metrics.getLeft() < _point.x && metrics.getRight() > _point.x && // on the photo in horizontal direction
+				metrics.getTop() - y_tap_tolerance < _point.y && metrics.getBottom() + y_tap_tolerance > _point.y) { // on the photo in vertical direction
+    			tappedPhoto = id;
+    			break;
+    		}
+    	}
+        if (tappedPhoto == 0) return false; // no photo matched
+    	
+    	// minimize/restore photo
+        if (_minimizedPhotos.contains(tappedPhoto)) {
+        	_minimizedPhotos.remove(tappedPhoto);
+        } else {
+        	_minimizedPhotos.add(tappedPhoto);
+        }
+        
+        return true;
     }
 }

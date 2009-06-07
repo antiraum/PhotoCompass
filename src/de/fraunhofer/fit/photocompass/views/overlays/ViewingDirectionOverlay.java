@@ -35,7 +35,7 @@ public final class ViewingDirectionOverlay extends Overlay {
 	 * @param direction
 	 */
 	public void updateLocation(final GeoPoint location) {
-        Log.d(PhotoCompassApplication.LOG_TAG, "ViewingDirectionOverlay: updateLocation");
+//        Log.d(PhotoCompassApplication.LOG_TAG, "ViewingDirectionOverlay: updateLocation");
 		_location = location;
 	}
 	
@@ -45,7 +45,7 @@ public final class ViewingDirectionOverlay extends Overlay {
 	 * @param direction
 	 */
 	public void updateDirection(final float direction) {
-        Log.d(PhotoCompassApplication.LOG_TAG, "ViewingDirectionOverlay: updateDirection");
+//        Log.d(PhotoCompassApplication.LOG_TAG, "ViewingDirectionOverlay: updateDirection");
 		_direction = direction;
 		_directionSet = true;
 	}

@@ -34,7 +34,7 @@ public final class PhotoCompassApplication extends Application {
     public static final int DARK_ORANGE = Color.parseColor("#eba000");
     
     // tap interaction constants
-    public static final int MIN_TAP_SIZE = 50; // minimum size of an area that can be tapped on
+    public static final int MIN_TAP_SIZE = 40; // minimum size of an area that can be tapped on
 	
     // dummy location settings (enable for development when a fixed location is needed)
     public static final boolean USE_DUMMY_LOCATION = false;
