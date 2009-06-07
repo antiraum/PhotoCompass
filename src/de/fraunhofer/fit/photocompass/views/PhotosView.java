@@ -448,8 +448,9 @@ public final class PhotosView extends AbsoluteLayout {
 	 * 				 <code>false</code> if no action is performed.
 	 */
     public boolean onFling(final float startX, final float startY, final float endX, final float endY) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
-    										   ", endX = "+endX+", endY = "+endY);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
+//    										   ", endX = "+endX+", endY = "+endY);
     	
     	/*
     	 *  Detect which photo is flinged.
@@ -488,7 +489,8 @@ public final class PhotosView extends AbsoluteLayout {
 	 * 		    <code>false</code> if no action is performed.
 	 */
     public boolean onSingleTapUp(final float x, final float y) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp: x = "+x+", y = "+y);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp");
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp: x = "+x+", y = "+y);
 
     	// tap tolerance
     	int y_tap_tolerance = 0;

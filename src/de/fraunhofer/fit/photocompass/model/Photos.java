@@ -94,7 +94,7 @@ public final class Photos {
 	    int idCol, latCol, lngCol, dateCol, thumbCol;
 	    int id; double lat, lng; String date, thumb;
 	    uris: for (int i = 0; i < mediaUris.length; i++) {
-            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: uri = "+mediaUris[i].toString());
+//            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: uri = "+mediaUris[i].toString());
             
             // get cursor
             mediaCursor = activity.managedQuery(mediaUris[i], mediaColumns, null, null, null);
@@ -102,7 +102,7 @@ public final class Photos {
 		    
 		    // get row count
 	        final int numrows = mediaCursor.getCount();
-            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: numrows = "+numrows);
+//            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: numrows = "+numrows);
 	        if (numrows == 0) continue;
 
 		    // get column indexes
