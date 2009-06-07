@@ -159,6 +159,7 @@ public final class Photos {
 	    
 	    // replace the existing _photos
 	    _photos = _photosNew;
+	    _photosNew.clear();
     }
     
     /**
