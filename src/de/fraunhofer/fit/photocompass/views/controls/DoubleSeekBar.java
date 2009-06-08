@@ -1,7 +1,5 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
-import java.util.Formatter;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,19 +11,19 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 
 public abstract class DoubleSeekBar extends View {
-	// public final static int HORIZONTAL = 0;
-	// public final static int VERTICAL = 1;
+
+	/**
+	 * Tolerance in pixels. Only MOVE events above this tolerance will be taken
+	 * into account.
+	 */
+	private final static float TOUCH_TOLERANCE = 0.5f;
 
 	protected int barThickness = 22;
 	protected int barPadding = 4;
-
-	// private int orientation;
 
 	protected float startValue = 0f;
 	protected float endValue = 1f;
@@ -76,7 +74,7 @@ public abstract class DoubleSeekBar extends View {
 
 	@Override
 	protected void onDraw(final Canvas canvas) {
-//		this.updateAllBounds();
+		// this.updateAllBounds();
 
 		super.onDraw(canvas);
 		paint.setColor(Color.GRAY);
@@ -84,9 +82,9 @@ public abstract class DoubleSeekBar extends View {
 		paint.setColor(PhotoCompassApplication.ORANGE);
 		canvas.drawRect(this.selectionRect, paint);
 		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onDraw(): selectionRect " + this.selectionRect.toString());
+				"DoubleSeekBar.onDraw(): selectionRect "
+						+ this.selectionRect.toString());
 
-		
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
 		Log.d(PhotoCompassApplication.LOG_TAG,
@@ -141,33 +139,48 @@ public abstract class DoubleSeekBar extends View {
 					- this.endValue)) {
 				// distance to left is less than distance to right
 				this.startThumbDown = true;
-//				this.startValue = newValue;
+				// this.startValue = newValue;
 				this.startThumb = this.startThumbActive;
 				this.updateStartValue(newValue);
 			} else {
 				// distance to right is less than to left
 				this.startThumbDown = false;
-//				this.endValue = newValue;
+				// this.endValue = newValue;
 				this.endThumb = this.endThumbActive;
 				this.updateEndValue(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			if (this.startThumbDown) {
-//				this.startValue = newValue;
+//			if (startThumbDown) {
+//				Log
+//						.d(
+//								PhotoCompassApplication.LOG_TAG,
+//								"DoubleSeekBar.onTouchEvent(): MOVE by "
+//										+ (Math.abs(this.startValue - newValue) * this.size));
+//			} else {
+//				Log
+//				.d(
+//						PhotoCompassApplication.LOG_TAG,
+//						"DoubleSeekBar.onTouchEvent(): MOVE by "
+//								+ (Math.abs(this.endValue - newValue) / this.size));				
+//			}
+
+			if (this.startThumbDown
+					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE)) {
 				this.updateStartValue(newValue);
-			} else {
-//				this.endValue = newValue;
+				this.invalidate();
+			} else if ((Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE) {
+				// this.endValue = newValue;
 				this.updateEndValue(newValue);
+				this.invalidate();
 			}
-			this.invalidate();
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
-//				this.startValue = newValue;
+				// this.startValue = newValue;
 				this.startThumb = this.startThumbNormal;
 				this.updateStartValue(newValue);
 			} else {
-//				this.endValue = newValue;
+				// this.endValue = newValue;
 				this.endThumb = this.endThumbNormal;
 				this.updateEndValue(newValue);
 			}
