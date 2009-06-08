@@ -15,15 +15,15 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 public final class ApplicationModel {
 	
 	// default values
-	private static final int DEFAULT_MAX_DISTANCE = 10 * 1000; // in meters
-	private static final long DEFAULT_MIN_AGE = 0L; // in milliseconds
-	private static final long DEFAULT_MAX_AGE = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
+	private static final int MAX_MAX_DISTANCE = 10 * 1000; // in meters TODO get this from Photos
+	private static final long MAX_MAX_AGE = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 
     private static ApplicationModel _instance;
 
-	private float _maxDistance; // in meters
-	private long _minAge; // in milliseconds
-	private long _maxAge; // in milliseconds
+    private float _minDistance = 0; // in meters
+	private float _maxDistance = MAX_MAX_DISTANCE; // in meters
+	private long _minAge = 0; // in milliseconds
+	private long _maxAge = MAX_MAX_AGE; // in milliseconds
 
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 	
@@ -33,10 +33,6 @@ public final class ApplicationModel {
      */
 	protected ApplicationModel() {
 		super();
-		
-		_maxDistance = DEFAULT_MAX_DISTANCE;
-		_minAge = DEFAULT_MIN_AGE;
-		_maxAge = DEFAULT_MAX_AGE;
 	}
 
 	/**
@@ -62,10 +58,45 @@ public final class ApplicationModel {
     }
 
     /**
+     * @return The current minimum distance for photos to be displayed.
+     */
+	public float getMinDistance() {
+		return _minDistance;
+	}
+
+	public float getRelativeMinDistance() {
+		return MAX_MAX_DISTANCE / _minDistance;
+	}
+	
+	public String getFormattedMinDistance() {
+		return _minDistance+" m";
+	}
+
+	/**
+	 * @param value The new minimum distance for photos to be displayed.
+	 */
+	public void setMinDistance(final float minDistance) {
+		_minDistance = minDistance;
+		_broadcastChange();
+	}
+	
+	public void setRelativeMinDistance(final float relativeMinDistance) {
+		setMinDistance(relativeMinDistance * MAX_MAX_DISTANCE);
+	}
+
+    /**
      * @return The current maximum distance for photos to be displayed.
      */
 	public float getMaxDistance() {
 		return _maxDistance;
+	}
+
+	public float getRelativeMaxDistance() {
+		return MAX_MAX_DISTANCE / _maxDistance;
+	}
+	
+	public String getFormattedMaxDistance() {
+		return _maxDistance+" m";
 	}
 
 	/**
@@ -75,12 +106,24 @@ public final class ApplicationModel {
 		_maxDistance = maxDistance;
 		_broadcastChange();
 	}
+	
+	public void setRelativeMaxDistance(final float relativeMaxDistance) {
+		setMaxDistance(relativeMaxDistance * MAX_MAX_DISTANCE);
+	}
 
     /**
      * @return The current minimum age for photos to be displayed.
      */
 	public long getMinAge() {
 		return _minAge;
+	}
+
+	public long getRelativeMinAge() {
+		return MAX_MAX_AGE / _minAge;
+	}
+	
+	public String getFormattedMinAge() {
+		return _minAge+" ms";
 	}
 
 	/**
@@ -90,6 +133,10 @@ public final class ApplicationModel {
 		_minAge = minAge;
 		_broadcastChange();
 	}
+	
+	public void setRelativeMinAge(final float relativeMinAge) {
+		setMinAge(Math.round(relativeMinAge * MAX_MAX_AGE));
+	}
 
     /**
      * @return The current maximum age for photos to be displayed.
@@ -98,12 +145,24 @@ public final class ApplicationModel {
 		return _maxAge;
 	}
 
+	public long getRelativeMaxAge() {
+		return MAX_MAX_AGE / _maxAge;
+	}
+	
+	public String getFormattedMaxAge() {
+		return _maxAge+" ms";
+	}
+
 	/**
 	 * @param value The new maximum age for photos to be displayed.
 	 */
 	public void setMaxAge(final long maxAge) {
 		_maxAge = maxAge;
 		_broadcastChange();
+	}
+	
+	public void setRelativeMaxAge(final float relativeMaxAge) {
+		setMaxAge(Math.round(relativeMaxAge * MAX_MAX_AGE));
 	}
 	
     /**
