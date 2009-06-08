@@ -63,25 +63,11 @@ final class PhotoView extends AbsoluteLayout {
 		_stringBuilder.setLength(0); // reset
         
         // distance
-        final float photoDistance = _photo.getDistance();
-        if (photoDistance < 1000) {
-        	_stringBuilder.append(Math.round(photoDistance));
-        	_stringBuilder.append(" m");
-        } else {
-        	_stringBuilder.append(_fmt.format("%.1f", photoDistance / 1000)); 
-        	_stringBuilder.append(" km");
-        }
+		_stringBuilder.append(_photo.getFormattedDistance());
         _stringBuilder.append(" away\n");
         
         // altitude offset
-        final double photoAltOffset = _photo.getAltOffset();
-        if (photoAltOffset == 0) {
-        	_stringBuilder.append("on same level");
-        } else {
-        	_stringBuilder.append(Math.abs(Math.round(photoAltOffset)));
-        	_stringBuilder.append(" m ");
-        	_stringBuilder.append((photoAltOffset > 0) ? "higher" : "lower");
-        }
+    	_stringBuilder.append(_photo.getFormattedAltOffset());
         
         _textView.setText(_stringBuilder.toString());
 	}
