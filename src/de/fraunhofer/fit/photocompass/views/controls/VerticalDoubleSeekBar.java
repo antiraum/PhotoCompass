@@ -60,7 +60,7 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 		this.startThumb.setBounds(0, begin, this.startThumb
 				.getIntrinsicWidth(), begin
 				+ this.startThumb.getIntrinsicHeight());
-		this.selectionRect.top = begin + halfAThumb;
+		this.selectionRect.bottom = begin + halfAThumb;
 
 	}
 
@@ -74,7 +74,7 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 
 		this.endThumb.setBounds(0, begin, this.startThumb.getIntrinsicWidth(),
 				begin + this.startThumb.getIntrinsicHeight());
-		this.selectionRect.bottom = begin + halfAThumb;
+		this.selectionRect.top = begin + halfAThumb;
 
 	}
 
