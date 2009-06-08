@@ -136,7 +136,7 @@ public final class ApplicationModel {
      * @return The current minimum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMinAge() {
-		return _minAge / MAX_MAX_AGE;
+		return (float) _minAge / (float) MAX_MAX_AGE;
 	}
 	
 	public String getFormattedMinAge() {
@@ -166,7 +166,7 @@ public final class ApplicationModel {
      * @return The current maximum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMaxAge() {
-		return _maxAge / MAX_MAX_AGE;
+		return (float) _maxAge / (float) MAX_MAX_AGE;
 	}
 	
 	public String getFormattedMaxAge() {
