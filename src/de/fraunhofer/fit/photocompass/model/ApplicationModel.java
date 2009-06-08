@@ -1,5 +1,9 @@
 package de.fraunhofer.fit.photocompass.model;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Formatter;
+
 import android.os.DeadObjectException;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -24,6 +28,9 @@ public final class ApplicationModel {
 	private float _maxDistance = MAX_MAX_DISTANCE; // in meters
 	private long _minAge = 0; // in milliseconds
 	private long _maxAge = MAX_MAX_AGE; // in milliseconds
+	
+	private final StringBuilder _stringBuilder = new StringBuilder();
+	private final Formatter _fmt = new Formatter();
 
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 	
@@ -58,18 +65,21 @@ public final class ApplicationModel {
     }
 
     /**
-     * @return The current minimum distance for photos to be displayed.
+     * @return The current minimum distance for photos to be displayed. In meters.
      */
 	public float getMinDistance() {
 		return _minDistance;
 	}
 
+	/**
+	 * @return The current minimum distance for photos to be displayed. From 0..1;
+	 */
 	public float getRelativeMinDistance() {
-		return MAX_MAX_DISTANCE / _minDistance;
+		return _minDistance / MAX_MAX_DISTANCE;
 	}
 	
 	public String getFormattedMinDistance() {
-		return _minDistance+" m";
+		return _formatDistance(_minDistance);
 	}
 
 	/**
@@ -85,18 +95,21 @@ public final class ApplicationModel {
 	}
 
     /**
-     * @return The current maximum distance for photos to be displayed.
+     * @return The current maximum distance for photos to be displayed. In meters.
      */
 	public float getMaxDistance() {
 		return _maxDistance;
 	}
 
+	/**
+	 * @return The current maximum distance for photos to be displayed. From 0..1;
+	 */
 	public float getRelativeMaxDistance() {
-		return MAX_MAX_DISTANCE / _maxDistance;
+		return _maxDistance / MAX_MAX_DISTANCE;
 	}
 	
 	public String getFormattedMaxDistance() {
-		return _maxDistance+" m";
+		return _formatDistance(_maxDistance);
 	}
 
 	/**
@@ -118,12 +131,15 @@ public final class ApplicationModel {
 		return _minAge;
 	}
 
-	public long getRelativeMinAge() {
-		return MAX_MAX_AGE / _minAge;
+    /**
+     * @return The current minimum age for photos to be displayed. From 0..1.
+     */
+	public float getRelativeMinAge() {
+		return _minAge / MAX_MAX_AGE;
 	}
 	
 	public String getFormattedMinAge() {
-		return _minAge+" ms";
+		return _formatAge(_minAge);
 	}
 
 	/**
@@ -139,18 +155,21 @@ public final class ApplicationModel {
 	}
 
     /**
-     * @return The current maximum age for photos to be displayed.
+     * @return The current maximum age for photos to be displayed. In milliseconds.
      */
 	public long getMaxAge() {
 		return _maxAge;
 	}
 
-	public long getRelativeMaxAge() {
-		return MAX_MAX_AGE / _maxAge;
+    /**
+     * @return The current maximum age for photos to be displayed. From 0..1.
+     */
+	public float getRelativeMaxAge() {
+		return _maxAge / MAX_MAX_AGE;
 	}
 	
 	public String getFormattedMaxAge() {
-		return _maxAge+" ms";
+		return _formatAge(_maxAge);
 	}
 
 	/**
@@ -181,5 +200,38 @@ public final class ApplicationModel {
 	        }
 	    }
 	    _remoteCallbacks.finishBroadcast();
+	}
+	
+	private String _formatDistance(float distance) {
+		
+		_stringBuilder.setLength(0); // reset
+
+        if (distance < 1000) {
+        	_stringBuilder.append(Math.round(distance));
+        	_stringBuilder.append(" m");
+        } else {
+        	_stringBuilder.append(_fmt.format("%.1f", distance / 1000)); 
+        	_stringBuilder.append(" km");
+        }
+        
+        return _stringBuilder.toString();
+	}
+	
+	private String _formatAge(long age) {
+		
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date(System.currentTimeMillis() - age));
+		
+		_stringBuilder.setLength(0); // reset
+		
+		_stringBuilder.append(cal.get(Calendar.DAY_OF_MONTH));
+		_stringBuilder.append(" ");
+		_stringBuilder.append(cal.get(Calendar.MONTH));
+		_stringBuilder.append(" ");
+		_stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
+		_stringBuilder.append(".");
+		_stringBuilder.append(cal.get(Calendar.MINUTE));
+        
+        return _stringBuilder.toString();
 	}
 }
