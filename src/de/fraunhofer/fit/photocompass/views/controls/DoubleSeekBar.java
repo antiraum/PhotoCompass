@@ -47,6 +47,9 @@ public abstract class DoubleSeekBar extends View {
 	protected int endLabelY = 0;
 	protected String startLabel;
 	protected String endLabel;
+	
+	private float touchX = -5f;
+	private float touchY = -5f;
 
 	private boolean startThumbDown = false;
 
@@ -88,7 +91,10 @@ public abstract class DoubleSeekBar extends View {
 		paint.setColor(Color.WHITE);
 		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
 				paint);
-		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, paint);
+		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, this.paint);
+		
+		paint.setColor(Color.RED);
+		canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
 
 	@Override
@@ -121,6 +127,8 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
+		this.touchX = event.getX();
+		this.touchY = event.getY();
 		float newValue = convertToAbstract(getEventCoordinate(event));
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
