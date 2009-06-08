@@ -22,8 +22,8 @@ public abstract class DoubleSeekBar extends View {
 	// public final static int HORIZONTAL = 0;
 	// public final static int VERTICAL = 1;
 
-	protected final int barThickness = 22;
-	protected final int barPadding = 4;
+	protected int barThickness = 22;
+	protected int barPadding = 4;
 
 	// private int orientation;
 
@@ -63,6 +63,7 @@ public abstract class DoubleSeekBar extends View {
 
 		this.selectionRect = new Rect();
 		this.paint.setStyle(Style.FILL);
+		this.paint.setAntiAlias(true);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 
@@ -88,10 +89,10 @@ public abstract class DoubleSeekBar extends View {
 				"DoubleSeekBar.onDraw(): startValue " + this.startValue
 						+ ", endValue " + this.endValue);
 
-		// canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
-		// paint);
-		// canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,
-		// paint);
+		paint.setColor(Color.WHITE);
+		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
+				paint);
+		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, paint);
 	}
 
 	@Override

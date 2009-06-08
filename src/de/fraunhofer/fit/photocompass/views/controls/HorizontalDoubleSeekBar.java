@@ -10,6 +10,8 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
+	private final int topPadding = 13;
+
 	public HorizontalDoubleSeekBar(final Context context) {
 		super(context);
 		Resources res = this.getResources();
@@ -21,54 +23,56 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.endThumb = this.endThumbNormal;
 		this.halfAThumb = this.startThumb.getIntrinsicWidth() / 2;
 		this.initialize();
-		this.selectionRect.top = this.barPadding;
-		this.selectionRect.bottom = this.barThickness + this.barPadding;
+		this.selectionRect.top = this.barPadding + this.topPadding;
+		this.selectionRect.bottom = this.barThickness + this.barPadding
+				+ this.topPadding;
 		this.paint.setTextAlign(Align.CENTER);
 
 		this.startValue = this.model.getRelativeMinAge();
 		this.startLabel = this.model.getFormattedMinAge();
 		this.endValue = this.model.getRelativeMaxAge();
 		this.endLabel = this.model.getFormattedMaxAge();
-	
+		this.startLabelY = 9;
+		this.endLabelY = 9;
+
 	}
 
 	@Override
 	protected void onSizeChanged(final int w, final int h, final int oldw,
 			final int oldh) {
 		this.size = w - this.startOffset - this.endOffset;
-		this.backgroundRect = new RectF(0f, barPadding, w, barThickness
-				+ barPadding);
+		this.backgroundRect = new RectF(0f, topPadding + barPadding, w,
+				barThickness + barPadding + topPadding);
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
 	@Override
 	protected void updateStartValue() {
-		
-		this.model.setRelativeMinDistance(this.startValue);
-		this.startLabelX = 50;
-		this.startLabelY = 0;
-		this.startLabel = this.model.getFormattedMinDistance();
-		
-		int begin = convertToConcrete(startValue) - halfAThumb;
-		this.startThumb.setBounds(begin, 0, begin
-				+ this.startThumb.getIntrinsicHeight(), this.startThumb
-				.getIntrinsicHeight());
-		this.selectionRect.left = begin + halfAThumb;
 
+		this.model.setRelativeMinAge(this.startValue);
+		this.startLabelX = this.startThumb.getBounds().centerX();
+		this.startLabel = this.model.getFormattedMinAge();
+
+		int begin = convertToConcrete(startValue) - halfAThumb;
+		this.startThumb.setBounds(begin, topPadding, begin
+				+ this.startThumb.getIntrinsicWidth(), this.startThumb
+				.getIntrinsicHeight()
+				+ topPadding);
+		this.selectionRect.left = begin + halfAThumb;
 
 	}
 
 	@Override
 	protected void updateEndValue() {
 		this.model.setRelativeMaxAge(this.endValue);
-		this.endLabelX = this.size - 50;
-		this.endLabelY = 0;
+		this.endLabelX = this.endThumb.getBounds().centerX();
 		this.endLabel = this.model.getFormattedMaxAge();
-		
+
 		int begin = convertToConcrete(endValue) - halfAThumb;
-		this.endThumb.setBounds(begin, 0, begin
-				+ this.startThumb.getIntrinsicHeight(), this.startThumb
-				.getIntrinsicHeight());
+		this.endThumb.setBounds(begin, topPadding, begin
+				+ this.startThumb.getIntrinsicWidth(), this.startThumb
+				.getIntrinsicHeight()
+				+ topPadding);
 		this.selectionRect.right = begin + halfAThumb;
 
 	}
