@@ -56,10 +56,10 @@ public final class Photos {
 	public void initialize(final Activity activity) {
 		
 		if (_initialized) return; // only run once
-	    
-		updatePhotos(activity); // populate _photos
 
 	    if (PhotoCompassApplication.USE_DUMMY_PHOTOS) _populateDummies(); // populate _dummies
+	    
+		updatePhotos(activity); // populate _photos
 	    
         _initialized = true;
 	}
@@ -158,6 +158,24 @@ public final class Photos {
 	    
 	    // replace the existing _photos
 	    _photos = _photosNew;
+	    
+	    // update application model
+	    float maxDistance = 0;
+	    long maxAge = 0;
+	    Photo photo;
+	    float dist;
+	    long age;
+    	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
+            for (int i = 0; i < photos.size(); i++) {
+            	photo = photos.valueAt(i);
+            	dist = photo.getDistance();
+            	if (dist > maxDistance) maxDistance = dist;
+            	age = photo.getAge();
+            	if (age > maxAge) maxAge = age;
+            }
+    	}
+    	ApplicationModel.getInstance().setMaxMaxDistance(maxDistance);
+    	ApplicationModel.getInstance().setMaxMaxAge(maxAge);
     }
     
     /**

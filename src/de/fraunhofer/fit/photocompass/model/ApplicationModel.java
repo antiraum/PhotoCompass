@@ -15,16 +15,18 @@ import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
  */
 public final class ApplicationModel {
 	
-	// default values
-	private static final int MAX_MAX_DISTANCE = 10 * 1000; // in meters TODO get this from Photos
-	private static final long MAX_MAX_AGE = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
+	// maximum values
+	private static final float MAX_DISTANCE_LIMIT = 10 * 1000F; // in meters
+	private static float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
+	private static final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
+	private static long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
 
     private static ApplicationModel _instance;
 
-    private float _minDistance = 0; // in meters
+    // current settings
+    private float _minDistance = 0F; // in meters
 	private float _maxDistance = MAX_MAX_DISTANCE; // in meters
-	// TODO age should not be set relative
-	private long _minAge = 0; // in milliseconds
+	private long _minAge = 0L; // in milliseconds
 	private long _maxAge = MAX_MAX_AGE; // in milliseconds
 
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
@@ -57,6 +59,22 @@ public final class ApplicationModel {
      */
     public void unregisterCallback(final IApplicationModelCallback cb) {
         if (cb != null) _remoteCallbacks.unregister(cb);
+    }
+    
+    /**
+     * Set the maximum value for maximum distance.
+     * Call this from the {@link Photos} model when the photos are read of the device.
+     */
+    public void setMaxMaxDistance(final float value) {
+    	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT : value;
+    }
+    
+    /**
+     * Set the maximum value for maximum age.
+     * Call this from the {@link Photos} model when the photos are read of the device.
+     */
+    public void setMaxMaxAge(final long value) {
+    	MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT : value;
     }
 
     /**
