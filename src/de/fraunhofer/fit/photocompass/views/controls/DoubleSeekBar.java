@@ -76,13 +76,17 @@ public abstract class DoubleSeekBar extends View {
 
 	@Override
 	protected void onDraw(final Canvas canvas) {
-		this.updateAllBounds();
+//		this.updateAllBounds();
 
 		super.onDraw(canvas);
 		paint.setColor(Color.GRAY);
 		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, paint);
 		paint.setColor(PhotoCompassApplication.ORANGE);
 		canvas.drawRect(this.selectionRect, paint);
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.onDraw(): selectionRect " + this.selectionRect.toString());
+
+		
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
 		Log.d(PhotoCompassApplication.LOG_TAG,
@@ -100,7 +104,8 @@ public abstract class DoubleSeekBar extends View {
 			final int oldh) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
 
-		this.updateAllBounds();
+		this.updateStartBounds();
+		this.updateEndBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
@@ -113,14 +118,13 @@ public abstract class DoubleSeekBar extends View {
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 	}
 
-	private void updateAllBounds() {
-		this.updateStartValue();
-		this.updateEndValue();
-	}
+	protected abstract void updateStartValue(float newValue);
 
-	protected abstract void updateStartValue();
+	protected abstract void updateEndValue(float NewValue);
 
-	protected abstract void updateEndValue();
+	protected abstract void updateStartBounds();
+
+	protected abstract void updateEndBounds();
 
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
@@ -137,35 +141,35 @@ public abstract class DoubleSeekBar extends View {
 					- this.endValue)) {
 				// distance to left is less than distance to right
 				this.startThumbDown = true;
-				this.startValue = newValue;
+//				this.startValue = newValue;
 				this.startThumb = this.startThumbActive;
-				this.updateStartValue();
+				this.updateStartValue(newValue);
 			} else {
 				// distance to right is less than to left
 				this.startThumbDown = false;
-				this.endValue = newValue;
+//				this.endValue = newValue;
 				this.endThumb = this.endThumbActive;
-				this.updateEndValue();
+				this.updateEndValue(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			if (this.startThumbDown) {
-				this.startValue = newValue;
-				this.updateStartValue();
+//				this.startValue = newValue;
+				this.updateStartValue(newValue);
 			} else {
-				this.endValue = newValue;
-				this.updateEndValue();
+//				this.endValue = newValue;
+				this.updateEndValue(newValue);
 			}
 			this.invalidate();
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
-				this.startValue = newValue;
+//				this.startValue = newValue;
 				this.startThumb = this.startThumbNormal;
-				this.updateStartValue();
+				this.updateStartValue(newValue);
 			} else {
-				this.endValue = newValue;
+//				this.endValue = newValue;
 				this.endThumb = this.endThumbNormal;
-				this.updateEndValue();
+				this.updateEndValue(newValue);
 			}
 			this.invalidate();
 		} else {

@@ -49,33 +49,39 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateStartValue() {
-		this.model.setRelativeMinDistance(this.startValue);
-
-		this.startLabelY = this.startThumb.getBounds().centerY() + 4;
+	protected void updateStartValue(final float newValue) {
+		this.startValue = newValue;
+		this.model.setRelativeMinDistance(newValue);
 		this.startLabel = this.model.getFormattedMinDistance();
 
-		int begin = convertToConcrete(startValue) - halfAThumb;
+		this.updateStartBounds();
+	}
 
+	protected void updateStartBounds() {
+		int begin = convertToConcrete(startValue) - halfAThumb;
 		this.startThumb.setBounds(0, begin, this.startThumb
 				.getIntrinsicWidth(), begin
 				+ this.startThumb.getIntrinsicHeight());
 		this.selectionRect.bottom = begin + halfAThumb;
-
+		this.startLabelY = this.startThumb.getBounds().centerY() + 4;
 	}
 
 	@Override
-	protected void updateEndValue() {
-		this.model.setRelativeMaxDistance(this.endValue);
-		this.endLabelY = this.endThumb.getBounds().centerY() + 4;
+	protected void updateEndValue(final float newValue) {
+		this.endValue = newValue;
+		this.model.setRelativeMaxDistance(newValue);
 		this.endLabel = this.model.getFormattedMaxDistance();
 
+		this.updateEndBounds();
+	}
+
+	protected void updateEndBounds() {
 		int begin = convertToConcrete(endValue) - halfAThumb;
 
+		this.selectionRect.top = begin + halfAThumb;
 		this.endThumb.setBounds(0, begin, this.startThumb.getIntrinsicWidth(),
 				begin + this.startThumb.getIntrinsicHeight());
-		this.selectionRect.top = begin + halfAThumb;
-
+		this.endLabelY = this.endThumb.getBounds().centerY() + 4;		
 	}
 
 	@Override

@@ -47,34 +47,39 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateStartValue() {
-
-		this.model.setRelativeMinAge(this.startValue);
-		this.startLabelX = this.startThumb.getBounds().centerX();
+	protected void updateStartValue(float newValue) {
+		this.startValue = newValue;
+		this.model.setRelativeMinAge(newValue);
 		this.startLabel = this.model.getFormattedMinAge();
+		this.updateStartBounds();
+	}
 
+	protected void updateStartBounds() {
 		int begin = convertToConcrete(startValue) - halfAThumb;
 		this.startThumb.setBounds(begin, topPadding, begin
 				+ this.startThumb.getIntrinsicWidth(), this.startThumb
 				.getIntrinsicHeight()
 				+ topPadding);
 		this.selectionRect.left = begin + halfAThumb;
-
+		this.startLabelX = this.startThumb.getBounds().centerX();
 	}
-
+	
 	@Override
-	protected void updateEndValue() {
+	protected void updateEndValue(float newValue) {
 		this.model.setRelativeMaxAge(this.endValue);
-		this.endLabelX = this.endThumb.getBounds().centerX();
 		this.endLabel = this.model.getFormattedMaxAge();
 
+		this.updateEndBounds();
+	}
+
+	protected void updateEndBounds() {
 		int begin = convertToConcrete(endValue) - halfAThumb;
 		this.endThumb.setBounds(begin, topPadding, begin
 				+ this.startThumb.getIntrinsicWidth(), this.startThumb
 				.getIntrinsicHeight()
 				+ topPadding);
 		this.selectionRect.right = begin + halfAThumb;
-
+		this.endLabelX = this.endThumb.getBounds().centerX();
 	}
 
 	@Override
