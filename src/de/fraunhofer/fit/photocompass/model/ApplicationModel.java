@@ -90,19 +90,25 @@ public final class ApplicationModel {
 	public float getRelativeMinDistance() {
 		return _minDistance / MAX_MAX_DISTANCE;
 	}
-	
+
+    /**
+     * @return The current minimum distance for photos to be displayed. As a formated string for display.
+     */
 	public String getFormattedMinDistance() {
 		return OutputFormatter.formatDistance(_minDistance);
 	}
 
 	/**
-	 * @param value The new minimum distance for photos to be displayed.
+	 * @param value The new minimum distance for photos to be displayed. In meters.
 	 */
 	public void setMinDistance(final float minDistance) {
 		_minDistance = minDistance;
 		_broadcastChange();
 	}
-	
+
+	/**
+	 * @param value The new minimum distance for photos to be displayed. From 0..1.
+	 */
 	public void setRelativeMinDistance(final float relativeMinDistance) {
 		setMinDistance(relativeMinDistance * MAX_MAX_DISTANCE);
 	}
@@ -115,12 +121,15 @@ public final class ApplicationModel {
 	}
 
 	/**
-	 * @return The current maximum distance for photos to be displayed. From 0..1;
+	 * @return The current maximum distance for photos to be displayed. From 0..1.
 	 */
 	public float getRelativeMaxDistance() {
 		return _maxDistance / MAX_MAX_DISTANCE;
 	}
-	
+
+    /**
+     * @return The current maximum distance for photos to be displayed. As a formated string for display.
+     */
 	public String getFormattedMaxDistance() {
 		return OutputFormatter.formatDistance(_maxDistance);
 	}
@@ -132,7 +141,10 @@ public final class ApplicationModel {
 		_maxDistance = maxDistance;
 		_broadcastChange();
 	}
-	
+
+	/**
+	 * @param value The new maximum distance for photos to be displayed. From 0..1.
+	 */
 	public void setRelativeMaxDistance(final float relativeMaxDistance) {
 		setMaxDistance(relativeMaxDistance * MAX_MAX_DISTANCE);
 	}
@@ -159,13 +171,16 @@ public final class ApplicationModel {
 	}
 
 	/**
-	 * @param value The new minimum age for photos to be displayed.
+	 * @param value The new minimum age for photos to be displayed. In milliseconds.
 	 */
 	public void setMinAge(final long minAge) {
 		_minAge = minAge;
 		_broadcastChange();
 	}
-	
+
+	/**
+	 * @param value The new minimum age for photos to be displayed. From 0..1.
+	 */
 	public void setRelativeMinAge(final float relativeMinAge) {
 		setMinAge(Math.round(relativeMinAge * MAX_MAX_AGE));
 	}
@@ -198,7 +213,10 @@ public final class ApplicationModel {
 		_maxAge = maxAge;
 		_broadcastChange();
 	}
-	
+
+	/**
+	 * @param value The new maximum age for photos to be displayed. From 0..1.
+	 */
 	public void setRelativeMaxAge(final float relativeMaxAge) {
 		setMaxAge(Math.round(relativeMaxAge * MAX_MAX_AGE));
 	}
