@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.RectF;
 import android.graphics.Paint.Align;
-import android.util.Log;
 import android.view.MotionEvent;
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
@@ -28,9 +26,9 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 				+ this.topPadding;
 		this.paint.setTextAlign(Align.CENTER);
 
-		this.startValue = this.model.getRelativeMinAge();
+		this.setStartValue(this.model.getRelativeMinAge());
 		this.startLabel = this.model.getFormattedMinAge();
-		this.endValue = this.model.getRelativeMaxAge();
+		this.setEndValue(this.model.getRelativeMaxAge());
 		this.endLabel = this.model.getFormattedMaxAge();
 		this.startLabelY = 9;
 		this.endLabelY = 9;
@@ -48,14 +46,14 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 
 	@Override
 	protected void updateStartValue(float newValue) {
-		this.startValue = newValue;
-		this.model.setRelativeMinAge(newValue);
+		this.setStartValue(newValue);
+		this.model.setRelativeMinAge(this.getStartValue());
 		this.startLabel = this.model.getFormattedMinAge();
 		this.updateStartBounds();
 	}
 
 	protected void updateStartBounds() {
-		int begin = convertToConcrete(startValue) - halfAThumb;
+		int begin = convertToConcrete(this.getStartValue()) - halfAThumb;
 		this.startThumb.setBounds(begin, topPadding, begin
 				+ this.startThumb.getIntrinsicWidth(), this.startThumb
 				.getIntrinsicHeight()
@@ -66,14 +64,15 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	
 	@Override
 	protected void updateEndValue(float newValue) {
-		this.model.setRelativeMaxAge(this.endValue);
+		this.setEndValue(newValue);
+		this.model.setRelativeMaxAge(this.getEndValue());
 		this.endLabel = this.model.getFormattedMaxAge();
 
 		this.updateEndBounds();
 	}
 
 	protected void updateEndBounds() {
-		int begin = convertToConcrete(endValue) - halfAThumb;
+		int begin = convertToConcrete(this.getEndValue()) - halfAThumb;
 		this.endThumb.setBounds(begin, topPadding, begin
 				+ this.startThumb.getIntrinsicWidth(), this.startThumb
 				.getIntrinsicHeight()

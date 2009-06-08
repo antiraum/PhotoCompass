@@ -20,13 +20,13 @@ public abstract class DoubleSeekBar extends View {
 	 * Tolerance in pixels. Only MOVE events above this tolerance will be taken
 	 * into account.
 	 */
-	private final static float TOUCH_TOLERANCE = 0.5f;
+	private final static float TOUCH_TOLERANCE = 1f;
 
 	protected int barThickness = 22;
 	protected int barPadding = 4;
 
-	protected float startValue = 0f;
-	protected float endValue = 1f;
+	private float startValue = 0f;
+	private float endValue = 1f;
 	protected int startOffset;
 	protected int endOffset;
 	protected int size;
@@ -81,15 +81,9 @@ public abstract class DoubleSeekBar extends View {
 		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, paint);
 		paint.setColor(PhotoCompassApplication.ORANGE);
 		canvas.drawRect(this.selectionRect, paint);
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onDraw(): selectionRect "
-						+ this.selectionRect.toString());
 
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onDraw(): startValue " + this.startValue
-						+ ", endValue " + this.endValue);
 
 		paint.setColor(Color.WHITE);
 		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
@@ -127,60 +121,36 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onTouchEvent(): MotionEvent action "
-						+ event.getAction());
 		float newValue = convertToAbstract(getEventCoordinate(event));
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onTouchEvent(): Got new value " + newValue);
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
 					- this.endValue)) {
 				// distance to left is less than distance to right
 				this.startThumbDown = true;
-				// this.startValue = newValue;
 				this.startThumb = this.startThumbActive;
 				this.updateStartValue(newValue);
 			} else {
 				// distance to right is less than to left
 				this.startThumbDown = false;
-				// this.endValue = newValue;
 				this.endThumb = this.endThumbActive;
 				this.updateEndValue(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//			if (startThumbDown) {
-//				Log
-//						.d(
-//								PhotoCompassApplication.LOG_TAG,
-//								"DoubleSeekBar.onTouchEvent(): MOVE by "
-//										+ (Math.abs(this.startValue - newValue) * this.size));
-//			} else {
-//				Log
-//				.d(
-//						PhotoCompassApplication.LOG_TAG,
-//						"DoubleSeekBar.onTouchEvent(): MOVE by "
-//								+ (Math.abs(this.endValue - newValue) / this.size));				
-//			}
-
 			if (this.startThumbDown
 					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE)) {
 				this.updateStartValue(newValue);
 				this.invalidate();
 			} else if ((Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE) {
-				// this.endValue = newValue;
 				this.updateEndValue(newValue);
 				this.invalidate();
 			}
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
-				// this.startValue = newValue;
 				this.startThumb = this.startThumbNormal;
 				this.updateStartValue(newValue);
 			} else {
-				// this.endValue = newValue;
 				this.endThumb = this.endThumbNormal;
 				this.updateEndValue(newValue);
 			}
@@ -210,6 +180,14 @@ public abstract class DoubleSeekBar extends View {
 		return this.endValue;
 	}
 
+	public float setStartValue(float newValue) {
+		return this.startValue = Math.max(0f, Math.min(newValue, this.endValue));
+	}
+	
+	public float setEndValue(float newValue) {
+		return this.endValue = Math.min(1f, Math.max(newValue,this.startValue));
+	}
+	
 	protected abstract float getEventCoordinate(final MotionEvent event);
 
 	protected abstract int convertToConcrete(final float abstractValue);

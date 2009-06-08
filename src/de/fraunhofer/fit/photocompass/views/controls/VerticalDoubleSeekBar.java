@@ -1,13 +1,11 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.R;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.RectF;
 import android.graphics.Paint.Align;
-import android.util.Log;
 import android.view.MotionEvent;
+import de.fraunhofer.fit.photocompass.R;
 
 public class VerticalDoubleSeekBar extends DoubleSeekBar {
 
@@ -30,9 +28,9 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 		this.selectionRect.right = this.barThickness + this.barPadding;
 		this.paint.setTextAlign(Align.LEFT);
 
-		this.startValue = this.model.getRelativeMinDistance();
+		this.setStartValue(this.model.getRelativeMinDistance());
 		this.startLabel = this.model.getFormattedMinDistance();
-		this.endValue = this.model.getRelativeMaxDistance();
+		this.setEndValue(this.model.getRelativeMaxDistance());
 		this.endLabel = this.model.getFormattedMaxDistance();
 		this.startLabelX = this.barThickness + 3 * this.barPadding;
 		this.endLabelX = this.barThickness + 3 * this.barPadding;
@@ -50,15 +48,15 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 
 	@Override
 	protected void updateStartValue(final float newValue) {
-		this.startValue = newValue;
-		this.model.setRelativeMinDistance(newValue);
+		this.setStartValue(newValue);
+		this.model.setRelativeMinDistance(this.getStartValue());
 		this.startLabel = this.model.getFormattedMinDistance();
 
 		this.updateStartBounds();
 	}
 
 	protected void updateStartBounds() {
-		int begin = convertToConcrete(startValue) - halfAThumb;
+		int begin = convertToConcrete(this.getStartValue()) - halfAThumb;
 		this.startThumb.setBounds(0, begin, this.startThumb
 				.getIntrinsicWidth(), begin
 				+ this.startThumb.getIntrinsicHeight());
@@ -68,15 +66,15 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 
 	@Override
 	protected void updateEndValue(final float newValue) {
-		this.endValue = newValue;
-		this.model.setRelativeMaxDistance(newValue);
+		this.setEndValue(newValue);
+		this.model.setRelativeMaxDistance(this.getEndValue());
 		this.endLabel = this.model.getFormattedMaxDistance();
 
 		this.updateEndBounds();
 	}
 
 	protected void updateEndBounds() {
-		int begin = convertToConcrete(endValue) - halfAThumb;
+		int begin = convertToConcrete(this.getEndValue()) - halfAThumb;
 
 		this.selectionRect.top = begin + halfAThumb;
 		this.endThumb.setBounds(0, begin, this.startThumb.getIntrinsicWidth(),
