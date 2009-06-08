@@ -126,12 +126,12 @@ public abstract class DoubleSeekBar extends View {
 			// determine whether left or right thumb concerned
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
 					- this.endValue)) {
-				// distance to left is less than distance to right
+				// distance to start is less than distance to end
 				this.startThumbDown = true;
 				this.startThumb = this.startThumbActive;
 				this.updateStartValue(newValue);
 			} else {
-				// distance to right is less than to left
+				// distance to end is less than to start
 				this.startThumbDown = false;
 				this.endThumb = this.endThumbActive;
 				this.updateEndValue(newValue);
@@ -142,7 +142,8 @@ public abstract class DoubleSeekBar extends View {
 					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE)) {
 				this.updateStartValue(newValue);
 				this.invalidate();
-			} else if ((Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE) {
+			} else if (!this.startThumbDown
+					&& (Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE) {
 				this.updateEndValue(newValue);
 				this.invalidate();
 			}
@@ -181,13 +182,15 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	public float setStartValue(float newValue) {
-		return this.startValue = Math.max(0f, Math.min(newValue, this.endValue));
+		return this.startValue = Math
+				.max(0f, Math.min(newValue, this.endValue));
 	}
-	
+
 	public float setEndValue(float newValue) {
-		return this.endValue = Math.min(1f, Math.max(newValue,this.startValue));
+		return this.endValue = Math
+				.min(1f, Math.max(newValue, this.startValue));
 	}
-	
+
 	protected abstract float getEventCoordinate(final MotionEvent event);
 
 	protected abstract int convertToConcrete(final float abstractValue);
