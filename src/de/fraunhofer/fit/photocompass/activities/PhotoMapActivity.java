@@ -264,7 +264,7 @@ public final class PhotoMapActivity extends MapActivity {
 		_mapView = new MapView(this, MAPS_API_KEY);
 		_mapView.setClickable(true);
 		_mapView.setEnabled(true);
-		_mapView.setBuiltInZoomControls(true);
+//		_mapView.setBuiltInZoomControls(true); //XXX Commented for 1.1 compat
 		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
 		// viewing direction overlay

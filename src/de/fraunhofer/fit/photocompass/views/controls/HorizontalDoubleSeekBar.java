@@ -3,6 +3,7 @@ package de.fraunhofer.fit.photocompass.views.controls;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.RectF;
+import android.graphics.Paint.Align;
 import android.util.Log;
 import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
@@ -22,6 +23,13 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.initialize();
 		this.selectionRect.top = this.barPadding;
 		this.selectionRect.bottom = this.barThickness + this.barPadding;
+		this.paint.setTextAlign(Align.CENTER);
+
+		this.startValue = this.model.getRelativeMinAge();
+		this.startLabel = this.model.getFormattedMinAge();
+		this.endValue = this.model.getRelativeMaxAge();
+		this.endLabel = this.model.getFormattedMaxAge();
+	
 	}
 
 	@Override
@@ -34,17 +42,29 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateStartBounds() {
+	protected void updateStartValue() {
+		
+		this.model.setRelativeMinDistance(this.startValue);
+		this.startLabelX = 50;
+		this.startLabelY = 0;
+		this.startLabel = this.model.getFormattedMinDistance();
+		
 		int begin = convertToConcrete(startValue) - halfAThumb;
 		this.startThumb.setBounds(begin, 0, begin
 				+ this.startThumb.getIntrinsicHeight(), this.startThumb
 				.getIntrinsicHeight());
 		this.selectionRect.left = begin + halfAThumb;
 
+
 	}
 
 	@Override
-	protected void updateEndBounds() {
+	protected void updateEndValue() {
+		this.model.setRelativeMaxAge(this.endValue);
+		this.endLabelX = this.size - 50;
+		this.endLabelY = 0;
+		this.endLabel = this.model.getFormattedMaxAge();
+		
 		int begin = convertToConcrete(endValue) - halfAThumb;
 		this.endThumb.setBounds(begin, 0, begin
 				+ this.startThumb.getIntrinsicHeight(), this.startThumb
@@ -70,31 +90,5 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	protected float getEventCoordinate(final MotionEvent event) {
 		return event.getX();
 	}
-
-	// @Override
-	// protected void setEndThumbActive() {
-	// this.endThumb = this.getResources().getDrawable(
-	// R.drawable.seek_thumb_pressed);
-	// }
-	//
-	// @Override
-	// protected void setEndThumbNormal() {
-	//
-	// this.endThumb = this.getResources().getDrawable(
-	// R.drawable.seek_thumb_normal);
-	// }
-	//
-	// @Override
-	// protected void setStartThumbActive() {
-	// this.startThumb = this.getResources().getDrawable(
-	// R.drawable.seek_thumb_pressed);
-	// }
-	//
-	// @Override
-	// protected void setStartThumbNormal() {
-	//
-	// this.startThumb = this.getResources().getDrawable(
-	// R.drawable.seek_thumb_normal);
-	// }
 
 }

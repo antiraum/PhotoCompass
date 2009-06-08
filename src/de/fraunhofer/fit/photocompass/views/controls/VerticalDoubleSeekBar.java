@@ -5,6 +5,7 @@ import de.fraunhofer.fit.photocompass.R;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.RectF;
+import android.graphics.Paint.Align;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -23,7 +24,13 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 		this.initialize();
 		this.selectionRect.left = this.barPadding;
 		this.selectionRect.right = this.barThickness + this.barPadding;
-
+		this.paint.setTextAlign(Align.LEFT);
+		
+		this.startValue = this.model.getRelativeMinDistance();
+		this.startLabel = this.model.getFormattedMinDistance();
+		this.endValue = this.model.getRelativeMaxDistance();
+		this.endLabel = this.model.getFormattedMaxDistance();
+		
 	}
 
 	@Override
@@ -35,22 +42,35 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateStartBounds() {
+	protected void updateStartValue() {
+		this.model.setRelativeMinDistance(this.startValue);
+		this.startLabelX = this.barThickness + 3 * this.barPadding;
+		this.startLabelY = 0;
+		this.startLabel = this.model.getFormattedMinDistance();
+		
 		int begin = convertToConcrete(startValue) - halfAThumb;
 
 		this.startThumb.setBounds(0, begin, this.startThumb
 				.getIntrinsicHeight(), begin
 				+ this.startThumb.getIntrinsicWidth());
 		this.selectionRect.top = begin + halfAThumb;
+
 	}
 
 	@Override
-	protected void updateEndBounds() {
+	protected void updateEndValue() {
+		this.model.setRelativeMaxDistance(this.endValue);
+		this.endLabelX = this.barThickness + 3 * this.barPadding;
+		this.endLabelY = this.size;
+		this.endLabel = this.model.getFormattedMaxDistance();
+
+		
 		int begin = convertToConcrete(endValue) - halfAThumb;
 
 		this.endThumb.setBounds(0, begin, this.startThumb.getIntrinsicHeight(),
 				begin + this.startThumb.getIntrinsicWidth());
 		this.selectionRect.bottom = begin + halfAThumb;
+
 	}
 
 	@Override
@@ -70,31 +90,4 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 		return event.getY();
 	}
 
-//	@Override
-//	protected void setEndThumbActive() {
-//
-//		this.endThumb = this.getResources().getDrawable(
-//				R.drawable.seek_thumb_pressed_vertical);
-//	}
-//
-//	@Override
-//	protected void setEndThumbNormal() {
-//
-//		this.endThumb = this.getResources().getDrawable(
-//				R.drawable.seek_thumb_normal_vertical);
-//	}
-//
-//	@Override
-//	protected void setStartThumbActive() {
-//		this.startThumb = this.getResources().getDrawable(
-//				R.drawable.seek_thumb_pressed_vertical);
-//	}
-//
-//	@Override
-//	protected void setStartThumbNormal() {
-//
-//		this.startThumb = this.getResources().getDrawable(
-//				R.drawable.seek_thumb_normal_vertical);
-//	}
-	
 }
