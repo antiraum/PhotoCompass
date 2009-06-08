@@ -401,7 +401,7 @@ public final class PhotosView extends AbsoluteLayout {
 
     	// calculate the photo height
         final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
-        								   		 (1 - photo.getDistance() / ApplicationModel.getInstance().getMaxDistance()));
+        								   		 (1 - photo.getDistance() / (ApplicationModel.getInstance().getMaxDistance() - ApplicationModel.getInstance().getMinDistance())));
         
         if (metrics.getHeight() == photoHeight) return false;
 
