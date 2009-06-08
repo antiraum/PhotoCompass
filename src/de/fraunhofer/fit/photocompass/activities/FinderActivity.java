@@ -61,6 +61,34 @@ public final class FinderActivity extends Activity {
     private Photos _photosModel;
     private ApplicationModel _appModel;
 
+    /**
+     * {@link GestureDetector} with a {@link SimpleOnGestureListener} that detects the gestures used for interacting
+     * with the displayed photos. Calls the {@link #photosView} to deal with the events.
+     */
+	private final GestureDetector _gestureDetector = new GestureDetector(
+	    new GestureDetector.SimpleOnGestureListener() {
+	    	
+	    	/**
+	    	 * Gets called when a fling/swipe gesture is detected.
+	    	 */
+	        @Override
+	        public boolean onFling(final MotionEvent event1, final MotionEvent event2, final float velocityX, final float velocityY) {
+	        	
+	        	// pass on to photos view
+	        	return photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
+	        							   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
+	        }
+	        
+	        /**
+	         * Gets called when a tap gesture is completed.
+	         */
+	        @Override
+	        public boolean onSingleTapUp(final MotionEvent event) {
+	        	
+	        	// pass on to photos view
+	        	return photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
+	        }
+	    });
 
     /**
      * Connection object for the connection with the {@link LocationService}.
@@ -252,6 +280,15 @@ public final class FinderActivity extends Activity {
     	_appModel.registerCallback(_appModelCallback);
     }
 
+    /**
+     * Gets called when a touch events occurs.
+     * Passes the event on to the {@link #_gestureDetector}.
+     */
+    public boolean onTouchEvent(final MotionEvent event) {
+    	if (photosView == null) return false; // photos view not yet created
+        return _gestureDetector.onTouchEvent(event);
+    }
+    
     /**
      * Called when the activity is first created.
      * Initializes the views.

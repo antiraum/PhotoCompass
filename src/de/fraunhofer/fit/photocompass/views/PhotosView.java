@@ -9,11 +9,8 @@ import java.util.ListIterator;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.widget.AbsoluteLayout;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
@@ -35,10 +32,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
  */
 // TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
 public final class PhotosView extends AbsoluteLayout {
-
-    private static final int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
-    private static final int BOTTOM_CONTROLS_HEIGHT = 35;
-
+	
 	// photo height constants
 	private static final float MIN_PHOTO_HEIGHT_PERCENT = .25F; // percent of the AVAILABLE_HEIGHT
 	private static int MIN_PHOTO_HEIGHT;
@@ -52,38 +46,6 @@ public final class PhotosView extends AbsoluteLayout {
 	private static float DEGREE_WIDTH; // width of one degree direction  
 	
 	private Photos _photosModel;
-	
-	final PhotosView _this = this; //FIXME ugly workaround
-	
-    /**
-     * {@link GestureDetector} with a {@link SimpleOnGestureListener} that detects the gestures used for interacting
-     * with the displayed photos. Calls the {@link #photosView} to deal with the events.
-     */
-	private final GestureDetector _gestureDetector = new GestureDetector(
-	    new GestureDetector.SimpleOnGestureListener() {
-	    	
-	    	/**
-	    	 * Gets called when a fling/swipe gesture is detected.
-	    	 */
-	        @Override
-	        public boolean onFling(final MotionEvent event1, final MotionEvent event2, final float velocityX, final float velocityY) {
-	        	
-	        	// pass on to photos view
-	        	return _this.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
-	        							   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
-	        }
-	        
-	        /**
-	         * Gets called when a tap gesture is completed.
-	         */
-	        @Override
-	        public boolean onSingleTapUp(final MotionEvent event) {
-	        	
-	        	// pass on to photos view
-	        	return _this.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
-	        }
-	    });
-
 	
 	/**
 	 * Layer containing the {@link #_photoViews}.
@@ -577,15 +539,4 @@ public final class PhotosView extends AbsoluteLayout {
     		}
     	}
     }
-    
-
-    /**
-     * Gets called when a touch events occurs.
-     * Passes the event on to the {@link #_gestureDetector}.
-     */
-    @Override public boolean onTouchEvent(final MotionEvent event) {
-//    	if (photosView == null) return false; // photos view not yet created
-        return _gestureDetector.onTouchEvent(event);
-    }
-    
 }
