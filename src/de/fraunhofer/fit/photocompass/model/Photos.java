@@ -177,19 +177,21 @@ public final class Photos {
      * Determines which photos are newly visible for the current viewing settings.
      * 
      * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
+     * @param minDistance Minimum distance from the current position (in meters).
      * @param maxDistance   Maximum distance from the current position (in meters).
      * @param minAge 	    Minimum age of the photos (in milliseconds).
      * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the newly visible photos.
      */
     public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos,
-    												final float maxDistance, final long minAge, final long maxAge) {
+    												final float minDistance, final float maxDistance,
+    												final long minAge, final long maxAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
     	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
             for (int i = 0; i < photos.size(); i++) {
-	    		if (_isPhotoVisible(photos.valueAt(i), maxDistance, minAge, maxAge) &&
+	    		if (_isPhotoVisible(photos.valueAt(i), minDistance, maxDistance, minAge, maxAge) &&
 	    			! currentPhotos.contains(photos.keyAt(i))) results.add(photos.keyAt(i));
 	    	}
     	}
@@ -201,20 +203,22 @@ public final class Photos {
      * Determines which photos are no longer visible for the current viewing settings.
      * 
      * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
+     * @param minDistance Minimum distance from the current position (in meters).
      * @param maxDistance   Maximum distance from the current position (in meters).
      * @param minAge 	    Minimum age of the photos (in milliseconds).
      * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the no longer visible photos.
      */
     public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos,
-    												   final float maxDistance, final long minAge, final long maxAge) {
+    												   final float minDistance, final float maxDistance,
+    												   final long minAge, final long maxAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
     	Photo photo;
     	for (int id : currentPhotos) {
     		photo = getPhoto(id);
-    		if (photo == null || ! _isPhotoVisible(photo, maxDistance, minAge, maxAge)) results.add(id);
+    		if (photo == null || ! _isPhotoVisible(photo, minDistance, maxDistance, minAge, maxAge)) results.add(id);
     	}
     	
     	return results;
@@ -224,16 +228,17 @@ public final class Photos {
      * Checks if a photo is visible with the current settings.
      * 
      * @param photo		  Photo to check.
+     * @param minDistance Minimum distance from the current position (in meters).
      * @param maxDistance Maximum distance from the current position (in meters).
      * @param minAge 	  Minimum age of the photos (in milliseconds).
      * @param maxAge 	  Maximum age of the photos (in milliseconds).
      * @return			  <code>true</code> if photo is visible, or
      * 					  <code>false</code> if photo is not visible.
      */
-    private boolean _isPhotoVisible(final Photo photo, final float maxDistance, final long minAge, final long maxAge) {
+    private boolean _isPhotoVisible(final Photo photo, final float minDistance, final float maxDistance, final long minAge, final long maxAge) {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: id = "+photo.getId());
-		if (photo.getDistance() > maxDistance) { // photo is too far away
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too far away");
+		if (photo.getDistance() < minDistance || photo.getDistance() > maxDistance) { // photo is too close or too far away
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away");
 			return false;
 		}
 		final long photoAge = photo.getAge();

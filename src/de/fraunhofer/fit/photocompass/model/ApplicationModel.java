@@ -26,6 +26,7 @@ public final class ApplicationModel {
 
     private float _minDistance = 0; // in meters
 	private float _maxDistance = MAX_MAX_DISTANCE; // in meters
+	// TODO age should not be set relative
 	private long _minAge = 0; // in milliseconds
 	private long _maxAge = MAX_MAX_AGE; // in milliseconds
 	
@@ -165,7 +166,7 @@ public final class ApplicationModel {
      * @return The current maximum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMaxAge() {
-		return _maxAge / MAX_MAX_AGE;
+		return (float) _maxAge / (float) MAX_MAX_AGE;
 	}
 	
 	public String getFormattedMaxAge() {
@@ -217,6 +218,12 @@ public final class ApplicationModel {
         return _stringBuilder.toString();
 	}
 	
+	/**
+	 * Formats age.
+	 * 
+	 * @param age Age in milliseconds.
+	 * @return	  
+	 */
 	private String _formatAge(long age) {
 		
         final Calendar cal = Calendar.getInstance();

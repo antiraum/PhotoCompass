@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -427,9 +428,9 @@ public final class PhotoMapActivity extends MapActivity {
     		// update photos
     		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
     		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos(),
-    				_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    				_appModel.getMinDistance(), _appModel.getMinDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
     		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos(),
-    				_appModel.getMaxDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    				_appModel.getMinDistance(), _appModel.getMinDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
     	}
 		
     	if (yawChanged) {
@@ -462,10 +463,16 @@ public final class PhotoMapActivity extends MapActivity {
      */
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onActivityResult");
         if (requestCode == OptionsMenu.CAMERA_RETURN) {
             if (resultCode == RESULT_OK) {
+        		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onActivityResult CAMERA_RETURN RESULT_OK");
             	// FIXME at the moment the photo isn't saved - either we have to do this on our own, or
             	// we can call the camera application in another way
+//                Bitmap bitmap = (Bitmap) data.getParcelableExtra("data");
+//                if (bitmap != null) {
+//                	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onActivityResult: we have a bmp");
+//                }
 //            	Photos.getInstance().updatePhotos(this);
             }
         } else {
