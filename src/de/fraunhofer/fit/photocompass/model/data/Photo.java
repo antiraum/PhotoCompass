@@ -6,7 +6,10 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
+
 import com.google.android.maps.GeoPoint;
+
+import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
 
 /**
  * This class is a custom data type for photos.
@@ -205,6 +208,15 @@ public final class Photo {
 	}
 	
 	/**
+	 * Returns the saved distance.
+	 * 
+	 * @return Distance as a formatted string for display.
+	 */
+	public String getFormattedDistance() {
+		return OutputFormatter.formatDistance(_distance);
+	}
+	
+	/**
 	 * Returns the saved direction.
 	 * 
 	 * @return Direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
@@ -220,6 +232,15 @@ public final class Photo {
 	 */
 	public double getAltOffset() {
 		return _altOffset;
+	}
+	
+	/**
+	 * Returns the saved altitude offset.
+	 * 
+	 * @return Altitude offset as a formatted string for display.
+	 */
+	public String getFormattedAltOffset() {
+		return OutputFormatter.formatAltOffset(_altOffset);
 	}
 	
 	/**
