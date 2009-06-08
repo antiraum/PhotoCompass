@@ -1,5 +1,7 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
+import java.util.Formatter;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,17 +13,19 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
+import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 
 public abstract class DoubleSeekBar extends View {
-//	public final static int HORIZONTAL = 0;
-//	public final static int VERTICAL = 1;
+	// public final static int HORIZONTAL = 0;
+	// public final static int VERTICAL = 1;
 
-	protected final int barThickness = 22;
-	protected final int barPadding = 4;
+	protected int barThickness = 22;
+	protected int barPadding = 4;
 
-//	private int orientation;
+	// private int orientation;
 
 	protected float startValue = 0f;
 	protected float endValue = 1f;
@@ -39,29 +43,27 @@ public abstract class DoubleSeekBar extends View {
 	protected Rect selectionRect;
 	protected int halfAThumb = -1;
 
+	protected int startLabelX = 0;
+	protected int startLabelY = 0;
+	protected int endLabelX = 0;
+	protected int endLabelY = 0;
+	protected String startLabel;
+	protected String endLabel;
+
 	private boolean startThumbDown = false;
-	
-	private final Paint paint = new Paint();
+
+	protected final Paint paint = new Paint();
+
+	protected ApplicationModel model;
 
 	public DoubleSeekBar(final Context context) {
 		super(context);
-//		if (orientation != DoubleSeekBar.HORIZONTAL
-//				&& orientation != DoubleSeekBar.VERTICAL) {
-//			// throw new
-//			// IllegalArgumentException("Parameter orientation must be one of the static class members");
-//			orientation = DoubleSeekBar.HORIZONTAL;
-//		}
-//		this.orientation = orientation;
-//		if (orientation == HORIZONTAL) {
 
-//		} else { // VERTICAL
-//		}
+		this.model = ApplicationModel.getInstance();
+
 		this.selectionRect = new Rect();
-//		if (orientation == HORIZONTAL) {
-//		} else { // VERTICAL
-//		}
-		
-		paint.setStyle(Style.FILL);
+		this.paint.setStyle(Style.FILL);
+		this.paint.setAntiAlias(true);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 
@@ -71,10 +73,9 @@ public abstract class DoubleSeekBar extends View {
 		this.startOffset = this.halfAThumb;
 		this.endOffset = this.halfAThumb;
 	}
-	
+
 	@Override
 	protected void onDraw(final Canvas canvas) {
-//		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onDraw()");
 		this.updateAllBounds();
 
 		super.onDraw(canvas);
@@ -84,10 +85,19 @@ public abstract class DoubleSeekBar extends View {
 		canvas.drawRect(this.selectionRect, paint);
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.onDraw(): startValue " + this.startValue
+						+ ", endValue " + this.endValue);
+
+		paint.setColor(Color.WHITE);
+		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
+				paint);
+		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, paint);
 	}
 
 	@Override
-	protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
+	protected void onSizeChanged(final int w, final int h, final int oldw,
+			final int oldh) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
 
 		this.updateAllBounds();
@@ -104,21 +114,23 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	private void updateAllBounds() {
-		this.updateStartBounds();
-		this.updateEndBounds();
+		this.updateStartValue();
+		this.updateEndValue();
 	}
 
-	protected abstract void updateStartBounds(); 
+	protected abstract void updateStartValue();
 
-	protected abstract void updateEndBounds();
+	protected abstract void updateEndValue();
 
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onTouchEvent(): MotionEvent action "
-				+ event.getAction());
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.onTouchEvent(): MotionEvent action "
+						+ event.getAction());
 		float newValue = convertToAbstract(getEventCoordinate(event));
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onTouchEvent(): Got new value " + newValue);		
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.onTouchEvent(): Got new value " + newValue);
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
@@ -127,33 +139,33 @@ public abstract class DoubleSeekBar extends View {
 				this.startThumbDown = true;
 				this.startValue = newValue;
 				this.startThumb = this.startThumbActive;
-				this.updateStartBounds();
+				this.updateStartValue();
 			} else {
 				// distance to right is less than to left
 				this.startThumbDown = false;
 				this.endValue = newValue;
 				this.endThumb = this.endThumbActive;
-				this.updateEndBounds();
+				this.updateEndValue();
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			if (this.startThumbDown) {
 				this.startValue = newValue;
-				this.updateStartBounds();
+				this.updateStartValue();
 			} else {
 				this.endValue = newValue;
-				this.updateEndBounds();
+				this.updateEndValue();
 			}
 			this.invalidate();
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
 				this.startValue = newValue;
 				this.startThumb = this.startThumbNormal;
-				this.updateStartBounds();
+				this.updateStartValue();
 			} else {
 				this.endValue = newValue;
 				this.endThumb = this.endThumbNormal;
-				this.updateEndBounds();
+				this.updateEndValue();
 			}
 			this.invalidate();
 		} else {
@@ -181,14 +193,10 @@ public abstract class DoubleSeekBar extends View {
 		return this.endValue;
 	}
 
-//	protected abstract void setStartThumbActive();
-//	protected abstract void setStartThumbNormal();
-//	protected abstract void setEndThumbActive();
-//	protected abstract void setEndThumbNormal();
-//	
 	protected abstract float getEventCoordinate(final MotionEvent event);
-	
+
 	protected abstract int convertToConcrete(final float abstractValue);
 
 	protected abstract float convertToAbstract(final float concreteValue);
+
 }
