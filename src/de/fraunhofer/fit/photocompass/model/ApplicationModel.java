@@ -130,7 +130,7 @@ public final class ApplicationModel {
      * @return The current minimum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMinAge() {
-		return 1 - ((float) _minAge / (float) MAX_MAX_AGE);
+		return (float) _minAge / (float) MAX_MAX_AGE;
 	}
 
     /**
@@ -149,7 +149,7 @@ public final class ApplicationModel {
 	}
 	
 	public void setRelativeMinAge(final float relativeMinAge) {
-		setMinAge(Math.round((1 - relativeMinAge) * MAX_MAX_AGE));
+		setMinAge(Math.round(relativeMinAge * MAX_MAX_AGE));
 	}
 
     /**
@@ -163,7 +163,7 @@ public final class ApplicationModel {
      * @return The current maximum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMaxAge() {
-		return 1 - ((float) _maxAge / (float) MAX_MAX_AGE);
+		return (float) _maxAge / (float) MAX_MAX_AGE;
 	}
 
     /**
@@ -182,7 +182,7 @@ public final class ApplicationModel {
 	}
 	
 	public void setRelativeMaxAge(final float relativeMaxAge) {
-		setMaxAge(Math.round((1 - relativeMaxAge) * MAX_MAX_AGE));
+		setMaxAge(Math.round(relativeMaxAge * MAX_MAX_AGE));
 	}
 	
     /**
