@@ -10,9 +10,12 @@ import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.Window;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
+import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
@@ -164,5 +167,36 @@ public final class DummyMapActivity extends Activity {
     	}
         
         super.onStop();
+    }
+    
+    /**
+     * Populate the options menu.
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	menu = OptionsMenu.populateMenu(menu);
+        return true;
+    }
+
+    /**
+     * Handles the option menu item selections.
+     */
+    public boolean onOptionsItemSelected(final MenuItem item) {
+    	return OptionsMenu.handleMenuItemSelection(item, this);
+    }
+
+    /**
+     * Gets called when a started {@link Activity} returns a result.
+     */
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (requestCode == OptionsMenu.CAMERA_RETURN) {
+            if (resultCode == RESULT_OK) {
+            	// FIXME at the moment the photo isn't saved - either we have to do this on our own, or
+            	// we can call the camera application in another way
+//            	Photos.getInstance().updatePhotos(this);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

@@ -13,6 +13,8 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -472,5 +474,36 @@ public final class FinderActivity extends Activity {
     		photo = _photosModel.getPhoto(id);
     		if (photo != null) photo.updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
     	}
+    }
+    
+    /**
+     * Populate the options menu.
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	menu = OptionsMenu.populateMenu(menu);
+        return true;
+    }
+
+    /**
+     * Handles the option menu item selections.
+     */
+    public boolean onOptionsItemSelected(final MenuItem item) {
+    	return OptionsMenu.handleMenuItemSelection(item, this);
+    }
+
+    /**
+     * Gets called when a started {@link Activity} returns a result.
+     */
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (requestCode == OptionsMenu.CAMERA_RETURN) {
+            if (resultCode == RESULT_OK) {
+            	// FIXME at the moment the photo isn't saved - either we have to do this on our own, or
+            	// we can call the camera application in another way
+//            	Photos.getInstance().updatePhotos(this);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }
