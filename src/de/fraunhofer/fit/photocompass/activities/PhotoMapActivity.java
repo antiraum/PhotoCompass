@@ -121,8 +121,8 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
         	
-        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
@@ -268,7 +268,7 @@ public final class PhotoMapActivity extends MapActivity {
 		_mapView = new MapView(this, MAPS_API_KEY);
 		_mapView.setClickable(true);
 		_mapView.setEnabled(true);
-//		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
+		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
 		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
 		// viewing direction overlay
