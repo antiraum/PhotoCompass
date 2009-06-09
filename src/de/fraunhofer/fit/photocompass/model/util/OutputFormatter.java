@@ -64,7 +64,7 @@ public final class OutputFormatter {
 		
 		if (days > 0) {
 			stringBuilder.append(days);
-			stringBuilder.append(" days");
+			stringBuilder.append((days == 1) ? " day" : " days");
 			if (hours > 0) {
 				stringBuilder.append(" ");
 				stringBuilder.append(hours);
