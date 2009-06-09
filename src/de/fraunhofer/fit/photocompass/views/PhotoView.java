@@ -21,7 +21,6 @@ final class PhotoView extends AbsoluteLayout {
 	private Photo _photo; // Photo object for the displayed photo
 	private ImageView _imgView;
 	private TextView _textView;
-	private final StringBuilder _stringBuilder = new StringBuilder();
 	private int _width; // current width
 	private int _height; // current height
 	private boolean _minimized = false;
@@ -56,31 +55,17 @@ final class PhotoView extends AbsoluteLayout {
 	 * Call this when the distance or altitude offset of the photo has changed.
 	 */
 	void updateText() {
-		
-		_stringBuilder.setLength(0); // reset
+
+		final StringBuilder stringBuilder = new StringBuilder();
         
         // distance
-        final float photoDistance = _photo.getDistance();
-        if (photoDistance < 1000) {
-        	_stringBuilder.append(Math.round(photoDistance));
-        	_stringBuilder.append(" m");
-        } else {
-        	_stringBuilder.append(_fmt.format("%.1f", photoDistance / 1000)); 
-        	_stringBuilder.append(" km");
-        }
-        _stringBuilder.append(" away\n");
+		stringBuilder.append(_photo.getFormattedDistance());
+        stringBuilder.append(" away\n");
         
         // altitude offset
-        final double photoAltOffset = _photo.getAltOffset();
-        if (photoAltOffset == 0) {
-        	_stringBuilder.append("on same level");
-        } else {
-        	_stringBuilder.append(Math.abs(Math.round(photoAltOffset)));
-        	_stringBuilder.append(" m ");
-        	_stringBuilder.append((photoAltOffset > 0) ? "higher" : "lower");
-        }
+    	stringBuilder.append(_photo.getFormattedAltOffset());
         
-        _textView.setText(_stringBuilder.toString());
+        _textView.setText(stringBuilder.toString());
 	}
     
     /**
