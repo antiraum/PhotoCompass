@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -121,8 +120,8 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
         	
-        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
@@ -222,13 +221,34 @@ public final class PhotoMapActivity extends MapActivity {
 	private final IApplicationModelCallback _appModelCallback = new IApplicationModelCallback.Stub() {
 
 		/**
-		 * Gets called when variables in the {@link ApplicationModel} change.
+		 * Gets called when the minimum distance in the {@link ApplicationModel} changes.
 		 * Initiates a update of {@link #photosView}. 
 		 */
-		public void onApplicationModelChange() {
-			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
+		public void onMinDistanceChange(final float minDistance, final float minDistanceRel) {
+	    	updateMapView(false, false, false, true);
+		}
 
-            // update map view
+		/**
+		 * Gets called when the maximum distance in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+	    	updateMapView(false, false, false, true);
+		}
+
+		/**
+		 * Gets called when the minimum age in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMinAgeChange(final long minAge, final float minAgeRel) {
+	    	updateMapView(false, false, false, true);
+		}
+
+		/**
+		 * Gets called when the maximum age in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMaxAgeChange(final long maxAge, final float maxAgeRel) {
 	    	updateMapView(false, false, false, true);
 		}
 	};
@@ -268,7 +288,7 @@ public final class PhotoMapActivity extends MapActivity {
 		_mapView = new MapView(this, MAPS_API_KEY);
 		_mapView.setClickable(true);
 		_mapView.setEnabled(true);
-//		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
+		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
 		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
 		// viewing direction overlay

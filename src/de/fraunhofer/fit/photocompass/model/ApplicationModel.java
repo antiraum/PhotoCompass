@@ -16,20 +16,28 @@ import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
 public final class ApplicationModel {
 	
 	// minimum & maximum values
-	final float MAX_DISTANCE_LIMIT = 10 * 1000F; // in meters
-	private float MIN_MIN_DISTANCE = 0F; // in meters
+	private final float MIN_DISTANCE_LIMIT = 1000F; // in meters
+	private final float MAX_DISTANCE_LIMIT = 15 * 1000F; // in meters
 	private float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
-	final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
-	private long MIN_MIN_AGE = 0L; // in milliseconds
+	private final long MIN_AGE_LIMIT = 60 * 60 * 1000L; // in milliseconds
+	private final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 	private long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
 
     private static ApplicationModel _instance;
 
     // current settings
-    private float _minDistance = MIN_MIN_DISTANCE; // in meters
+    private float _minDistance = 0F; // in meters
+    private float _minDistanceRel = 0F;
+    private String _minDistanceStr = OutputFormatter.formatDistance(_minDistance);
 	private float _maxDistance = MAX_MAX_DISTANCE; // in meters
-	private long _minAge = MIN_MIN_AGE; // in milliseconds
+	private float _maxDistanceRel = 1F;
+	private String _maxDistanceStr = OutputFormatter.formatDistance(_maxDistance);
+	private long _minAge = 0L; // in milliseconds
+	private float _minAgeRel = 0F;
+	private String _minAgeStr = OutputFormatter.formatAge(_minAge);
 	private long _maxAge = MAX_MAX_AGE; // in milliseconds
+	private float _maxAgeRel = 1F;
+	private String _maxAgeStr = OutputFormatter.formatAge(_maxAge);
 
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 
@@ -56,31 +64,15 @@ public final class ApplicationModel {
     }
     
     /**
-     * Set the minimum value for minimum distance.
-     * Call this from the {@link Photos} model when the photos are read of the device.
-     */
-    public void setMinMinDistance(final float value) {
-    	MIN_MIN_DISTANCE = (value < 0) ? 0 : value;
-    	if (_minDistance < MIN_MIN_DISTANCE) setMinDistance(MIN_MIN_DISTANCE);
-    }
-    
-    /**
      * Set the maximum value for maximum distance.
      * Call this from the {@link Photos} model when the photos are read of the device.
      */
     public void setMaxMaxDistance(final float value) {
-//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxDistance: "+value);
-    	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT : value;
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxDistance = "+value);
+    	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT
+    													: (value < MIN_DISTANCE_LIMIT) ? MIN_DISTANCE_LIMIT
+    																				   : value;
     	if (_maxDistance > MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
-    }
-    
-    /**
-     * Set the minimum value for minimum age.
-     * Call this from the {@link Photos} model when the photos are read of the device.
-     */
-    public void setMinMinAge(final long value) {
-    	MIN_MIN_AGE = (value < 0) ? 0 : value;
-    	if (_minAge < MIN_MIN_AGE) setMinAge(MIN_MIN_AGE);
     }
     
     /**
@@ -88,9 +80,43 @@ public final class ApplicationModel {
      * Call this from the {@link Photos} model when the photos are read of the device.
      */
     public void setMaxMaxAge(final long value) {
-    	MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT : value;
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxAge = "+value);
+    	MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT
+											  : (value < MIN_AGE_LIMIT) ? MIN_AGE_LIMIT
+													  					: value;
     	if (_maxAge > MAX_MAX_AGE) setMaxAge(MAX_MAX_AGE);
     }
+
+	/**
+	 * @param value The new minimum distance for photos to be displayed. In meters.
+	 */
+	public void setMinDistance(final float minDistance) {
+		
+		// update values
+		_minDistance = minDistance;
+		_minDistanceRel = (MAX_MAX_DISTANCE == 0) ? 0F : _minDistance / MAX_MAX_DISTANCE;
+		_minDistanceStr = OutputFormatter.formatDistance(_minDistance);
+		
+		// broadcast change
+	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
+	    for (int i = 0; i < numCallbacks; i++) {
+	        try {
+	            _remoteCallbacks.getBroadcastItem(i).onMinDistanceChange(_minDistance, _minDistanceRel);
+	        } catch (final DeadObjectException e) {
+	            // the RemoteCallbackList will take care of removing the dead object
+	        } catch (final RemoteException e) {
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+	        }
+	    }
+	    _remoteCallbacks.finishBroadcast();
+	}
+
+	/**
+	 * @param value The new minimum distance for photos to be displayed. From 0..1.
+	 */
+	public void setRelativeMinDistance(final float relativeMinDistance) {
+		setMinDistance(relativeMinDistance * MAX_MAX_DISTANCE);
+	}
 
     /**
      * @return The current minimum distance for photos to be displayed. In meters.
@@ -103,33 +129,45 @@ public final class ApplicationModel {
 	 * @return The current minimum distance for photos to be displayed. From 0..1;
 	 */
 	public float getRelativeMinDistance() {
-		float relMinDist = (MAX_MAX_DISTANCE == 0) ? 0F : _minDistance / (MAX_MAX_DISTANCE - MIN_MIN_DISTANCE);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMinDistance = "+relMinDist+", _minDistance = "+_minDistance+", MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE);
-		return relMinDist;
+		return _minDistanceRel;
 	}
 
     /**
      * @return The current minimum distance for photos to be displayed. As a formated string for display.
      */
 	public String getFormattedMinDistance() {
-		String str = OutputFormatter.formatDistance(_minDistance);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMinDistance = "+str);
-		return str;
+		return _minDistanceStr;
 	}
 
 	/**
-	 * @param value The new minimum distance for photos to be displayed. In meters.
+	 * @param value The new maximum distance for photos to be displayed.
 	 */
-	public void setMinDistance(final float minDistance) {
-		_minDistance = minDistance;
-		_broadcastChange();
+	public void setMaxDistance(final float maxDistance) {
+		
+		// update values
+		_maxDistance = maxDistance;
+		_maxDistanceRel = (MAX_MAX_DISTANCE == 0) ? 0F : _maxDistance / MAX_MAX_DISTANCE;
+		_maxDistanceStr = OutputFormatter.formatDistance(_maxDistance);
+		
+		// broadcast change
+	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
+	    for (int i = 0; i < numCallbacks; i++) {
+	        try {
+	            _remoteCallbacks.getBroadcastItem(i).onMaxDistanceChange(_maxDistance, _maxDistanceRel);
+	        } catch (final DeadObjectException e) {
+	            // the RemoteCallbackList will take care of removing the dead object
+	        } catch (final RemoteException e) {
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+	        }
+	    }
+	    _remoteCallbacks.finishBroadcast();
 	}
 
 	/**
-	 * @param value The new minimum distance for photos to be displayed. From 0..1.
+	 * @param value The new maximum distance for photos to be displayed. From 0..1.
 	 */
-	public void setRelativeMinDistance(final float relativeMinDistance) {
-		setMinDistance(relativeMinDistance * (MAX_MAX_DISTANCE - MIN_MIN_DISTANCE));
+	public void setRelativeMaxDistance(final float relativeMaxDistance) {
+		setMaxDistance(relativeMaxDistance * MAX_MAX_DISTANCE);
 	}
 
     /**
@@ -143,33 +181,46 @@ public final class ApplicationModel {
 	 * @return The current maximum distance for photos to be displayed. From 0..1.
 	 */
 	public float getRelativeMaxDistance() {
-		float relMaxDist = (MAX_MAX_DISTANCE == 0) ? 0F : _maxDistance / (MAX_MAX_DISTANCE - MIN_MIN_DISTANCE);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMaxDistance = "+relMaxDist+", _maxDistance = "+_maxDistance+", MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE);
-		return relMaxDist;
+		return _maxDistanceRel;
 	}
 
     /**
      * @return The current maximum distance for photos to be displayed. As a formated string for display.
      */
 	public String getFormattedMaxDistance() {
-		String str = OutputFormatter.formatDistance(_maxDistance);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxDistance = "+str);
-		return str;
+		return _maxDistanceStr;
 	}
 
 	/**
-	 * @param value The new maximum distance for photos to be displayed.
+	 * @param value The new minimum age for photos to be displayed. In milliseconds.
 	 */
-	public void setMaxDistance(final float maxDistance) {
-		_maxDistance = maxDistance;
-		_broadcastChange();
+	public void setMinAge(final long minAge) {
+		
+		// update values
+		_minAge = minAge;
+		_minAgeRel = (MAX_MAX_AGE == 0) ? 0F : (float) _minAge / (float) MAX_MAX_AGE;
+		_minAgeStr = OutputFormatter.formatAge(_minAge);
+		
+		// broadcast change
+	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
+	    for (int i = 0; i < numCallbacks; i++) {
+	        try {
+	            _remoteCallbacks.getBroadcastItem(i).onMinAgeChange(_minAge, _minAgeRel);
+	        } catch (final DeadObjectException e) {
+	            // the RemoteCallbackList will take care of removing the dead object
+	        } catch (final RemoteException e) {
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+	        }
+	    }
+	    _remoteCallbacks.finishBroadcast();
 	}
 
 	/**
-	 * @param value The new maximum distance for photos to be displayed. From 0..1.
+	 * @param value The new minimum age for photos to be displayed. From 0..1.
 	 */
-	public void setRelativeMaxDistance(final float relativeMaxDistance) {
-		setMaxDistance(relativeMaxDistance * (MAX_MAX_DISTANCE - MIN_MIN_DISTANCE));
+	public void setRelativeMinAge(final float relativeMinAge) {
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setRelativeMinAge = "+relativeMinAge);
+		setMinAge(Math.round(relativeMinAge * MAX_MAX_AGE));
 	}
 
     /**
@@ -183,33 +234,47 @@ public final class ApplicationModel {
      * @return The current minimum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMinAge() {
-		float relMinAge = (MAX_MAX_AGE == 0) ? 0F : (float) _minAge / (float) (MAX_MAX_AGE - MIN_MIN_AGE);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMinAge = "+relMinAge);
-		return relMinAge;
+		return _minAgeRel;
 	}
 
     /**
      * @return The current minimum age for photos to be displayed. As a formated string for display.
      */
 	public String getFormattedMinAge() {
-		String str = OutputFormatter.formatAge(_minAge);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMinAge = "+str);
-		return str;
+		return _minAgeStr;
 	}
 
 	/**
-	 * @param value The new minimum age for photos to be displayed. In milliseconds.
+	 * @param value The new maximum age for photos to be displayed.
 	 */
-	public void setMinAge(final long minAge) {
-		_minAge = minAge;
-		_broadcastChange();
+	public void setMaxAge(final long maxAge) {
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxAge = "+maxAge);
+		
+		// update values
+		_maxAge = maxAge;
+		_maxAgeRel = (MAX_MAX_AGE == 0) ? 0F : (float) _maxAge / (float) MAX_MAX_AGE;
+		_maxAgeStr = OutputFormatter.formatAge(_maxAge);
+		
+		// broadcast change
+	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
+	    for (int i = 0; i < numCallbacks; i++) {
+	        try {
+	            _remoteCallbacks.getBroadcastItem(i).onMaxAgeChange(_maxAge, _maxAgeRel);
+	        } catch (final DeadObjectException e) {
+	            // the RemoteCallbackList will take care of removing the dead object
+	        } catch (final RemoteException e) {
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+	        }
+	    }
+	    _remoteCallbacks.finishBroadcast();
 	}
 
 	/**
-	 * @param value The new minimum age for photos to be displayed. From 0..1.
+	 * @param value The new maximum age for photos to be displayed. From 0..1.
 	 */
-	public void setRelativeMinAge(final float relativeMinAge) {
-		setMinAge(Math.round(relativeMinAge * MAX_MAX_AGE));
+	public void setRelativeMaxAge(final float relativeMaxAge) {
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setRelativeMaxAge = "+relativeMaxAge);
+		setMaxAge(Math.round(relativeMaxAge * MAX_MAX_AGE));
 	}
 
     /**
@@ -223,50 +288,13 @@ public final class ApplicationModel {
      * @return The current maximum age for photos to be displayed. From 0..1.
      */
 	public float getRelativeMaxAge() {
-		float relMaxAge = (MAX_MAX_AGE == 0) ? 0F : (float) _maxAge / (float) (MAX_MAX_AGE - MIN_MIN_AGE);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMaxAge = "+relMaxAge);
-		return relMaxAge;
+		return _maxAgeRel;
 	}
 
     /**
      * @return The current maximum age for photos to be displayed. As a formated string for display.
      */
 	public String getFormattedMaxAge() {
-		String str = OutputFormatter.formatAge(_maxAge);
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxAge = "+str+", _maxAge = "+_maxAge);
-		return str;
-	}
-
-	/**
-	 * @param value The new maximum age for photos to be displayed.
-	 */
-	public void setMaxAge(final long maxAge) {
-		_maxAge = maxAge;
-		_broadcastChange();
-	}
-
-	/**
-	 * @param value The new maximum age for photos to be displayed. From 0..1.
-	 */
-	public void setRelativeMaxAge(final float relativeMaxAge) {
-		setMaxAge(Math.round(relativeMaxAge * (MAX_MAX_AGE - MIN_MIN_AGE)));
-	}
-	
-    /**
-     * Broadcasts the application model change to all registered callbacks.
-     * Gets called by the setter methods.
-     */
-	private void _broadcastChange() {
-	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
-	    for (int i = 0; i < numCallbacks; i++) {
-	        try {
-	            _remoteCallbacks.getBroadcastItem(i).onApplicationModelChange();
-	        } catch (final DeadObjectException e) {
-	            // the RemoteCallbackList will take care of removing the dead object
-	        } catch (final RemoteException e) {
-		    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
-	        }
-	    }
-	    _remoteCallbacks.finishBroadcast();
+		return _maxAgeStr;
 	}
 }

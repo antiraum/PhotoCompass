@@ -53,9 +53,9 @@ public final class PhotoCompassApplication extends Application {
     	// setup dummy location
     	if (USE_DUMMY_LOCATION) {
 	    	dummyLocation = new Location("");
-	//    	dummyLocation.setLatitude(Location.convert("50:43:12.59")); // B-IT
-	//    	dummyLocation.setLongitude(Location.convert("7:7:16.2")); // B-IT
-	//    	dummyLocation.setAltitude(103); // B-IT
+//	    	dummyLocation.setLatitude(Location.convert("50:43:12.59")); // B-IT
+//	    	dummyLocation.setLongitude(Location.convert("7:7:16.2")); // B-IT
+//	    	dummyLocation.setAltitude(103); // B-IT
 	    	dummyLocation.setLatitude(Location.convert("50:44:58.43")); // FIT
 	    	dummyLocation.setLongitude(Location.convert("7:12:14.54")); // FIT
 	    	dummyLocation.setAltitude(125); // FIT

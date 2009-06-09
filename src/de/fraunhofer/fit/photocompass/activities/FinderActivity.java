@@ -252,13 +252,34 @@ public final class FinderActivity extends Activity {
 	private final IApplicationModelCallback _appModelCallback = new IApplicationModelCallback.Stub() {
 
 		/**
-		 * Gets called when variables in the {@link ApplicationModel} change.
+		 * Gets called when the minimum distance in the {@link ApplicationModel} changes.
 		 * Initiates a update of {@link #photosView}. 
 		 */
-		public void onApplicationModelChange() {
-			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
+		public void onMinDistanceChange(final float minDistance, final float minDistanceRel) {
+	    	updatePhotoView(false, false, false, false, true, true);
+		}
 
-            // update photo view
+		/**
+		 * Gets called when the maximum distance in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+	    	updatePhotoView(false, false, false, false, true, true);
+		}
+
+		/**
+		 * Gets called when the minimum age in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMinAgeChange(final long minAge, final float minAgeRel) {
+	    	updatePhotoView(false, false, false, false, true, true);
+		}
+
+		/**
+		 * Gets called when the maximum age in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMaxAgeChange(final long maxAge, final float maxAgeRel) {
 	    	updatePhotoView(false, false, false, false, true, true);
 		}
 	};
