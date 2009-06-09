@@ -5,9 +5,6 @@ package de.fraunhofer.fit.photocompass.model.util;
 
 import java.util.Formatter;
 
-import android.util.Log;
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-
 /**
  * This class provides static methods to format distance, age, and altitude offset values for display.
  */
@@ -21,8 +18,6 @@ public final class OutputFormatter {
 	 */
 	public static String formatDistance(final float distance) {
 		if (Float.isNaN(distance)) return "";
-		
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "OutputFormatter: formatDistance: distance = "+distance);
 
     	final StringBuilder stringBuilder = new StringBuilder();
 
@@ -60,14 +55,12 @@ public final class OutputFormatter {
 //		stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
 //		stringBuilder.append(".");
 //		stringBuilder.append(cal.get(Calendar.MINUTE));
-    	//2592000000
-		float ageF = Math.round(age / 60 * 1000); // to minutes
-    	//43200.00000000000000000000
-		final int min = Math.round(ageF % 60); //0
-		ageF = Math.round(ageF / 60); // to hours
-		// 720
-		final int hours = Math.round(ageF % 24); //0
-		final int days = Math.round(ageF / 24); //30
+    	
+		float ageF = Math.round(age / (60 * 1000)); // to minutes
+		final int min = Math.round(ageF % 60);
+		ageF = (float) Math.floor(ageF / 60); // to hours
+		final int hours = Math.round(ageF % 24);
+		final int days = (int) Math.floor(ageF / 24);
 		
 		if (days > 0) {
 			stringBuilder.append(days);

@@ -32,15 +32,6 @@ public final class ApplicationModel {
 	private long _maxAge = MAX_MAX_AGE; // in milliseconds
 
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
-	
-    /**
-     * Constructor.
-     * Sets the initial values.
-     */
-	protected ApplicationModel() {
-		super();
-		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE+", MAX_MAX_AGE = "+MAX_MAX_AGE);
-	}
 
 	/**
 	 * @return The instance of this Singleton model.
@@ -113,7 +104,7 @@ public final class ApplicationModel {
 	 */
 	public float getRelativeMinDistance() {
 		float relMinDist = (MAX_MAX_DISTANCE == 0) ? 0F : _minDistance / (MAX_MAX_DISTANCE - MIN_MIN_DISTANCE);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMinDistance = "+relMinDist+", _minDistance = "+_minDistance+", MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMinDistance = "+relMinDist+", _minDistance = "+_minDistance+", MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE);
 		return relMinDist;
 	}
 
@@ -122,7 +113,7 @@ public final class ApplicationModel {
      */
 	public String getFormattedMinDistance() {
 		String str = OutputFormatter.formatDistance(_minDistance);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMinDistance = "+str);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMinDistance = "+str);
 		return str;
 	}
 
@@ -153,7 +144,7 @@ public final class ApplicationModel {
 	 */
 	public float getRelativeMaxDistance() {
 		float relMaxDist = (MAX_MAX_DISTANCE == 0) ? 0F : _maxDistance / (MAX_MAX_DISTANCE - MIN_MIN_DISTANCE);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMaxDistance = "+relMaxDist+", _maxDistance = "+_maxDistance+", MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMaxDistance = "+relMaxDist+", _maxDistance = "+_maxDistance+", MAX_MAX_DISTANCE = "+MAX_MAX_DISTANCE);
 		return relMaxDist;
 	}
 
@@ -162,7 +153,7 @@ public final class ApplicationModel {
      */
 	public String getFormattedMaxDistance() {
 		String str = OutputFormatter.formatDistance(_maxDistance);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxDistance = "+str);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxDistance = "+str);
 		return str;
 	}
 
@@ -193,7 +184,7 @@ public final class ApplicationModel {
      */
 	public float getRelativeMinAge() {
 		float relMinAge = (MAX_MAX_AGE == 0) ? 0F : (float) _minAge / (float) (MAX_MAX_AGE - MIN_MIN_AGE);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMinAge = "+relMinAge);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMinAge = "+relMinAge);
 		return relMinAge;
 	}
 
@@ -202,7 +193,7 @@ public final class ApplicationModel {
      */
 	public String getFormattedMinAge() {
 		String str = OutputFormatter.formatAge(_minAge);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMinAge = "+str);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMinAge = "+str);
 		return str;
 	}
 
@@ -233,7 +224,7 @@ public final class ApplicationModel {
      */
 	public float getRelativeMaxAge() {
 		float relMaxAge = (MAX_MAX_AGE == 0) ? 0F : (float) _maxAge / (float) (MAX_MAX_AGE - MIN_MIN_AGE);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMaxAge = "+relMaxAge);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getRelativeMaxAge = "+relMaxAge);
 		return relMaxAge;
 	}
 
@@ -242,7 +233,7 @@ public final class ApplicationModel {
      */
 	public String getFormattedMaxAge() {
 		String str = OutputFormatter.formatAge(_maxAge);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxAge = "+str+", _maxAge = "+_maxAge);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxAge = "+str+", _maxAge = "+_maxAge);
 		return str;
 	}
 
