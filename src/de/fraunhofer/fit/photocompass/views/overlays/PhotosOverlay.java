@@ -23,6 +23,7 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
@@ -34,8 +35,8 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 public final class PhotosOverlay extends Overlay {
 	
 	private static final float PHOTO_SIZE = 60;
-	private static final float ARROW_WIDTH = 15;
-	private static final float ARROW_HEIGHT = 15;
+//	private static final float ARROW_WIDTH = 15;
+	private static final float ARROW_HEIGHT = 18;
 	private static final float BORDER_WIDTH = 2.1F; // stroke width of the border
 	
 	/**
@@ -60,23 +61,26 @@ public final class PhotosOverlay extends Overlay {
 	 */
 	private final SparseArray<Bitmap> _photoBitmaps = new SparseArray<Bitmap>();
 	
-	/**
-	 * Border paths for currently and previously used photos (key is photo/resource id).
-	 */
-	private final SparseArray<Path> _borderPaths = new SparseArray<Path>();
-	
-	/**
-	 * Minimized border paths for currently and previously used photos (key is photo/resource id).
-	 */
-	private final SparseArray<Path> _minimizedBorderPaths = new SparseArray<Path>();
+//	/**
+//	 * Border paths for currently and previously used photos (key is photo/resource id).
+//	 */
+//	private final SparseArray<Path> _borderPaths = new SparseArray<Path>();
+//	
+//	/**
+//	 * Minimized border paths for currently and previously used photos (key is photo/resource id).
+//	 */
+//	private final SparseArray<Path> _minimizedBorderPaths = new SparseArray<Path>();
 	
     private Photos _photosModel;
 	private final Paint _borderPaint = new Paint();
+	private Bitmap _borderBmp;
+	private Bitmap _arrowBmp;
 	
 	public PhotosOverlay() {
         _photosModel = Photos.getInstance();
         
         _borderPaint.setStrokeWidth(BORDER_WIDTH);
+        _borderPaint.setColor(PhotoCompassApplication.ORANGE);
         _borderPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 	}
 
@@ -138,7 +142,7 @@ public final class PhotosOverlay extends Overlay {
 	
 	// variables for draw
 	private final Point _point = new Point();
-	private final Path _drawPath = new Path();
+//	private final Path _drawPath = new Path();
 	private final Matrix _matrix = new Matrix();
 
 	/**
@@ -148,13 +152,16 @@ public final class PhotosOverlay extends Overlay {
     @Override
     public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
     	super.draw(canvas, mapView, shadow);
+    	
+//    	if (_borderBmp == null) _borderBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_border);
+    	if (_arrowBmp == null) _arrowBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_arrow);
 
 		final Projection projection = mapView.getProjection();
 		Photo photo;
 		Bitmap bmp;
 		float width, height, xScale, yScale, scale;
 		PhotoMetrics metrics;
-		Path path;
+//		Path path;
 		float bmpXPos, bmpYPos;
 		for (int id : _photos) {
 
@@ -201,33 +208,40 @@ public final class PhotosOverlay extends Overlay {
 			metrics.setWidth(Math.round(width + BORDER_WIDTH));
 			metrics.setHeight(Math.round(height + BORDER_WIDTH));
 
-			path = _minimizedPhotos.contains(id) ? _minimizedBorderPaths.get(id) : _borderPaths.get(id);
-			if (path == null) {
+//			path = _minimizedPhotos.contains(id) ? _minimizedBorderPaths.get(id) : _borderPaths.get(id);
+//			if (path == null) {
+//			
+//				// create border path
+//				path = new Path();
+//				path.rLineTo(width + BORDER_WIDTH, 0); // top border
+//				path.rLineTo(0, height + BORDER_WIDTH); // right border
+//				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
+//				path.rLineTo(-1 * ARROW_WIDTH / 2, ARROW_HEIGHT); // arrow right border
+//				path.rLineTo(-1 * ARROW_WIDTH / 2, -1 * ARROW_HEIGHT); // arrow left border
+//				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
+//				path.close(); // left border
+//				
+//				// save path
+//				if (_minimizedPhotos.contains(id)) {
+//					_minimizedBorderPaths.append(id, path);
+//				} else {
+//					_borderPaths.append(id, path);
+//				}
+//			}
 			
-				// create border path
-				path = new Path();
-				path.rLineTo(width + BORDER_WIDTH, 0); // top border
-				path.rLineTo(0, height + BORDER_WIDTH); // right border
-				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
-				path.rLineTo(-1 * ARROW_WIDTH / 2, ARROW_HEIGHT); // arrow right border
-				path.rLineTo(-1 * ARROW_WIDTH / 2, -1 * ARROW_HEIGHT); // arrow left border
-				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
-				path.close(); // left border
-				
-				// save path
-				if (_minimizedPhotos.contains(id)) {
-					_minimizedBorderPaths.append(id, path);
-				} else {
-					_borderPaths.append(id, path);
-				}
-			}
+			// draw arrow bitmap
+			canvas.drawBitmap(_arrowBmp, _point.x - _arrowBmp.getWidth() / 2, _point.y - ARROW_HEIGHT, null);
 			
 			// draw border
-			path.offset(metrics.getLeft(), metrics.getTop(), _drawPath);
-			_borderPaint.setShader(new LinearGradient(_point.x - (width + BORDER_WIDTH) / 2, 0, _point.x, 0,
-													  PhotoCompassApplication.DARK_ORANGE, PhotoCompassApplication.LIGHT_ORANGE,
-													  Shader.TileMode.MIRROR));
-			canvas.drawPath(_drawPath, _borderPaint);
+//			path.offset(metrics.getLeft(), metrics.getTop(), _drawPath);
+//			_borderPaint.setShader(new LinearGradient(_point.x - (width + BORDER_WIDTH) / 2, 0, _point.x, 0,
+//													  PhotoCompassApplication.DARK_ORANGE, PhotoCompassApplication.LIGHT_ORANGE,
+//													  Shader.TileMode.MIRROR));
+//			canvas.drawPath(_drawPath, _borderPaint);
+			canvas.drawRect(metrics.getLeft(), metrics.getTop(), metrics.getRight(), metrics.getBottom(), _borderPaint);
+			
+			// draw arrow bitmap
+			canvas.drawBitmap(_arrowBmp, _point.x - _arrowBmp.getWidth() / 2, _point.y - ARROW_HEIGHT, null);
 			
 			// draw bitmap
 			_matrix.reset();

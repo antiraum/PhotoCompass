@@ -1,7 +1,11 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images.Media;
 import android.view.Menu;
 import android.view.MenuItem;
 import de.fraunhofer.fit.photocompass.R;
@@ -42,10 +46,19 @@ public final class OptionsMenu {
 	public static boolean handleMenuItemSelection(MenuItem item, Activity activity) {
 	    switch (item.getItemId()) {
 		    case MENU_OPEN_CAMERA:
+//		    	ContentValues values = new ContentValues();
+//	               values.put(Media.TITLE, "Image");
+//	                values.put(Media.DESCRIPTION, "Image capture by camera");
+//                Uri uri = activity.getContentResolver().insert(Media.EXTERNAL_CONTENT_URI, values);
+//		    	Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//		        imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+//		        imageCaptureIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // 0 = low quali, 1 = high quali
+//		        activity.startActivityForResult(imageCaptureIntent, CAMERA_RETURN);
 		    	activity.startActivityForResult(new Intent("android.media.action.IMAGE_CAPTURE"), CAMERA_RETURN);
 		        return true;
 		    case MENU_QUIT:
-		        activity.finish();
+//		        activity.finish();
+		    	activity.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME));
 		        return true;
 	    }
 	    return false;
