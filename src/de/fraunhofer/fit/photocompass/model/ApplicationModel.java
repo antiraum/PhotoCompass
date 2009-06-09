@@ -16,10 +16,10 @@ import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
 public final class ApplicationModel {
 	
 	// minimum & maximum values
-	static final float MAX_DISTANCE_LIMIT = 10 * 1000F; // in meters
+	final float MAX_DISTANCE_LIMIT = 10 * 1000F; // in meters
 	private float MIN_MIN_DISTANCE = 0F; // in meters
 	private float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
-	static final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
+	final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 	private long MIN_MIN_AGE = 0L; // in milliseconds
 	private long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
 
