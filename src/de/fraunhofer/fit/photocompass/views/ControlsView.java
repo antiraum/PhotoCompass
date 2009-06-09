@@ -27,7 +27,7 @@ public final class ControlsView extends AbsoluteLayout {
 //        addView(distanceSliderDummy);
 		
         DoubleSeekBar distanceSlider = new VerticalDoubleSeekBar(context);
-        distanceSlider.setLayoutParams(new LayoutParams(100, 250, 6, 7));
+        distanceSlider.setLayoutParams(new LayoutParams(150, 240, 6, 7));
         addView(distanceSlider);
 
 //        final ImageView ageSliderDummy = new ImageView(context);
@@ -37,7 +37,7 @@ public final class ControlsView extends AbsoluteLayout {
 //        addView(ageSliderDummy);
                 
         DoubleSeekBar ageSlider = new HorizontalDoubleSeekBar(context);
-        ageSlider.setLayoutParams(new LayoutParams(433, 41, 40, 249));
+        ageSlider.setLayoutParams(new LayoutParams(433, 42, 40, 249));
         addView(ageSlider);
     }
 }
