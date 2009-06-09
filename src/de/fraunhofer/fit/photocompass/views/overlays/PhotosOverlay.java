@@ -73,7 +73,7 @@ public final class PhotosOverlay extends Overlay {
 	
     private Photos _photosModel;
 	private final Paint _borderPaint = new Paint();
-	private Bitmap _borderBmp;
+//	private Bitmap _borderBmp;
 	private Bitmap _arrowBmp;
 	
 	public PhotosOverlay() {
