@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
 import android.provider.MediaStore.Images.Thumbnails;
+import android.util.Log;
 import android.util.SparseArray;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
@@ -73,6 +74,7 @@ public final class Photos {
 	 * 				   on {@link MediaStore.Images}.
      */
     public void updatePhotos(final Activity activity) {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updatePhotos");
     	
     	final SparseArray<Photo> _photosNew = new SparseArray<Photo>();
     	
@@ -93,7 +95,7 @@ public final class Photos {
 	    int idCol, latCol, lngCol, dateCol, thumbCol;
 	    int id; double lat, lng; String date, thumb;
 	    uris: for (int i = 0; i < mediaUris.length; i++) {
-//            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: uri = "+mediaUris[i].toString());
+//            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updatePhotos: uri = "+mediaUris[i].toString());
             
             // get cursor
             mediaCursor = activity.managedQuery(mediaUris[i], mediaColumns, null, null, null);
@@ -101,7 +103,7 @@ public final class Photos {
 		    
 		    // get row count
 	        final int numrows = mediaCursor.getCount();
-//            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: initialize: numrows = "+numrows);
+//            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updatePhotos: numrows = "+numrows);
 	        if (numrows == 0) continue;
 
 		    // get column indexes
