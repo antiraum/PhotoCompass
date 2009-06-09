@@ -78,7 +78,7 @@ public final class ApplicationModel {
      * Call this from the {@link Photos} model when the photos are read of the device.
      */
     public void setMaxMaxDistance(final float value) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxDistance: "+value);
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxDistance: "+value);
     	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT : value;
     	if (_maxDistance > MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
     }
