@@ -60,12 +60,14 @@ public final class OutputFormatter {
 //		stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
 //		stringBuilder.append(".");
 //		stringBuilder.append(cal.get(Calendar.MINUTE));
-     
+    	//2592000000
 		float ageF = Math.round(age / 60 * 1000); // to minutes
-		final int min = Math.round(ageF % 60);
+    	//43200.00000000000000000000
+		final int min = Math.round(ageF % 60); //0
 		ageF = Math.round(ageF / 60); // to hours
-		final int hours = Math.round(ageF % 24);
-		final int days = Math.round(ageF / 24);
+		// 720
+		final int hours = Math.round(ageF % 24); //0
+		final int days = Math.round(ageF / 24); //30
 		
 		if (days > 0) {
 			stringBuilder.append(days);

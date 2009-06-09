@@ -242,7 +242,7 @@ public final class ApplicationModel {
      */
 	public String getFormattedMaxAge() {
 		String str = OutputFormatter.formatAge(_maxAge);
-    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxAge = "+str);
+    	Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: getFormattedMaxAge = "+str+", _maxAge = "+_maxAge);
 		return str;
 	}
 

@@ -280,7 +280,7 @@ public final class Photos {
             	photo = photos.valueAt(i);
             	dist = photo.getDistance();
             	if (dist == 0) continue; // photo properties not set
-                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updatePhotos: dist = "+dist);
+//                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updateAppModelMinMaxValues: dist = "+dist);
             	if (dist < minDistance) minDistance = dist;
             	if (dist > maxDistance) maxDistance = dist;
             	age = photo.getAge();

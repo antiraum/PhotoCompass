@@ -426,7 +426,7 @@ public final class FinderActivity extends Activity {
     														   // other updates first 
     		
     		// update photos
-    		_photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
+    		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
     		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
     																_appModel.getMinDistance(), _appModel.getMaxDistance(),
     																_appModel.getMinAge(), _appModel.getMaxAge()),
