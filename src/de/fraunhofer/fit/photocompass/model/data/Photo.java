@@ -249,4 +249,13 @@ public final class Photo {
 	public long getAge() {
 		return System.currentTimeMillis() - _date;
 	}
+	
+	/**
+	 * Returns the saved age.
+	 * 
+	 * @return Age as a formatted string for display.
+	 */
+	public String getFormattedAge() {
+		return OutputFormatter.formatAge(System.currentTimeMillis() - _date);
+	}
 }

@@ -138,8 +138,11 @@ public final class FinderActivity extends Activity {
 		 * Stores the new location and initiates an update of the map view. 
 		 */
         public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
-        	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLocationEvent");
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
+        	
+        	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
+        	
+//        	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLocationEvent");
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             

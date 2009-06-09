@@ -3,17 +3,15 @@
  */
 package de.fraunhofer.fit.photocompass.model.util;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Formatter;
+
+import android.util.Log;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
 /**
  * This class provides static methods to format distance, age, and altitude offset values for display.
  */
 public final class OutputFormatter {
-	
-	private static final StringBuilder _stringBuilder = new StringBuilder();
-	private static final Formatter _fmt = new Formatter();
 	
 	/**
 	 * Formats a distance value for display.
@@ -22,18 +20,24 @@ public final class OutputFormatter {
 	 * @return		   Formatted string.
 	 */
 	public static String formatDistance(final float distance) {
+		if (Float.isNaN(distance)) return "";
 		
-		_stringBuilder.setLength(0); // reset
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "OutputFormatter: formatDistance: distance = "+distance);
+
+    	final StringBuilder stringBuilder = new StringBuilder();
 
         if (distance < 1000) {
-        	_stringBuilder.append(Math.round(distance));
-        	_stringBuilder.append(" m");
+        	stringBuilder.append(Math.round(distance));
+        	stringBuilder.append(" m");
         } else {
-        	_stringBuilder.append(_fmt.format("%.1f", distance / 1000)); 
-        	_stringBuilder.append(" km");
+        	final Formatter fmt = new Formatter();
+        	stringBuilder.append(fmt.format("%.1f", distance / 1000)); 
+        	stringBuilder.append(" km");
         }
         
-        return _stringBuilder.toString();
+        final String str = stringBuilder.toString();
+//        Log.d(PhotoCompassApplication.LOG_TAG, "OutputFormatter: formatDistance: str = "+str);
+        return str;
 	}
 	
 	/**
@@ -43,19 +47,19 @@ public final class OutputFormatter {
 	 * @return	  Formatted string.
 	 */
 	public static String formatAge(final long age) {
-		
+
 //        final Calendar cal = Calendar.getInstance();
 //        cal.setTime(new Date(System.currentTimeMillis() - age));
+
+    	final StringBuilder stringBuilder = new StringBuilder();
 		
-		_stringBuilder.setLength(0); // reset
-		
-//		_stringBuilder.append(cal.get(Calendar.DAY_OF_MONTH));
-//		_stringBuilder.append(" ");
-//		_stringBuilder.append(cal.get(Calendar.MONTH));
-//		_stringBuilder.append(" ");
-//		_stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
-//		_stringBuilder.append(".");
-//		_stringBuilder.append(cal.get(Calendar.MINUTE));
+//		stringBuilder.append(cal.get(Calendar.DAY_OF_MONTH));
+//		stringBuilder.append(" ");
+//		stringBuilder.append(cal.get(Calendar.MONTH));
+//		stringBuilder.append(" ");
+//		stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
+//		stringBuilder.append(".");
+//		stringBuilder.append(cal.get(Calendar.MINUTE));
      
 		float ageF = Math.round(age / 60 * 1000); // to minutes
 		final int min = (int) (ageF % 60);
@@ -64,21 +68,21 @@ public final class OutputFormatter {
 		final int days = Math.round(ageF / 24);
 		
 		if (days > 0) {
-			_stringBuilder.append(days);
-			_stringBuilder.append(" days ");
-			_stringBuilder.append(hours);
-			_stringBuilder.append(" hours");
+			stringBuilder.append(days);
+			stringBuilder.append(" days ");
+			stringBuilder.append(hours);
+			stringBuilder.append(" hr");
 		} else if (hours > 0) {
-			_stringBuilder.append(hours);
-			_stringBuilder.append(" hours ");
-			_stringBuilder.append(min);
-			_stringBuilder.append(" min");
+			stringBuilder.append(hours);
+			stringBuilder.append(" hr ");
+			stringBuilder.append(min);
+			stringBuilder.append(" min");
 		} else {
-			_stringBuilder.append(min);
-			_stringBuilder.append(" min");
+			stringBuilder.append(min);
+			stringBuilder.append(" min");
 		}
 		
-        return _stringBuilder.toString();
+        return stringBuilder.toString();
 	}
 	
 	/**
@@ -88,17 +92,18 @@ public final class OutputFormatter {
 	 * @return			Formatted string.
 	 */
 	public static String formatAltOffset(final double altOffset) {
-		
-		_stringBuilder.setLength(0); // reset
+		if (Double.isNaN(altOffset)) return "";
+
+    	final StringBuilder stringBuilder = new StringBuilder();
 		
         if (altOffset == 0) {
-        	_stringBuilder.append("same level");
+        	stringBuilder.append("same level");
         } else {
-        	_stringBuilder.append(Math.abs(Math.round(altOffset)));
-        	_stringBuilder.append(" m ");
-        	_stringBuilder.append((altOffset > 0) ? "higher" : "lower");
+        	stringBuilder.append(Math.abs(Math.round(altOffset)));
+        	stringBuilder.append(" m ");
+        	stringBuilder.append((altOffset > 0) ? "higher" : "lower");
         }
         
-        return _stringBuilder.toString();
+        return stringBuilder.toString();
 	}
 }

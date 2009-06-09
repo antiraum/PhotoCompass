@@ -268,7 +268,7 @@ public final class PhotosView extends AbsoluteLayout {
 	public void updateTextInfos(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
 
-		for (int id : _photos)  _photoViews.get(id).updateText();
+		for (int id : _photos) _photoViews.get(id).updateText();
 	}
 
 	/**

@@ -67,6 +67,7 @@ public final class ApplicationModel {
      */
     public void setMaxMaxDistance(final float value) {
     	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT : value;
+    	if (_maxDistance > MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
     }
     
     /**
@@ -75,6 +76,7 @@ public final class ApplicationModel {
      */
     public void setMaxMaxAge(final long value) {
     	MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT : value;
+    	if (_maxAge > MAX_MAX_AGE) setMaxAge(MAX_MAX_AGE);
     }
 
     /**

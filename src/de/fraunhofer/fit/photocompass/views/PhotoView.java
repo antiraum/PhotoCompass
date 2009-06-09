@@ -1,7 +1,5 @@
 package de.fraunhofer.fit.photocompass.views;
 
-import java.util.Formatter;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,7 +22,6 @@ final class PhotoView extends AbsoluteLayout {
 	private ImageView _imgView;
 	private TextView _textView;
 	private final StringBuilder _stringBuilder = new StringBuilder();
-	private final Formatter _fmt = new Formatter();
 	private int _width; // current width
 	private int _height; // current height
 	private boolean _minimized = false;

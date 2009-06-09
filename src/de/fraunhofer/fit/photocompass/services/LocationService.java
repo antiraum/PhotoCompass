@@ -25,7 +25,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 public final class LocationService extends Service {
 	
-	private static final int MIN_LOCATION_UPDATE_TIME = 3 * 1000; // in milliseconds
+	private static final int MIN_LOCATION_UPDATE_TIME = 10 * 1000; // in milliseconds
 	private static final int MIN_LOCATION_UPDATE_DISTANCE = 1; // in meters
 	
 	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000; // in milliseconds

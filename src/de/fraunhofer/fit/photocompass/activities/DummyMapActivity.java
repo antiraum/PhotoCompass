@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.Window;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
-import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
