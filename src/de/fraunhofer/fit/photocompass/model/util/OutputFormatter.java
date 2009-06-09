@@ -64,14 +64,20 @@ public final class OutputFormatter {
 		
 		if (days > 0) {
 			stringBuilder.append(days);
-			stringBuilder.append(" days ");
-			stringBuilder.append(hours);
-			stringBuilder.append(" hr");
+			stringBuilder.append(" days");
+			if (hours > 0) {
+				stringBuilder.append(" ");
+				stringBuilder.append(hours);
+				stringBuilder.append(" hr");
+			}
 		} else if (hours > 0) {
 			stringBuilder.append(hours);
-			stringBuilder.append(" hr ");
-			stringBuilder.append(min);
-			stringBuilder.append(" min");
+			stringBuilder.append(" hr");
+			if (min > 0) {
+				stringBuilder.append(" ");
+				stringBuilder.append(min);
+				stringBuilder.append(" min");
+			}
 		} else {
 			stringBuilder.append(min);
 			stringBuilder.append(" min");
