@@ -45,7 +45,7 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateStartValue(float newValue) {
+	public void updateStartValue(float newValue) {
 		this.setStartValue(newValue);
 		this.model.setRelativeMinAge(this.getStartValue());
 		this.startLabel = this.model.getFormattedMinAge();
@@ -63,7 +63,7 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 	
 	@Override
-	protected void updateEndValue(float newValue) {
+	public void updateEndValue(float newValue) {
 		this.setEndValue(newValue);
 		this.model.setRelativeMaxAge(this.getEndValue());
 		this.endLabel = this.model.getFormattedMaxAge();

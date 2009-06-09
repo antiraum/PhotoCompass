@@ -67,7 +67,6 @@ public abstract class DoubleSeekBar extends View {
 		this.paint.setAntiAlias(true);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
-
 	}
 
 	protected void initialize() {
@@ -116,9 +115,9 @@ public abstract class DoubleSeekBar extends View {
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 	}
 
-	protected abstract void updateStartValue(float newValue);
+	public abstract void updateStartValue(float newValue);
 
-	protected abstract void updateEndValue(float NewValue);
+	public abstract void updateEndValue(float NewValue);
 
 	protected abstract void updateStartBounds();
 
@@ -189,12 +188,12 @@ public abstract class DoubleSeekBar extends View {
 		return this.endValue;
 	}
 
-	public float setStartValue(float newValue) {
+	protected float setStartValue(float newValue) {
 		return this.startValue = Math
 				.max(0f, Math.min(newValue, this.endValue));
 	}
 
-	public float setEndValue(float newValue) {
+	protected float setEndValue(float newValue) {
 		return this.endValue = Math
 				.min(1f, Math.max(newValue, this.startValue));
 	}

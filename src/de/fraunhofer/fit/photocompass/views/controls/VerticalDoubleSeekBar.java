@@ -47,7 +47,7 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateStartValue(final float newValue) {
+	public void updateStartValue(final float newValue) {
 		this.setStartValue(newValue);
 		this.model.setRelativeMinDistance(this.getStartValue());
 		this.startLabel = this.model.getFormattedMinDistance();
@@ -65,7 +65,7 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
-	protected void updateEndValue(final float newValue) {
+	public void updateEndValue(final float newValue) {
 		this.setEndValue(newValue);
 		this.model.setRelativeMaxDistance(this.getEndValue());
 		this.endLabel = this.model.getFormattedMaxDistance();
