@@ -1,7 +1,5 @@
 package de.fraunhofer.fit.photocompass.views.controls;
 
-import java.util.Formatter;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,22 +11,22 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 
 public abstract class DoubleSeekBar extends View {
-	// public final static int HORIZONTAL = 0;
-	// public final static int VERTICAL = 1;
+
+	/**
+	 * Tolerance in pixels. Only MOVE events above this tolerance will be taken
+	 * into account.
+	 */
+	private final static float TOUCH_TOLERANCE = 1f;
 
 	protected int barThickness = 22;
 	protected int barPadding = 4;
 
-	// private int orientation;
-
-	protected float startValue = 0f;
-	protected float endValue = 1f;
+	private float startValue = 0f;
+	private float endValue = 1f;
 	protected int startOffset;
 	protected int endOffset;
 	protected int size;
@@ -49,6 +47,9 @@ public abstract class DoubleSeekBar extends View {
 	protected int endLabelY = 0;
 	protected String startLabel;
 	protected String endLabel;
+	
+	private float touchX = -5f;
+	private float touchY = -5f;
 
 	private boolean startThumbDown = false;
 
@@ -76,23 +77,24 @@ public abstract class DoubleSeekBar extends View {
 
 	@Override
 	protected void onDraw(final Canvas canvas) {
-		this.updateAllBounds();
+		// this.updateAllBounds();
 
 		super.onDraw(canvas);
 		paint.setColor(Color.GRAY);
 		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, paint);
 		paint.setColor(PhotoCompassApplication.ORANGE);
 		canvas.drawRect(this.selectionRect, paint);
+
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onDraw(): startValue " + this.startValue
-						+ ", endValue " + this.endValue);
 
 		paint.setColor(Color.WHITE);
 		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
 				paint);
-		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, paint);
+		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, this.paint);
+		
+		paint.setColor(Color.RED);
+		canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
 
 	@Override
@@ -100,7 +102,8 @@ public abstract class DoubleSeekBar extends View {
 			final int oldh) {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
 
-		this.updateAllBounds();
+		this.updateStartBounds();
+		this.updateEndBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
@@ -113,59 +116,52 @@ public abstract class DoubleSeekBar extends View {
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 	}
 
-	private void updateAllBounds() {
-		this.updateStartValue();
-		this.updateEndValue();
-	}
+	protected abstract void updateStartValue(float newValue);
 
-	protected abstract void updateStartValue();
+	protected abstract void updateEndValue(float NewValue);
 
-	protected abstract void updateEndValue();
+	protected abstract void updateStartBounds();
+
+	protected abstract void updateEndBounds();
 
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onTouchEvent(): MotionEvent action "
-						+ event.getAction());
+		this.touchX = event.getX();
+		this.touchY = event.getY();
 		float newValue = convertToAbstract(getEventCoordinate(event));
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.onTouchEvent(): Got new value " + newValue);
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// determine whether left or right thumb concerned
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
 					- this.endValue)) {
-				// distance to left is less than distance to right
+				// distance to start is less than distance to end
 				this.startThumbDown = true;
-				this.startValue = newValue;
 				this.startThumb = this.startThumbActive;
-				this.updateStartValue();
+				this.updateStartValue(newValue);
 			} else {
-				// distance to right is less than to left
+				// distance to end is less than to start
 				this.startThumbDown = false;
-				this.endValue = newValue;
 				this.endThumb = this.endThumbActive;
-				this.updateEndValue();
+				this.updateEndValue(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			if (this.startThumbDown) {
-				this.startValue = newValue;
-				this.updateStartValue();
-			} else {
-				this.endValue = newValue;
-				this.updateEndValue();
+			if (this.startThumbDown
+					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE)) {
+				this.updateStartValue(newValue);
+				this.invalidate();
+			} else if (!this.startThumbDown
+					&& (Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE) {
+				this.updateEndValue(newValue);
+				this.invalidate();
 			}
-			this.invalidate();
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			if (this.startThumbDown) {
-				this.startValue = newValue;
 				this.startThumb = this.startThumbNormal;
-				this.updateStartValue();
+				this.updateStartValue(newValue);
 			} else {
-				this.endValue = newValue;
 				this.endThumb = this.endThumbNormal;
-				this.updateEndValue();
+				this.updateEndValue(newValue);
 			}
 			this.invalidate();
 		} else {
@@ -191,6 +187,16 @@ public abstract class DoubleSeekBar extends View {
 	 */
 	public float getEndValue() {
 		return this.endValue;
+	}
+
+	public float setStartValue(float newValue) {
+		return this.startValue = Math
+				.max(0f, Math.min(newValue, this.endValue));
+	}
+
+	public float setEndValue(float newValue) {
+		return this.endValue = Math
+				.min(1f, Math.max(newValue, this.startValue));
 	}
 
 	protected abstract float getEventCoordinate(final MotionEvent event);
