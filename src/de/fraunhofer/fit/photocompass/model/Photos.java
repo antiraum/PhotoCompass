@@ -160,7 +160,10 @@ public final class Photos {
 	    _photos = _photosNew;
 	    
 	    // update application model
+	    ApplicationModel appModel = ApplicationModel.getInstance();
+	    float minDistance = appModel.MAX_DISTANCE_LIMIT;
 	    float maxDistance = 0;
+	    long minAge = appModel.MAX_AGE_LIMIT;
 	    long maxAge = 0;
 	    Photo photo;
 	    float dist;
@@ -169,13 +172,17 @@ public final class Photos {
             for (int i = 0; i < photos.size(); i++) {
             	photo = photos.valueAt(i);
             	dist = photo.getDistance();
+            	if (dist < minDistance) minDistance = dist;
             	if (dist > maxDistance) maxDistance = dist;
             	age = photo.getAge();
+            	if (age < minAge) minAge = age;
             	if (age > maxAge) maxAge = age;
             }
     	}
-    	ApplicationModel.getInstance().setMaxMaxDistance(maxDistance);
-    	ApplicationModel.getInstance().setMaxMaxAge(maxAge);
+    	appModel.setMinMinDistance(minDistance);
+    	appModel.setMaxMaxDistance(maxDistance);
+    	appModel.setMinMinAge(minAge);
+    	appModel.setMaxMaxAge(maxAge);
     }
     
     /**

@@ -62,9 +62,9 @@ public final class OutputFormatter {
 //		stringBuilder.append(cal.get(Calendar.MINUTE));
      
 		float ageF = Math.round(age / 60 * 1000); // to minutes
-		final int min = (int) (ageF % 60);
+		final int min = Math.round(ageF % 60);
 		ageF = Math.round(ageF / 60); // to hours
-		final int hours = (int) (ageF % 24);
+		final int hours = Math.round(ageF % 24);
 		final int days = Math.round(ageF / 24);
 		
 		if (days > 0) {
