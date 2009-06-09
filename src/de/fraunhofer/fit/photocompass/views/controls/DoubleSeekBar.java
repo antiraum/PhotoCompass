@@ -17,10 +17,16 @@ import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 public abstract class DoubleSeekBar extends View {
 
 	/**
-	 * Tolerance in pixels. Only MOVE events above this tolerance will be taken
-	 * into account.
+	 * Tolerance for MOVE touch events in pixels. Only events above this
+	 * tolerance will be taken into account.
 	 */
-	private final static float TOUCH_TOLERANCE = 1f;
+	private final static float TOUCH_MOVE_TOLERANCE = 1f;
+
+	/**
+	 * Tolerance for DOWN touch events in pixels: Events with a larger distance
+	 * to the bar will be ignored.
+	 */
+	private final static float TOUCH_DOWN_TOLERANCE = 15f;
 
 	protected int barThickness = 22;
 	protected int barPadding = 4;
@@ -47,11 +53,15 @@ public abstract class DoubleSeekBar extends View {
 	protected int endLabelY = 0;
 	protected String startLabel;
 	protected String endLabel;
-	
+
 	private float touchX = -5f;
 	private float touchY = -5f;
 
-	private boolean startThumbDown = false;
+	private final static int NONE = 0;
+	private final static int START = 1;
+	private final static int END = 2;
+
+	private int thumbDown = NONE;
 
 	protected final Paint paint = new Paint();
 
@@ -90,8 +100,9 @@ public abstract class DoubleSeekBar extends View {
 		paint.setColor(Color.WHITE);
 		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
 				paint);
-		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY, this.paint);
-		
+		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,
+				this.paint);
+
 		paint.setColor(Color.RED);
 		canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
@@ -126,42 +137,55 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
+		// TODO ignore events too far from bar (for large widgets -> vertical
+		// bar)
 		this.touchX = event.getX();
 		this.touchY = event.getY();
 		float newValue = convertToAbstract(getEventCoordinate(event));
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			// ignore if distance to bar larger than tolerance constant
+			if ((this.backgroundRect.left - touchX) > TOUCH_DOWN_TOLERANCE
+					|| (touchX - this.backgroundRect.right) > TOUCH_DOWN_TOLERANCE
+					|| (this.backgroundRect.top - touchY) > TOUCH_DOWN_TOLERANCE
+					|| (touchY - this.backgroundRect.bottom) > TOUCH_DOWN_TOLERANCE) {
+				this.thumbDown = NONE;
+				return false;
+			}
 			// determine whether left or right thumb concerned
 			if (Math.abs(newValue - this.startValue) < Math.abs(newValue
 					- this.endValue)) {
 				// distance to start is less than distance to end
-				this.startThumbDown = true;
+				this.thumbDown = START;
 				this.startThumb = this.startThumbActive;
 				this.updateStartValue(newValue);
 			} else {
 				// distance to end is less than to start
-				this.startThumbDown = false;
+				this.thumbDown = END;
 				this.endThumb = this.endThumbActive;
 				this.updateEndValue(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
-		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			if (this.startThumbDown
-					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE)) {
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE
+				&& this.thumbDown != NONE) {
+			if (this.thumbDown == START
+					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE)) {
 				this.updateStartValue(newValue);
 				this.invalidate();
-			} else if (!this.startThumbDown
-					&& (Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_TOLERANCE) {
+			} else if (this.thumbDown == END
+					&& (Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE) {
 				this.updateEndValue(newValue);
 				this.invalidate();
 			}
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
-			if (this.startThumbDown) {
+		} else if (event.getAction() == MotionEvent.ACTION_UP
+				&& this.thumbDown != NONE) {
+			if (this.thumbDown == START) {
 				this.startThumb = this.startThumbNormal;
 				this.updateStartValue(newValue);
 			} else {
 				this.endThumb = this.endThumbNormal;
 				this.updateEndValue(newValue);
 			}
+			this.thumbDown = NONE;
 			this.invalidate();
 		} else {
 			Log.w(PhotoCompassApplication.LOG_TAG,
