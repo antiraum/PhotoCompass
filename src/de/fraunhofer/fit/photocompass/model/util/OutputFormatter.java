@@ -8,15 +8,20 @@ import java.util.Date;
 import java.util.Formatter;
 
 /**
- * @author tom
- *
+ * This class provides static methods to format distance, age, and altitude offset values for display.
  */
 public final class OutputFormatter {
 	
 	private static final StringBuilder _stringBuilder = new StringBuilder();
 	private static final Formatter _fmt = new Formatter();
 	
-	public static String formatDistance(float distance) {
+	/**
+	 * Formats a distance value for display.
+	 * 
+	 * @param distance Distance in meters.
+	 * @return		   Formatted string.
+	 */
+	public static String formatDistance(final float distance) {
 		
 		_stringBuilder.setLength(0); // reset
 
@@ -32,30 +37,57 @@ public final class OutputFormatter {
 	}
 	
 	/**
-	 * Formats age.
+	 * Formats an age value for display.
 	 * 
 	 * @param age Age in milliseconds.
-	 * @return	  
+	 * @return	  Formatted string.
 	 */
-	public static String formatAge(long age) {
+	public static String formatAge(final long age) {
 		
-        final Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date(System.currentTimeMillis() - age));
+//        final Calendar cal = Calendar.getInstance();
+//        cal.setTime(new Date(System.currentTimeMillis() - age));
 		
 		_stringBuilder.setLength(0); // reset
 		
-		_stringBuilder.append(cal.get(Calendar.DAY_OF_MONTH));
-		_stringBuilder.append(" ");
-		_stringBuilder.append(cal.get(Calendar.MONTH));
-		_stringBuilder.append(" ");
-		_stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
-		_stringBuilder.append(".");
-		_stringBuilder.append(cal.get(Calendar.MINUTE));
-        
+//		_stringBuilder.append(cal.get(Calendar.DAY_OF_MONTH));
+//		_stringBuilder.append(" ");
+//		_stringBuilder.append(cal.get(Calendar.MONTH));
+//		_stringBuilder.append(" ");
+//		_stringBuilder.append(cal.get(Calendar.HOUR_OF_DAY));
+//		_stringBuilder.append(".");
+//		_stringBuilder.append(cal.get(Calendar.MINUTE));
+     
+		float ageF = Math.round(age / 60 * 1000); // to minutes
+		final int min = (int) (ageF % 60);
+		ageF = Math.round(ageF / 60); // to hours
+		final int hours = (int) (ageF % 24);
+		final int days = Math.round(ageF / 24);
+		
+		if (days > 0) {
+			_stringBuilder.append(days);
+			_stringBuilder.append(" days ");
+			_stringBuilder.append(hours);
+			_stringBuilder.append(" hours");
+		} else if (hours > 0) {
+			_stringBuilder.append(hours);
+			_stringBuilder.append(" hours ");
+			_stringBuilder.append(min);
+			_stringBuilder.append(" min");
+		} else {
+			_stringBuilder.append(min);
+			_stringBuilder.append(" min");
+		}
+		
         return _stringBuilder.toString();
 	}
 	
-	public static String formatAltOffset(double altOffset) {
+	/**
+	 * Formats an altitude offset for display.
+	 * 
+	 * @param altOffset Altitude offset in meters.
+	 * @return			Formatted string.
+	 */
+	public static String formatAltOffset(final double altOffset) {
 		
 		_stringBuilder.setLength(0); // reset
 		
