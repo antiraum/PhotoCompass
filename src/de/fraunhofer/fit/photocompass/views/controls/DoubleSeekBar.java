@@ -137,8 +137,6 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		// TODO ignore events too far from bar (for large widgets -> vertical
-		// bar)
 		this.touchX = event.getX();
 		this.touchY = event.getY();
 		float newValue = convertToAbstract(getEventCoordinate(event));
