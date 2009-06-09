@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -222,13 +221,34 @@ public final class PhotoMapActivity extends MapActivity {
 	private final IApplicationModelCallback _appModelCallback = new IApplicationModelCallback.Stub() {
 
 		/**
-		 * Gets called when variables in the {@link ApplicationModel} change.
+		 * Gets called when the minimum distance in the {@link ApplicationModel} changes.
 		 * Initiates a update of {@link #photosView}. 
 		 */
-		public void onApplicationModelChange() {
-			Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from application model");
+		public void onMinDistanceChange(final float minDistance, final float minDistanceRel) {
+	    	updateMapView(false, false, false, true);
+		}
 
-            // update map view
+		/**
+		 * Gets called when the maximum distance in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+	    	updateMapView(false, false, false, true);
+		}
+
+		/**
+		 * Gets called when the minimum age in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMinAgeChange(final long minAge, final float minAgeRel) {
+	    	updateMapView(false, false, false, true);
+		}
+
+		/**
+		 * Gets called when the maximum age in the {@link ApplicationModel} changes.
+		 * Initiates a update of {@link #photosView}. 
+		 */
+		public void onMaxAgeChange(final long maxAge, final float maxAgeRel) {
 	    	updateMapView(false, false, false, true);
 		}
 	};

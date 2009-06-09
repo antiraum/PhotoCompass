@@ -1,11 +1,7 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images.Media;
 import android.view.Menu;
 import android.view.MenuItem;
 import de.fraunhofer.fit.photocompass.R;

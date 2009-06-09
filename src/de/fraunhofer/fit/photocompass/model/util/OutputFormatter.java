@@ -5,6 +5,9 @@ package de.fraunhofer.fit.photocompass.model.util;
 
 import java.util.Formatter;
 
+import android.util.Log;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+
 /**
  * This class provides static methods to format distance, age, and altitude offset values for display.
  */
@@ -21,7 +24,9 @@ public final class OutputFormatter {
 
     	final StringBuilder stringBuilder = new StringBuilder();
 
-        if (distance < 1000) {
+        if (distance == 0) {
+        	stringBuilder.append("current location");
+        } else if (distance < 1000) {
         	stringBuilder.append(Math.round(distance));
         	stringBuilder.append(" m");
         } else {
@@ -57,33 +62,53 @@ public final class OutputFormatter {
 //		stringBuilder.append(cal.get(Calendar.MINUTE));
     	
 		float ageF = Math.round(age / (60 * 1000)); // to minutes
-		final int min = Math.round(ageF % 60);
-		ageF = (float) Math.floor(ageF / 60); // to hours
-		final int hours = Math.round(ageF % 24);
-		final int days = (int) Math.floor(ageF / 24);
 		
-		if (days > 0) {
-			stringBuilder.append(days);
-			stringBuilder.append((days == 1) ? " day" : " days");
-			if (hours > 0) {
-				stringBuilder.append(" ");
+		if (ageF == 0) {
+			stringBuilder.append("now");
+		} else {
+
+			final int min = Math.round(ageF % 60);
+			ageF = (float) Math.floor(ageF / 60); // to hours
+			final int hours = Math.round(ageF % 24);
+			ageF = (float) Math.floor(ageF / 24); // to days
+			final int days = Math.round(ageF % 7);
+			final int weeks = (int) Math.floor(ageF / 7);
+
+//	        Log.d(PhotoCompassApplication.LOG_TAG, "OutputFormatter: formatAge: weeks = "+weeks+", days = "+days+", hours = "+hours+", min = "+min);
+			
+			if (weeks > 0) {
+				stringBuilder.append(weeks);
+				stringBuilder.append((weeks == 1) ? " week" : " weeks");
+				if (days > 0) {
+					stringBuilder.append(" ");
+					stringBuilder.append(days);
+					stringBuilder.append((days == 1) ? " day" : " days");
+				}
+			} else if (days > 0) {
+				stringBuilder.append(days);
+				stringBuilder.append((days == 1) ? " day" : " days");
+				if (hours > 0) {
+					stringBuilder.append(" ");
+					stringBuilder.append(hours);
+					stringBuilder.append(" hr");
+				}
+			} else if (hours > 0) {
 				stringBuilder.append(hours);
-				stringBuilder.append(" hr");
-			}
-		} else if (hours > 0) {
-			stringBuilder.append(hours);
-			stringBuilder.append(" hr");
-			if (min > 0) {
-				stringBuilder.append(" ");
+				stringBuilder.append("hr");
+				if (min > 0) {
+					stringBuilder.append(" ");
+					stringBuilder.append(min);
+					stringBuilder.append(" min");
+				}
+			} else {
 				stringBuilder.append(min);
 				stringBuilder.append(" min");
 			}
-		} else {
-			stringBuilder.append(min);
-			stringBuilder.append(" min");
 		}
-		
-        return stringBuilder.toString();
+
+        final String str = stringBuilder.toString();
+//        Log.d(PhotoCompassApplication.LOG_TAG, "OutputFormatter: formatAge: str = "+str);
+        return str;
 	}
 	
 	/**

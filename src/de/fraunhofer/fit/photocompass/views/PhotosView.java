@@ -1,6 +1,5 @@
 package de.fraunhofer.fit.photocompass.views;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

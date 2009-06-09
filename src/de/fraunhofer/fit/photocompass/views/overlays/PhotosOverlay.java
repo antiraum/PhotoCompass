@@ -8,12 +8,9 @@ import java.util.ListIterator;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.Shader;
 import android.util.Log;
 import android.util.SparseArray;
 

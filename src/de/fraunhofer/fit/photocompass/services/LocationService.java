@@ -25,8 +25,8 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 public final class LocationService extends Service {
 	
-	private static final int MIN_LOCATION_UPDATE_TIME = 10 * 1000; // in milliseconds
-	private static final int MIN_LOCATION_UPDATE_DISTANCE = 1; // in meters
+	private static int MIN_LOCATION_UPDATE_TIME = 30 * 1000; // in milliseconds
+	private static int MIN_LOCATION_UPDATE_DISTANCE = 5; // in meters
 	
 	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000; // in milliseconds
     private final Handler _providerCheckHandler = new Handler();
@@ -88,6 +88,7 @@ public final class LocationService extends Service {
 			if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
 			
 			if (location == null) return;
+			
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
 			
 	        // broadcast the new location to all registered callbacks
@@ -145,6 +146,14 @@ public final class LocationService extends Service {
 	    	}
 		}
     };
+    
+    public LocationService() {
+    	// the emulator is always getting new locations with a great variety
+    	if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
+	    	MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000; // in milliseconds
+	    	MIN_LOCATION_UPDATE_DISTANCE = 1000; // in meters
+    	}
+    }
 	
     /**
      * Called by the system when the service is first created.

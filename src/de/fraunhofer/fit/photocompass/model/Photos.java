@@ -268,9 +268,7 @@ public final class Photos {
     
     public void updateAppModelMinMaxValues() {
 	    ApplicationModel appModel = ApplicationModel.getInstance();
-	    float minDistance = appModel.MAX_DISTANCE_LIMIT;
 	    float maxDistance = 0;
-	    long minAge = appModel.MAX_AGE_LIMIT;
 	    long maxAge = 0;
 	    Photo photo;
 	    float dist;
@@ -280,17 +278,12 @@ public final class Photos {
             	photo = photos.valueAt(i);
             	dist = photo.getDistance();
             	if (dist == 0) continue; // photo properties not set
-//                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updateAppModelMinMaxValues: dist = "+dist);
-            	if (dist < minDistance) minDistance = dist;
             	if (dist > maxDistance) maxDistance = dist;
             	age = photo.getAge();
-            	if (age < minAge) minAge = age;
             	if (age > maxAge) maxAge = age;
             }
     	}
-    	appModel.setMinMinDistance(minDistance);
     	appModel.setMaxMaxDistance(maxDistance);
-    	appModel.setMinMinAge(minAge);
     	appModel.setMaxMaxAge(maxAge);
     }
 	
