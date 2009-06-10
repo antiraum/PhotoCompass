@@ -10,8 +10,8 @@ import de.fraunhofer.fit.photocompass.R;
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	private final int topPadding = 13;
 
-	public HorizontalDoubleSeekBar(final Context context) {
-		super(context);
+	public HorizontalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback) {
+		super(context, callback);
 		Resources res = this.getResources();
 		this.startThumbNormal = res.getDrawable(R.drawable.seek_thumb_normal);
 		this.startThumbActive = res.getDrawable(R.drawable.seek_thumb_pressed);
@@ -25,14 +25,9 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.selectionRect.bottom = this.barThickness + this.barPadding
 				+ this.topPadding;
 		this.paint.setTextAlign(Align.CENTER);
-
-		this.setStartValue(this.model.getRelativeMinAge());
-		this.startLabel = this.model.getFormattedMinAge();
-		this.setEndValue(this.model.getRelativeMaxAge());
-		this.endLabel = this.model.getFormattedMaxAge();
+		
 		this.startLabelY = 9;
 		this.endLabelY = 9;
-
 	}
 
 	@Override
@@ -42,14 +37,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.backgroundRect = new RectF(0f, topPadding + barPadding, w,
 				barThickness + barPadding + topPadding);
 		super.onSizeChanged(w, h, oldw, oldh);
-	}
-
-	@Override
-	public void updateStartValue(float newValue) {
-		this.setStartValue(newValue);
-		this.model.setRelativeMinAge(this.getStartValue());
-		this.startLabel = this.model.getFormattedMinAge();
-		this.updateStartBounds();
 	}
 
 	protected void updateStartBounds() {
@@ -62,15 +49,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.startLabelX = this.startThumb.getBounds().centerX();
 	}
 	
-	@Override
-	public void updateEndValue(float newValue) {
-		this.setEndValue(newValue);
-		this.model.setRelativeMaxAge(this.getEndValue());
-		this.endLabel = this.model.getFormattedMaxAge();
-
-		this.updateEndBounds();
-	}
-
 	protected void updateEndBounds() {
 		int begin = convertToConcrete(this.getEndValue()) - halfAThumb;
 		this.endThumb.setBounds(begin, topPadding, begin

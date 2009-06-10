@@ -9,8 +9,8 @@ import de.fraunhofer.fit.photocompass.R;
 
 public class VerticalDoubleSeekBar extends DoubleSeekBar {
 
-	public VerticalDoubleSeekBar(final Context context) {
-		super(context);
+	public VerticalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback) {
+		super(context, callback);
 		Resources res = this.getResources();
 		this.startThumbNormal = res
 				.getDrawable(R.drawable.seek_thumb_normal_vertical);
@@ -28,10 +28,10 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 		this.selectionRect.right = this.barThickness + this.barPadding;
 		this.paint.setTextAlign(Align.LEFT);
 
-		this.setStartValue(this.model.getRelativeMinDistance());
-		this.startLabel = this.model.getFormattedMinDistance();
-		this.setEndValue(this.model.getRelativeMaxDistance());
-		this.endLabel = this.model.getFormattedMaxDistance();
+//		this.setStartValue(this.model.getRelativeMinDistance());
+//		this.startLabel = this.model.getFormattedMinDistance();
+//		this.setEndValue(this.model.getRelativeMaxDistance());
+//		this.endLabel = this.model.getFormattedMaxDistance();
 		this.startLabelX = this.barThickness + 3 * this.barPadding;
 		this.endLabelX = this.barThickness + 3 * this.barPadding;
 
@@ -46,15 +46,6 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
-	@Override
-	public void updateStartValue(final float newValue) {
-		this.setStartValue(newValue);
-		this.model.setRelativeMinDistance(this.getStartValue());
-		this.startLabel = this.model.getFormattedMinDistance();
-
-		this.updateStartBounds();
-	}
-
 	protected void updateStartBounds() {
 		int begin = convertToConcrete(this.getStartValue()) - halfAThumb;
 		this.startThumb.setBounds(0, begin, this.startThumb
@@ -62,15 +53,6 @@ public class VerticalDoubleSeekBar extends DoubleSeekBar {
 				+ this.startThumb.getIntrinsicHeight());
 		this.selectionRect.bottom = begin + halfAThumb;
 		this.startLabelY = this.startThumb.getBounds().centerY() + 4;
-	}
-
-	@Override
-	public void updateEndValue(final float newValue) {
-		this.setEndValue(newValue);
-		this.model.setRelativeMaxDistance(this.getEndValue());
-		this.endLabel = this.model.getFormattedMaxDistance();
-
-		this.updateEndBounds();
 	}
 
 	protected void updateEndBounds() {

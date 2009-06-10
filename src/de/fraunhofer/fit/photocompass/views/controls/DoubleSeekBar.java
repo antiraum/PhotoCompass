@@ -65,12 +65,17 @@ public abstract class DoubleSeekBar extends View {
 
 	protected final Paint paint = new Paint();
 
-	protected ApplicationModel model;
+	protected IDoubleSeekBarCallback callback;
 
-	public DoubleSeekBar(final Context context) {
+	public DoubleSeekBar(final Context context, IDoubleSeekBarCallback callback) {
 		super(context);
+		this.callback = callback;
 
-		this.model = ApplicationModel.getInstance();
+		this.setStartValue(callback.getMinValue());
+		this.startLabel = callback.getMinLabel();
+		
+		this.setEndValue(callback.getMaxValue());
+		this.endLabel = callback.getMaxLabel();
 
 		this.selectionRect = new Rect();
 		this.paint.setStyle(Style.FILL);
@@ -116,19 +121,43 @@ public abstract class DoubleSeekBar extends View {
 		this.updateEndBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
+//
+//	@Override
+//	protected void onFocusChanged(final boolean gainFocus, final int direction,
+//			final Rect previouslyFocusedRect) {
+//		Log
+//				.d(PhotoCompassApplication.LOG_TAG,
+//						"DoubleSeekBar.onFocusChanged()");
+//		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+//	}
 
-	@Override
-	protected void onFocusChanged(final boolean gainFocus, final int direction,
-			final Rect previouslyFocusedRect) {
-		Log
-				.d(PhotoCompassApplication.LOG_TAG,
-						"DoubleSeekBar.onFocusChanged()");
-		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+	protected void updateStartValueWithCallback(float newValue) {
+		this.setStartValue(newValue);
+		this.callback.onMinValueChange(this.getStartValue());
+		this.startLabel = this.callback.getMinLabel();
+		this.updateStartBounds();
 	}
 
-	public abstract void updateStartValue(float newValue);
+	protected void updateEndValueWithCallback(final float newValue) {
+		this.setEndValue(newValue);
+		this.callback.onMaxValueChange(this.getEndValue());
+		this.endLabel = this.callback.getMaxLabel();
+		this.updateEndBounds();
+	}
+	
+	public void updateStartValue(float newValue) {
+		Log.d(PhotoCompassApplication.LOG_TAG,"DoubleSeekBar.updateStartValue()");
+		this.setStartValue(newValue);
+		this.startLabel = this.callback.getMinLabel();
+		this.updateStartBounds();
+	}
 
-	public abstract void updateEndValue(float NewValue);
+	public void updateEndValue(final float newValue) {
+		Log.d(PhotoCompassApplication.LOG_TAG,"DoubleSeekBar.updateEndValue()");
+		this.setEndValue(newValue);
+		this.endLabel = this.callback.getMaxLabel();
+		this.updateEndBounds();
+	}
 
 	protected abstract void updateStartBounds();
 
@@ -155,33 +184,33 @@ public abstract class DoubleSeekBar extends View {
 				// distance to start is less than distance to end
 				this.thumbDown = START;
 				this.startThumb = this.startThumbActive;
-				this.updateStartValue(newValue);
+				this.updateStartValueWithCallback(newValue);
 			} else {
 				// distance to end is less than to start
 				this.thumbDown = END;
 				this.endThumb = this.endThumbActive;
-				this.updateEndValue(newValue);
+				this.updateEndValueWithCallback(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE
 				&& this.thumbDown != NONE) {
 			if (this.thumbDown == START
 					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE)) {
-				this.updateStartValue(newValue);
+				this.updateStartValueWithCallback(newValue);
 				this.invalidate();
 			} else if (this.thumbDown == END
 					&& (Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE) {
-				this.updateEndValue(newValue);
+				this.updateEndValueWithCallback(newValue);
 				this.invalidate();
 			}
 		} else if (event.getAction() == MotionEvent.ACTION_UP
 				&& this.thumbDown != NONE) {
 			if (this.thumbDown == START) {
 				this.startThumb = this.startThumbNormal;
-				this.updateStartValue(newValue);
+				this.updateStartValueWithCallback(newValue);
 			} else {
 				this.endThumb = this.endThumbNormal;
-				this.updateEndValue(newValue);
+				this.updateEndValueWithCallback(newValue);
 			}
 			this.thumbDown = NONE;
 			this.invalidate();
@@ -226,4 +255,7 @@ public abstract class DoubleSeekBar extends View {
 
 	protected abstract float convertToAbstract(final float concreteValue);
 
+	public void setCallback(IDoubleSeekBarCallback callback) {
+		this.callback = callback;
+	}
 }
