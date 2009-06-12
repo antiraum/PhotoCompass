@@ -30,6 +30,7 @@ import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.views.CompassView;
 import de.fraunhofer.fit.photocompass.views.ControlsView;
 import de.fraunhofer.fit.photocompass.views.FinderView;
 import de.fraunhofer.fit.photocompass.views.PhotosView;
@@ -49,9 +50,10 @@ public final class FinderActivity extends Activity {
 	double currentAlt = 0; // package scoped for faster access by inner classes
 	float currentYaw = 0; // package scoped for faster access by inner classes
 	
+	private CompassView _compassView;
     PhotosView photosView; // package scoped for faster access by inner classes
 	private long _lastPhotoViewUpdate;
-	private static final int PHOTO_VIEW_UPDATE_IVAL = 500; // in milliseconds
+	private static final int PHOTO_VIEW_UPDATE_IVAL = 250; // in milliseconds
 
     ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
@@ -154,6 +156,9 @@ public final class FinderActivity extends Activity {
 	    	currentLat = lat;
 	    	currentLng = lng;
 	    	if (hasAlt) currentAlt = alt;
+	    	
+	    	// update compass view
+	    	updateCompassView();
         	
             // update photo view
 	    	updatePhotoView(latChanged, lngChanged, altChanged, false, false, false);
@@ -238,6 +243,9 @@ public final class FinderActivity extends Activity {
 	    		
 		    	// update variable
 	    		currentYaw = yaw;
+		    	
+		    	// update compass view
+		    	updateCompassView();
 
 	            // update photo view
 		    	updatePhotoView(false, false, false, true, false, false);
@@ -327,11 +335,13 @@ public final class FinderActivity extends Activity {
         // initialize views
         final FinderView finderView = new FinderView(this);
         final Display display = getWindowManager().getDefaultDisplay();
+        _compassView = new CompassView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
         photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
         final ControlsView controlsView = new ControlsView(this);
 
         // setup views
         setContentView(finderView);
+        addContentView(_compassView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         addContentView(photosView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
     }
@@ -416,6 +426,10 @@ public final class FinderActivity extends Activity {
     public void onLowMemory() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: onLowMemory");
     	photosView.clearUnneededViews();
+    }
+    
+    void updateCompassView() {
+    	_compassView.update(currentYaw);
     }
     
     /**

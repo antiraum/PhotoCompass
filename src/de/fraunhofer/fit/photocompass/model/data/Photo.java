@@ -137,6 +137,9 @@ public final class Photo {
 		} else {
 			bmp = BitmapFactory.decodeFile(_thumbUri.getPath());
 		}
+		if (bmp == null) { // file does not exists
+	    	return;
+		}
 		_origWidth = bmp.getWidth();
 		_origHeight = bmp.getHeight();
 		bmp.recycle();

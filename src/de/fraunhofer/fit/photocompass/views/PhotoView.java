@@ -87,6 +87,9 @@ final class PhotoView extends AbsoluteLayout {
 			} else {
 				rawBmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
 			}
+			if (rawBmp == null) { // file does not exists
+		    	return;
+			}
 			_imgView.setImageBitmap(Bitmap.createScaledBitmap(rawBmp, _width, _height, true));
 			rawBmp.recycle();
 		}

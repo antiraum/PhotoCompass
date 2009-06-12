@@ -161,6 +161,7 @@ public final class PhotosOverlay extends Overlay {
 //		Path path;
 		float bmpXPos, bmpYPos;
 		for (int id : _photos) {
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: draw: id = "+id);
 
 			// get photo
 			photo = _photosModel.getPhoto(id);
@@ -174,6 +175,9 @@ public final class PhotosOverlay extends Overlay {
 					bmp = BitmapFactory.decodeResource(mapView.getResources(), id);
 				} else {
 					bmp = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
+				}
+				if (bmp == null) { // file does not exists
+			    	continue;
 				}
 				width = bmp.getWidth();
 				height = bmp.getHeight();

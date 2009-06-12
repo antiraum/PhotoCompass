@@ -150,6 +150,8 @@ public final class Photos {
                 	continue;
                 }
                 
+                // TODO generate thumbnails that don't exist
+                
 //                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: id = "+id+", lat = "+lat+", lng = "+lng+", date = "+date+", thumb = "+thumb);
                 
                 _photosNew.append(id, new Photo(id, Uri.parse(Uri.encode(thumb)), lat, lng, 0, Long.parseLong(date)));

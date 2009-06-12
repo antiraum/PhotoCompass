@@ -1,7 +1,6 @@
 package de.fraunhofer.fit.photocompass.views;
 
 import android.content.Context;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.widget.AbsoluteLayout;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
@@ -95,7 +94,7 @@ public final class ControlsView extends AbsoluteLayout {
 				model.setRelativeMinAge(newValue);
 			}	
 		});
-		ageSlider.setLayoutParams(new LayoutParams(433, 42, 40, 249));
+		ageSlider.setLayoutParams(new LayoutParams(433, 42, 40, 241));
 		addView(ageSlider);
 
 		ApplicationModel.getInstance().registerCallback(
