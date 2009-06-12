@@ -1,6 +1,8 @@
 package de.fraunhofer.fit.photocompass.model;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -13,6 +15,14 @@ import android.provider.MediaStore.Images.Media;
 import android.provider.MediaStore.Images.Thumbnails;
 import android.util.Log;
 import android.util.SparseArray;
+
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.imaging.jpeg.JpegSegmentReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.Tag;
+
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
@@ -84,6 +94,7 @@ public final class Photos {
 	    final Uri thumbUris[] = {Thumbnails.INTERNAL_CONTENT_URI, Thumbnails.EXTERNAL_CONTENT_URI};
 	    final String mediaColumns[] = { 
     		BaseColumns._ID,
+    		Media.DATA,
 	        ImageColumns.LATITUDE, 
 	        ImageColumns.LONGITUDE,
 	        ImageColumns.DATE_TAKEN
@@ -92,8 +103,8 @@ public final class Photos {
     		Thumbnails.DATA
 	    };
 	    Cursor mediaCursor, thumbCursor;
-	    int idCol, latCol, lngCol, dateCol, thumbCol;
-	    int id; double lat, lng; String date, thumb;
+	    int idCol, latCol, lngCol, dateCol, thumbCol, imgCol;
+	    int id; double alt, lat, lng; String date, thumb, img;
 	    uris: for (int i = 0; i < mediaUris.length; i++) {
 //            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updatePhotos: uri = "+mediaUris[i].toString());
             
@@ -107,6 +118,7 @@ public final class Photos {
 	        if (numrows == 0) continue;
 
 		    // get column indexes
+	        imgCol = mediaCursor.getColumnIndex(Media.DATA);
 	    	idCol = mediaCursor.getColumnIndex(BaseColumns._ID);
 	    	latCol = mediaCursor.getColumnIndex(ImageColumns.LATITUDE); 
 	    	lngCol = mediaCursor.getColumnIndex(ImageColumns.LONGITUDE); 
@@ -127,7 +139,8 @@ public final class Photos {
                 	mediaCursor.moveToNext();
                 	continue;
 	        	}
-	        	
+	        	img = mediaCursor.getString(imgCol);
+	        	alt = getAltitude(img);
                 lat = mediaCursor.getDouble(latCol); 
                 lng = mediaCursor.getDouble(lngCol); 
                 date = mediaCursor.getString(dateCol);
@@ -154,7 +167,7 @@ public final class Photos {
                 
 //                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: id = "+id+", lat = "+lat+", lng = "+lng+", date = "+date+", thumb = "+thumb);
                 
-                _photosNew.append(id, new Photo(id, Uri.parse(Uri.encode(thumb)), lat, lng, 0, Long.parseLong(date)));
+                _photosNew.append(id, new Photo(id, Uri.parse(Uri.encode(thumb)), lat, lng, alt, Long.parseLong(date)));
                 
                 mediaCursor.moveToNext();
 	        }
@@ -163,7 +176,57 @@ public final class Photos {
 	    // replace the existing _photos
 	    _photos = _photosNew;
     }
-    
+    /**
+     * This method gets the raw path for the JPEG photo and analyze the Metadata thanks to an external 
+     * package "MetadataEtractor" located in "com.drew.*;"
+     * This function extract the altitude and put it in the  
+     * @param path
+     * @return
+     */
+    public int getAltitude (String path){
+    	Metadata metadata = null;
+		int altitude = 0;
+//TODO - I do not know if "path" is the whole path for a photo or we should search in the directory and choose a specific one
+//In order to obtain the altitude of the correct file I have to check which file I am dealing with
+        try {
+        	File file = new File(path);
+            JpegSegmentReader segmentReader = new JpegSegmentReader(file);
+            metadata = JpegMetadataReader.extractMetadataFromJpegSegmentReader(segmentReader);
+            
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+      //We iterate between all the metadata in order to get the GPS data and therefore the altitude.
+        Iterator directories = metadata.getDirectoryIterator();
+        while (directories.hasNext()) {
+            Directory directory = (Directory)directories.next();
+            Iterator tags = directory.getTagIterator();
+            while (tags.hasNext()) {
+                Tag tag = (Tag)tags.next();
+                try {
+                //This part obtains the GPS-altitude info.
+                	if (directory.getName().equals ("GPS")){
+                		if (tag.getTagName().equals("GPS Altitude")){
+                			String delims = "[ ]+";
+                			String[] tokens = (tag.getDescription()).split(delims);
+                			altitude= new Integer(tokens[0]); //parsed into int.
+                		}
+                	}
+                } catch (MetadataException e) {
+                    System.err.println(e.getMessage());
+                    System.err.println(tag.getDirectoryName() + " " + tag.getTagName() + " (error)");
+                }
+            }
+            if (directory.hasErrors()) {
+                Iterator errors = directory.getErrors();
+                while (errors.hasNext()) {
+                    System.out.println("ERROR: " + errors.next());
+                }
+            }
+        }
+        return altitude;
+    }    
     /**
      * Get a {@link Photo} object for a photo/resource id.
      * 
