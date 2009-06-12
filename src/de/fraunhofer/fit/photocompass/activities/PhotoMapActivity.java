@@ -450,10 +450,8 @@ public final class PhotoMapActivity extends MapActivity {
     		
     		// update photos
     		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos(),
-    				_appModel.getMinDistance(), _appModel.getMinDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
-    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos(),
-    				_appModel.getMinDistance(), _appModel.getMinDistance(), _appModel.getMinAge(), _appModel.getMaxAge()));
+    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos()));
+    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos()));
     	}
 		
     	if (yawChanged) {

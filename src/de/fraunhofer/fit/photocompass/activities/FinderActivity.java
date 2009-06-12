@@ -448,13 +448,9 @@ public final class FinderActivity extends Activity {
     		
     		// update photos
     		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-    		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.getPhotos(),
-    																_appModel.getMinDistance(), _appModel.getMaxDistance(),
-    																_appModel.getMinAge(), _appModel.getMaxAge()),
+    		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.getPhotos()),
     															    doRedrawHere);
-    		photosView.removePhotos(_photosModel.getNoLongerVisiblePhotos(photosView.getPhotos(),
-																		  _appModel.getMinDistance(), _appModel.getMaxDistance(),
-																		  _appModel.getMinAge(), _appModel.getMaxAge()));
+    		photosView.removePhotos(_photosModel.getNoLongerVisiblePhotos(photosView.getPhotos()));
     	}
     	
     	if (latChanged || lngChanged || altChanged) {

@@ -17,10 +17,10 @@ public final class ApplicationModel {
 	
 	// minimum & maximum values
 	private final float MIN_DISTANCE_LIMIT = 1000F; // in meters
-	private final float MAX_DISTANCE_LIMIT = 15 * 1000F; // in meters
+	final float MAX_DISTANCE_LIMIT = 15 * 1000F; // in meters
 	private float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
 	private final long MIN_AGE_LIMIT = 60 * 60 * 1000L; // in milliseconds
-	private final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
+	final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 	private long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
 
     private static ApplicationModel _instance;
@@ -72,7 +72,7 @@ public final class ApplicationModel {
     	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT
     													: (value < MIN_DISTANCE_LIMIT) ? MIN_DISTANCE_LIMIT
     																				   : value;
-    	if (_maxDistance > MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
+    	if (_maxDistance != MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
     }
     
     /**
@@ -84,7 +84,7 @@ public final class ApplicationModel {
     	MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT
 											  : (value < MIN_AGE_LIMIT) ? MIN_AGE_LIMIT
 													  					: value;
-    	if (_maxAge > MAX_MAX_AGE) setMaxAge(MAX_MAX_AGE);
+    	if (_maxAge != MAX_MAX_AGE) setMaxAge(MAX_MAX_AGE);
     }
 
 	/**

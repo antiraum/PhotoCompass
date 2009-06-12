@@ -25,7 +25,7 @@ public final class OutputFormatter {
     	final StringBuilder stringBuilder = new StringBuilder();
 
         if (distance == 0) {
-        	stringBuilder.append("current location");
+        	stringBuilder.append("here");
         } else if (distance < 1000) {
         	stringBuilder.append(Math.round(distance));
         	stringBuilder.append(" m");

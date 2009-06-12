@@ -185,16 +185,13 @@ public final class Photos {
      * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the newly visible photos.
      */
-    public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos,
-    												final float minDistance, final float maxDistance,
-    												final long minAge, final long maxAge) {
+    public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
     	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
             for (int i = 0; i < photos.size(); i++) {
-	    		if (_isPhotoVisible(photos.valueAt(i), minDistance, maxDistance, minAge, maxAge) &&
-	    			! currentPhotos.contains(photos.keyAt(i))) results.add(photos.keyAt(i));
+	    		if (_isPhotoVisible(photos.valueAt(i)) && ! currentPhotos.contains(photos.keyAt(i))) results.add(photos.keyAt(i));
 	    	}
     	}
     	
@@ -211,16 +208,14 @@ public final class Photos {
      * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the no longer visible photos.
      */
-    public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos,
-    												   final float minDistance, final float maxDistance,
-    												   final long minAge, final long maxAge) {
+    public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
     	Photo photo;
     	for (int id : currentPhotos) {
     		photo = getPhoto(id);
-    		if (photo == null || ! _isPhotoVisible(photo, minDistance, maxDistance, minAge, maxAge)) results.add(id);
+    		if (photo == null || ! _isPhotoVisible(photo)) results.add(id);
     	}
     	
     	return results;
@@ -237,14 +232,15 @@ public final class Photos {
      * @return			  <code>true</code> if photo is visible, or
      * 					  <code>false</code> if photo is not visible.
      */
-    private boolean _isPhotoVisible(final Photo photo, final float minDistance, final float maxDistance, final long minAge, final long maxAge) {
+    private boolean _isPhotoVisible(final Photo photo) {
+	    ApplicationModel appModel = ApplicationModel.getInstance();
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: id = "+photo.getId());
-		if (photo.getDistance() < minDistance || photo.getDistance() > maxDistance) { // photo is too close or too far away
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away");
+		if (photo.getDistance() < appModel.getMinDistance() || photo.getDistance() > appModel.getMaxDistance()) { // photo is too close or too far away
+	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away: photo.getDistance() = "+photo.getDistance());
 			return false;
 		}
 		final long photoAge = photo.getAge();
-		if (photoAge < minAge || photoAge > maxAge) { // photo is too young or too old
+		if (photoAge < appModel.getMinAge() || photoAge > appModel.getMaxAge()) { // photo is too young or too old
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too young or too old");
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photoAge = "+photoAge+", minAge = "+minAge+", maxAge = "+maxAge);
 			return false;
@@ -278,9 +274,9 @@ public final class Photos {
             	photo = photos.valueAt(i);
             	dist = photo.getDistance();
             	if (dist == 0) continue; // photo properties not set
-            	if (dist > maxDistance) maxDistance = dist;
+            	if (dist > maxDistance && dist <= appModel.MAX_DISTANCE_LIMIT) maxDistance = dist;
             	age = photo.getAge();
-            	if (age > maxAge) maxAge = age;
+            	if (age > maxAge && age <= appModel.MAX_AGE_LIMIT) maxAge = age;
             }
     	}
     	appModel.setMaxMaxDistance(maxDistance);
