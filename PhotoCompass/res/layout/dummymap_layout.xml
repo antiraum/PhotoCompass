@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    		  android:id="@+id/dummymaplayout"
+    		  android:orientation="vertical"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="fill_parent">
+	<TextView android:id="@+id/dummymaptextview"
+			  android:layout_width="fill_parent" 
+	    	  android:layout_height="fill_parent" 
+	    	  android:text="I am the dummy map view. Just here to test if the activity switch based on the orientation data is working. When we are back on 1.5 I will be replaced by a real cool map view with pictures and stuff." />
+</LinearLayout>
