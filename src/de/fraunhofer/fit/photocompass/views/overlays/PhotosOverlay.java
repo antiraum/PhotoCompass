@@ -237,9 +237,6 @@ public final class PhotosOverlay extends Overlay {
 //			canvas.drawPath(_drawPath, _borderPaint);
 			canvas.drawRect(metrics.getLeft(), metrics.getTop(), metrics.getRight(), metrics.getBottom(), _borderPaint);
 			
-			// draw arrow bitmap
-			canvas.drawBitmap(_arrowBmp, _point.x - _arrowBmp.getWidth() / 2, _point.y - ARROW_HEIGHT, null);
-			
 			// draw bitmap
 			_matrix.reset();
 			bmpXPos = _point.x - width / 2;
