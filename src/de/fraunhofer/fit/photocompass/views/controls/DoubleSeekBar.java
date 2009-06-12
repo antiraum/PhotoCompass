@@ -53,9 +53,9 @@ public abstract class DoubleSeekBar extends View {
 	protected int endLabelY = 0;
 	protected String startLabel;
 	protected String endLabel;
-
-	private float touchX = -5f;
-	private float touchY = -5f;
+	//
+	// private float touchX = -5f;
+	// private float touchY = -5f;
 
 	private final static int NONE = 0;
 	private final static int START = 1;
@@ -73,7 +73,7 @@ public abstract class DoubleSeekBar extends View {
 
 		this.setStartValue(callback.getMinValue());
 		this.startLabel = callback.getMinLabel();
-		
+
 		this.setEndValue(callback.getMaxValue());
 		this.endLabel = callback.getMaxLabel();
 
@@ -109,7 +109,7 @@ public abstract class DoubleSeekBar extends View {
 				this.paint);
 
 		paint.setColor(Color.RED);
-		canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
+		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
 
 	@Override
@@ -121,39 +121,27 @@ public abstract class DoubleSeekBar extends View {
 		this.updateEndBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
-//
-//	@Override
-//	protected void onFocusChanged(final boolean gainFocus, final int direction,
-//			final Rect previouslyFocusedRect) {
-//		Log
-//				.d(PhotoCompassApplication.LOG_TAG,
-//						"DoubleSeekBar.onFocusChanged()");
-//		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-//	}
 
 	protected void updateStartValueWithCallback(float newValue) {
-		this.setStartValue(newValue);
-		this.callback.onMinValueChange(this.getStartValue());
-		this.startLabel = this.callback.getMinLabel();
-		this.updateStartBounds();
+		this.callback.onMinValueChange(this.tryStartValue(newValue));
 	}
 
 	protected void updateEndValueWithCallback(final float newValue) {
-		this.setEndValue(newValue);
-		this.callback.onMaxValueChange(this.getEndValue());
-		this.endLabel = this.callback.getMaxLabel();
-		this.updateEndBounds();
+		this.callback.onMaxValueChange(this.tryEndValue(newValue));
 	}
-	
+
 	public void updateStartValue(float newValue) {
-		Log.d(PhotoCompassApplication.LOG_TAG,"DoubleSeekBar.updateStartValue()");
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.updateStartValue()");
 		this.setStartValue(newValue);
 		this.startLabel = this.callback.getMinLabel();
 		this.updateStartBounds();
 	}
 
 	public void updateEndValue(final float newValue) {
-		Log.d(PhotoCompassApplication.LOG_TAG,"DoubleSeekBar.updateEndValue()");
+		Log
+				.d(PhotoCompassApplication.LOG_TAG,
+						"DoubleSeekBar.updateEndValue()");
 		this.setEndValue(newValue);
 		this.endLabel = this.callback.getMaxLabel();
 		this.updateEndBounds();
@@ -166,8 +154,8 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		this.touchX = event.getX();
-		this.touchY = event.getY();
+		float touchX = event.getX();
+		float touchY = event.getY();
 		float newValue = convertToAbstract(getEventCoordinate(event));
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			// ignore if distance to bar larger than tolerance constant
@@ -240,13 +228,19 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	protected float setStartValue(float newValue) {
-		return this.startValue = Math
-				.max(0f, Math.min(newValue, this.endValue));
+		return this.startValue = this.tryStartValue(newValue);
 	}
 
 	protected float setEndValue(float newValue) {
-		return this.endValue = Math
-				.min(1f, Math.max(newValue, this.startValue));
+		return this.endValue = this.tryEndValue(newValue);
+	}
+
+	private float tryStartValue(float newValue) {
+		return Math.max(0f, Math.min(newValue, this.endValue));
+	}
+
+	private float tryEndValue(float newValue) {
+		return Math.min(1f, Math.max(newValue, this.startValue));
 	}
 
 	protected abstract float getEventCoordinate(final MotionEvent event);
