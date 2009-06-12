@@ -179,10 +179,6 @@ public final class Photos {
      * Determines which photos are newly visible for the current viewing settings.
      * 
      * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
-     * @param minDistance Minimum distance from the current position (in meters).
-     * @param maxDistance   Maximum distance from the current position (in meters).
-     * @param minAge 	    Minimum age of the photos (in milliseconds).
-     * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the newly visible photos.
      */
     public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos) {
@@ -202,10 +198,6 @@ public final class Photos {
      * Determines which photos are no longer visible for the current viewing settings.
      * 
      * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
-     * @param minDistance Minimum distance from the current position (in meters).
-     * @param maxDistance   Maximum distance from the current position (in meters).
-     * @param minAge 	    Minimum age of the photos (in milliseconds).
-     * @param maxAge 	    Maximum age of the photos (in milliseconds).
      * @return				ArrayList with photo/resource ids of the no longer visible photos.
      */
     public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos) {
@@ -225,10 +217,6 @@ public final class Photos {
      * Checks if a photo is visible with the current settings.
      * 
      * @param photo		  Photo to check.
-     * @param minDistance Minimum distance from the current position (in meters).
-     * @param maxDistance Maximum distance from the current position (in meters).
-     * @param minAge 	  Minimum age of the photos (in milliseconds).
-     * @param maxAge 	  Maximum age of the photos (in milliseconds).
      * @return			  <code>true</code> if photo is visible, or
      * 					  <code>false</code> if photo is not visible.
      */
@@ -236,7 +224,7 @@ public final class Photos {
 	    ApplicationModel appModel = ApplicationModel.getInstance();
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: id = "+photo.getId());
 		if (photo.getDistance() < appModel.getMinDistance() || photo.getDistance() > appModel.getMaxDistance()) { // photo is too close or too far away
-	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away: photo.getDistance() = "+photo.getDistance());
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away: photo.getDistance() = "+photo.getDistance());
 			return false;
 		}
 		final long photoAge = photo.getAge();
