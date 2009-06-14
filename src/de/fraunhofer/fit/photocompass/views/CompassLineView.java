@@ -11,18 +11,22 @@ import android.util.SparseArray;
 import android.view.View;
 
 /**
- * @author tom
- *
+ * This view is used by the {@link CompassView}. Displays the horizontal line and the marker lines.
  */
 public class CompassLineView extends View {
+	
+	private static final float LINE_WIDTH = 2.1f;
 
 	private int AVAILABLE_WIDTH;
 	private int CENTER_HEIGHT;
 
-	private SparseArray<Integer> _directionPositions;
+	private SparseArray<Integer> _directionPositions; // x positions of the marks
 	private final Paint _paint = new Paint();
 
 	/**
+	 * Constructor.
+	 * Initializes class members.
+	 * 
 	 * @param context
 	 */
 	public CompassLineView(Context context, final int availableWidth, final int centerHeight) {
@@ -32,14 +36,22 @@ public class CompassLineView extends View {
 		CENTER_HEIGHT = centerHeight;
 
 		_paint.setColor(Color.WHITE);
-		_paint.setStrokeWidth(2.1f);
+		_paint.setStrokeWidth(LINE_WIDTH);
 	}
 	
+	/**
+	 * Updates the x positions of the markers to draw.
+	 * 
+	 * @param directionPositions X positions of the markers.
+	 */
 	public void update(final SparseArray<Integer> directionPositions) {
 		_directionPositions = directionPositions;
 		invalidate(); // TODO dirty rectangle
 	}
 
+	/**
+	 * Draws the lines.
+	 */
 	@Override
 	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
@@ -49,8 +61,10 @@ public class CompassLineView extends View {
     	
     	if (_directionPositions.size() == 0) return; // not yet updated
 
-    	// draw direction lines
+    	// draw markers
         for (int i = 0; i < _directionPositions.size(); i++) {
+        	if (_directionPositions.valueAt(i) + LINE_WIDTH / 2 < 0 || 
+        		_directionPositions.valueAt(i) - LINE_WIDTH / 2 > AVAILABLE_WIDTH) continue; // not visible
         	canvas.drawLine(_directionPositions.valueAt(i), CENTER_HEIGHT - CompassView.POSITION_MARKER_HALFHEIGHT,
         					_directionPositions.valueAt(i), CENTER_HEIGHT + CompassView.POSITION_MARKER_HALFHEIGHT, _paint);
         }

@@ -428,6 +428,9 @@ public final class FinderActivity extends Activity {
     	photosView.clearUnneededViews();
     }
     
+    /**
+     * Updates the compass view based on the current viewing direction.
+     */
     void updateCompassView() {
     	_compassView.update(currentYaw);
     }

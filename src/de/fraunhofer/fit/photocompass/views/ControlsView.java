@@ -11,26 +11,20 @@ import de.fraunhofer.fit.photocompass.views.controls.IDoubleSeekBarCallback;
 import de.fraunhofer.fit.photocompass.views.controls.VerticalDoubleSeekBar;
 
 /**
- * This view is used by the
- * {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and the UI
- * controls.
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the UI controls.
  */
 public final class ControlsView extends AbsoluteLayout {
 
 	/**
-	 * Constructor. Sets up the controls.
+	 * Constructor.
+	 * Sets up the controls and registers as a callback at the application model.
 	 * 
 	 * @param context
 	 */
 	public ControlsView(final Context context) {
 		super(context);
 
-		// final ImageView distanceSliderDummy = new ImageView(context);
-		// distanceSliderDummy.setScaleType(ImageView.ScaleType.FIT_XY);
-		// distanceSliderDummy.setImageResource(R.drawable.distance_slider_dummy);
-		// distanceSliderDummy.setLayoutParams(new LayoutParams(62, 257, 6, 7));
-		// addView(distanceSliderDummy);
-
+		// distance slider
 		final DoubleSeekBar distanceSlider = new VerticalDoubleSeekBar(context, new IDoubleSeekBarCallback() {
 			ApplicationModel model = ApplicationModel.getInstance();
 			
@@ -58,15 +52,10 @@ public final class ControlsView extends AbsoluteLayout {
 				model.setRelativeMinDistance(newValue);
 			}		
 		});
-		distanceSlider.setLayoutParams(new LayoutParams(150, 240, 6, 7));
+		distanceSlider.setLayoutParams(new LayoutParams(150, 240, 6, 7)); // TODO no absolute values
 		addView(distanceSlider);
 
-		// final ImageView ageSliderDummy = new ImageView(context);
-		// ageSliderDummy.setScaleType(ImageView.ScaleType.FIT_XY);
-		// ageSliderDummy.setImageResource(R.drawable.age_slider_dummy);
-		// ageSliderDummy.setLayoutParams(new LayoutParams(441, 41, 32, 249));
-		// addView(ageSliderDummy);
-
+		// age slider
 		final DoubleSeekBar ageSlider = new HorizontalDoubleSeekBar(context, new IDoubleSeekBarCallback() {
 			ApplicationModel model = ApplicationModel.getInstance();
 			
@@ -94,32 +83,34 @@ public final class ControlsView extends AbsoluteLayout {
 				model.setRelativeMinAge(newValue);
 			}	
 		});
-		ageSlider.setLayoutParams(new LayoutParams(433, 42, 40, 241));
+		ageSlider.setLayoutParams(new LayoutParams(433, 42, 40, 241)); // TODO no absolute values
 		addView(ageSlider);
 
+		// register as a callback at the application model
 		ApplicationModel.getInstance().registerCallback(
-				new IApplicationModelCallback.Stub() {
+			new IApplicationModelCallback.Stub() {
 
-					public void onMaxAgeChange(long maxAge, float maxAgeRel)
-							throws RemoteException {
-						ageSlider.updateEndValue(maxAgeRel);
-					}
+				public void onMaxAgeChange(long maxAge, float maxAgeRel)
+						throws RemoteException {
+					ageSlider.updateEndValue(maxAgeRel);
+				}
 
-					public void onMaxDistanceChange(float maxDistance,
-							float maxDistanceRel) throws RemoteException {
-						distanceSlider.updateEndValue(maxDistanceRel);
-					}
+				public void onMaxDistanceChange(float maxDistance,
+						float maxDistanceRel) throws RemoteException {
+					distanceSlider.updateEndValue(maxDistanceRel);
+				}
 
-					public void onMinAgeChange(long minAge, float minAgeRel)
-							throws RemoteException {
-						ageSlider.updateStartValue(minAgeRel);
-					}
+				public void onMinAgeChange(long minAge, float minAgeRel)
+						throws RemoteException {
+					ageSlider.updateStartValue(minAgeRel);
+				}
 
-					public void onMinDistanceChange(float minDistance,
-							float minDistanceRel) throws RemoteException {
-						distanceSlider.updateStartValue(minDistanceRel);
-					}
-				});
+				public void onMinDistanceChange(float minDistance,
+						float minDistanceRel) throws RemoteException {
+					distanceSlider.updateStartValue(minDistanceRel);
+				}
+			}
+		);
 
 	}
 }

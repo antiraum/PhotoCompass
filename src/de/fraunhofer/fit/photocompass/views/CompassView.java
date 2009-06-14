@@ -2,7 +2,6 @@ package de.fraunhofer.fit.photocompass.views;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.widget.AbsoluteLayout;
@@ -10,7 +9,9 @@ import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
 /**
- * 
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the compass "horizon".
+ * Displays a horizontal line in the middle of the {@field #AVAILABLE_WIDTH}. Every 45 degrees a marker is drawn with a text label
+ * of the compass direction.
  */
 public class CompassView extends AbsoluteLayout {
 	
@@ -18,9 +19,9 @@ public class CompassView extends AbsoluteLayout {
 	static final int LABEL_WIDTH = 25;
 	static final int LABEL_HEIGHT = 20;
 	
-	private static final int[] _directionDegrees = {0, 45, 90, 135, 180, 225, 270, 315};
-	private final SparseArray<TextView> _directionLabels = new SparseArray<TextView>();
-	private final SparseArray<Integer> _directionPositions = new SparseArray<Integer>(); 
+	private static final int[] _directionDegrees = {0, 45, 90, 135, 180, 225, 270, 315}; // directions to mark
+	private final SparseArray<TextView> _directionLabels = new SparseArray<TextView>(); // text views for the labels of the marks
+	private final SparseArray<Integer> _directionPositions = new SparseArray<Integer>(); // x positions of the marks
 	private CompassLineView _lineView;
 	
 	private int AVAILABLE_WIDTH;
@@ -31,6 +32,9 @@ public class CompassView extends AbsoluteLayout {
 	private float _direction;
 
 	/**
+	 * Constructor.
+	 * Initializes the line and label views. Populates {@link #_directionLabels}.
+	 * 
 	 * @param context
 	 */
 	public CompassView(final Context context, final int availableWidth, final int availableHeight) {
@@ -65,6 +69,12 @@ public class CompassView extends AbsoluteLayout {
         _directionLabels.get(315).setText("NW");
 	}
 	
+	/**
+	 * Updates the view based on the current viewing direction.
+	 * Re-calculates the x positions of the direction markers. 
+	 * 
+	 * @param direction Current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
+	 */
 	public void update(final float direction) {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "CompassView: update: direction = "+direction);
     	
