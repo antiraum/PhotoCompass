@@ -2,9 +2,12 @@ package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.LinearGradient;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.Paint.Align;
 import android.view.MotionEvent;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
@@ -25,6 +28,12 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.selectionRect.bottom = this.barThickness + this.barPadding
 				+ this.topPadding;
 		this.paint.setTextAlign(Align.CENTER);
+		backgroundGradient = new LinearGradient(0, topPadding + barPadding, 0, topPadding + barPadding + barThickness / 2,
+												PhotoCompassApplication.GREY, PhotoCompassApplication.DARK_GREY,
+												Shader.TileMode.MIRROR);
+		selectionGradient = new LinearGradient(0, topPadding + barPadding, 0, topPadding + barPadding + barThickness / 2,
+											   PhotoCompassApplication.ORANGE, PhotoCompassApplication.DARK_ORANGE,
+										 	   Shader.TileMode.MIRROR);
 		
 		this.startLabelY = 9;
 		this.endLabelY = 9;

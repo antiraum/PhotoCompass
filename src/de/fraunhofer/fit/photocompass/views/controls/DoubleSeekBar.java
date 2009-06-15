@@ -3,6 +3,7 @@ package de.fraunhofer.fit.photocompass.views.controls;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -63,6 +64,8 @@ public abstract class DoubleSeekBar extends View {
 	private int thumbDown = NONE;
 
 	protected final Paint paint = new Paint();
+	protected LinearGradient backgroundGradient;
+	protected LinearGradient selectionGradient;
 
 	protected IDoubleSeekBarCallback callback;
 
@@ -93,21 +96,24 @@ public abstract class DoubleSeekBar extends View {
 		// this.updateAllBounds();
 
 		super.onDraw(canvas);
-		paint.setColor(Color.GRAY);
+//		paint.setColor(Color.GRAY);
+		paint.setShader(backgroundGradient);
 		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, paint);
-		paint.setColor(PhotoCompassApplication.ORANGE);
+//		paint.setColor(PhotoCompassApplication.ORANGE);
+		paint.setShader(selectionGradient);
 		canvas.drawRect(this.selectionRect, paint);
 
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
 
+		paint.setShader(null);
 		paint.setColor(Color.WHITE);
 		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
 				paint);
 		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,
 				this.paint);
 
-		paint.setColor(Color.RED);
+//		paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
 
