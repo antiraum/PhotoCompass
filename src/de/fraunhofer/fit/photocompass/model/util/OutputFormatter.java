@@ -5,9 +5,6 @@ package de.fraunhofer.fit.photocompass.model.util;
 
 import java.util.Formatter;
 
-import android.util.Log;
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-
 /**
  * This class provides static methods to format distance, age, and altitude offset values for display.
  */
