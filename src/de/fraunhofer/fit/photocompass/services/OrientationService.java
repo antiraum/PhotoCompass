@@ -50,6 +50,7 @@ public final class OrientationService extends Service {
 	/**
 	 * {@link SensorListener} for the {@link #_sensorManager}.
 	 */
+	// TODO change to SensorEventListener when we no longer need to support building for target platform 1
 	private final SensorListener _sensorListener = new SensorListener() {
 
 		/**
@@ -114,11 +115,11 @@ public final class OrientationService extends Service {
 
 			// check if there is no orientation sensor
 			// XXX comment these lines for target 1 compatibility
-//			if (_sensorManager.getSensorList(SensorManager.SENSOR_ORIENTATION).size() == 0) {
-//	        	Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: no orientation sensor found");
-//	        	// TODO notify the user and tell him that he cannot use the application
-//	    		return;
-//	    	}
+			if (_sensorManager.getSensorList(SensorManager.SENSOR_ORIENTATION).size() == 0) {
+	        	Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: no orientation sensor found");
+	        	// TODO notify the user and tell him that he cannot use the application
+	    		return;
+	    	}
 		}
     	
     	// start listening to sensors
