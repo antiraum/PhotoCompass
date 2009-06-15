@@ -10,12 +10,12 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
  * <p>This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the currently visible photos.</p>
@@ -29,8 +29,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
  * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
  * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
  */
-// TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
-public final class PhotosView extends AbsoluteLayout {
+public final class PhotosView extends SimpleAbsoluteLayout {
 	
 	// photo height constants
 	private static final float MIN_PHOTO_HEIGHT_PERCENT = .25F; // percent of the AVAILABLE_HEIGHT
@@ -49,12 +48,12 @@ public final class PhotosView extends AbsoluteLayout {
 	/**
 	 * Layer containing the {@link #_photoViews}.
 	 */
-	private AbsoluteLayout _photoLayer;
+	private SimpleAbsoluteLayout _photoLayer;
 	
 	/**
 	 * Layer containing the photo {@link #_borderViews}.
 	 */
-	private AbsoluteLayout _borderLayer;
+	private SimpleAbsoluteLayout _borderLayer;
 	
 	/**
 	 * {@link PhotoView}s for photos (currently and previously used).
@@ -110,11 +109,11 @@ public final class PhotosView extends AbsoluteLayout {
     	
         _photosModel = Photos.getInstance();
         
-        _photoLayer = new AbsoluteLayout(context);
+        _photoLayer = new SimpleAbsoluteLayout(context);
         _photoLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_photoLayer);
     	
-        _borderLayer = new AbsoluteLayout(context);
+        _borderLayer = new SimpleAbsoluteLayout(context);
         _borderLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_borderLayer);
 	}

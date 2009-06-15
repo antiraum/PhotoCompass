@@ -41,7 +41,7 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
 public final class FinderActivity extends Activity {
 
     private static final int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
-    private static final int BOTTOM_CONTROLS_HEIGHT = 35;
+    private static final int BOTTOM_CONTROLS_HEIGHT = 24;
 
 	FinderActivity finderActivity; // package scoped for faster access by inner classes
     
@@ -337,7 +337,7 @@ public final class FinderActivity extends Activity {
         final Display display = getWindowManager().getDefaultDisplay();
         _compassView = new CompassView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
         photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        final ControlsView controlsView = new ControlsView(this);
+        final ControlsView controlsView = new ControlsView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT);
 
         // setup views
         setContentView(finderView);

@@ -4,16 +4,16 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.SparseArray;
 import android.view.Gravity;
-import android.widget.AbsoluteLayout;
 import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
  * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the compass "horizon".
  * Displays a horizontal line in the middle of the {@field #AVAILABLE_WIDTH}. Every 45 degrees a marker is drawn with a text label
  * of the compass direction.
  */
-public class CompassView extends AbsoluteLayout {
+public class CompassView extends SimpleAbsoluteLayout {
 	
 	static final int POSITION_MARKER_HALFHEIGHT = 7;
 	static final int LABEL_WIDTH = 25;

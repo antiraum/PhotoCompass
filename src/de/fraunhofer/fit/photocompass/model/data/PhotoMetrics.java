@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.model.data;
 
-import android.widget.AbsoluteLayout.LayoutParams;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout.LayoutParams;
 
 /**
  * This class is a custom data type for photo metrics.
@@ -15,8 +16,8 @@ public final class PhotoMetrics {
 	private int _y = 0;
 	private int _width = 0;
 	private int _height = 0;
-	private LayoutParams _layoutParams; // layout parameters for AbsoluteLayout
-	private LayoutParams _minimizedLayoutParams; // layout parameters for AbsoluteLayout
+	private LayoutParams _layoutParams; // layout parameters for SimpleAbsoluteLayout
+	private LayoutParams _minimizedLayoutParams; // layout parameters for SimpleAbsoluteLayout
 
 	/**
 	 * @param left Left position.
@@ -101,7 +102,7 @@ public final class PhotoMetrics {
 	}
 	
 	/**
-	 * @return {@link LayoutParams} for an {@link android.widget.AbsoluteLayout}.
+	 * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout}.
 	 */
 	public LayoutParams getLayoutParams() {
 		return _layoutParams;
@@ -113,7 +114,7 @@ public final class PhotoMetrics {
 	}
 
 	/**
-	 * @return {@link LayoutParams} for an {@link android.widget.AbsoluteLayout} for a photo in minimized state.
+	 * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout} for a photo in minimized state.
 	 */
 	public LayoutParams getMinimizedLayoutParams() {
 		return _minimizedLayoutParams;
