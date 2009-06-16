@@ -452,6 +452,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
 //    										   ", endX = "+endX+", endY = "+endY);
     	
+    	// TODO enable restore photo restore by fling up (and out)
+    	
     	/*
     	 *  Detect which photo is flinged.
     	 */
