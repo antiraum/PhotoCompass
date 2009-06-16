@@ -501,10 +501,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     	 * Detect which photo is tapped on.
     	 */
     	int tappedPhoto = 0; // id of the tapped photo
-    	int id;
-		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
-        while (lit.hasPrevious()) { // iterate front to back
-        	id = lit.previous();
+		for (int id : _photos) { // back to front
         	if (! _photoViews.get(id).isMinimized()) continue; // ignore not minimized photos
     		if (_photoViews.get(id).getLeft() < x && _photoViews.get(id).getRight() > x && // on the view in horizontal direction
     			_photoViews.get(id).getTop() - y_tap_tolerance < y && _photoViews.get(id).getBottom() + y_tap_tolerance > y) { // on the view in vertical direction
