@@ -41,7 +41,6 @@ public final class PhotoMetrics {
 	public void setTop(final int top) {
 		_y = top;
 		_setLayoutParams();
-		_setMinimizedLayoutParams();
 	}
 
 	/**
@@ -73,7 +72,6 @@ public final class PhotoMetrics {
 	public void setHeight(final int height) {
 		_height = height;
 		_setLayoutParams();
-		_setMinimizedLayoutParams();
 	}
 
 	/**
@@ -109,14 +107,16 @@ public final class PhotoMetrics {
 	}
 	
 	private void _setMinimizedLayoutParams() {
-    	// minimized photos are displayed with MINIMIZED_PHOTO_HEIGHT at the same bottom position as unminimized
-		_minimizedLayoutParams = new LayoutParams(_width, MINIMIZED_PHOTO_HEIGHT, _x, _y + _height - MINIMIZED_PHOTO_HEIGHT);
+    	// minimized photos are displayed with unchanged width and MINIMIZED_PHOTO_HEIGHT
+		_minimizedLayoutParams = new LayoutParams(_width, MINIMIZED_PHOTO_HEIGHT, _x, 0);
 	}
 
 	/**
+	 * @param availableHeight Height at which bottom the minimized photos should be displayed.
 	 * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout} for a photo in minimized state.
 	 */
-	public LayoutParams getMinimizedLayoutParams() {
+	public LayoutParams getMinimizedLayoutParams(final int availableHeight) {
+		_minimizedLayoutParams.y = availableHeight - MINIMIZED_PHOTO_HEIGHT;
 		return _minimizedLayoutParams;
 	}
 }

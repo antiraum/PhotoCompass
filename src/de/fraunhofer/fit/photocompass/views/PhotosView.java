@@ -421,7 +421,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	 */
 	private void _redrawPhoto(final int id) {
 		
-    	final LayoutParams layoutParams = _photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams()
+    	final LayoutParams layoutParams = _photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams(AVAILABLE_HEIGHT - 21) // available height minus space for the labels and padding
     															  			: _photoMetrics.get(id).getLayoutParams();
     	
     	// skip if photo has layout parameters, and is not and will not be visible on screen
