@@ -17,7 +17,7 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
 
     /**
      * Constructor.
-     * Initializes the {@field #_surfaceHolder}.
+     * Initializes the {@link #_surfaceHolder}.
      * 
      * @param context
      */
