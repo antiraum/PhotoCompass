@@ -22,8 +22,8 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 	private static final int BOTTOM_LEFT_PADDING = 39; // padding at the bottom of the distance control and
 	   												   // at the left of the age control
 	private static final int AGE_CONTROL_HEIGHT = 42; // height of the age scroll bar (including text labels)
-	public static final int AGE_CONTROL_EXTRA_PADDING = 5; // extra bottom padding of the age scroll bar, because
-														   // the touch screen on the G1 doesn't work well at the bottom
+	public static final int AGE_CONTROL_EXTRA_PADDING = 10; // extra bottom padding of the age scroll bar, because
+														    // the touch screen on the G1 doesn't work well at the bottom
 
 	/**
 	 * Constructor.
