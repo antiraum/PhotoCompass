@@ -81,7 +81,7 @@ public final class DummyMapActivity extends Activity {
         public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
         	
-        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
 	    	
         	// we are only interested in the roll value
 	    	if (roll == _roll) return; // value has not changed

@@ -116,12 +116,12 @@ public final class PhotoMapActivity extends MapActivity {
 		 */
         public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
         	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
         	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
         	
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
-        	
-        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
         	final boolean latChanged = (lat == currentLat) ? false : true;
         	final boolean lngChanged = (lng == currentLng) ? false : true;
@@ -188,8 +188,8 @@ public final class PhotoMapActivity extends MapActivity {
         public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from orientation service");
         	
-        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
-	    	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	if (roll != _roll) {
 		    	_roll = roll;
 	            
@@ -223,6 +223,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMinDistanceChange(final float minDistance, final float minDistanceRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 
@@ -231,6 +234,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 
@@ -239,6 +245,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMinAgeChange(final long minAge, final float minAgeRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 
@@ -247,6 +256,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMaxAgeChange(final long maxAge, final float maxAgeRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 	};
