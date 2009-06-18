@@ -409,6 +409,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         final int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
         
         // update metrics
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoSize: id = "+id+", width = "+photoWidth+", height = "+photoHeight);
         metrics.setWidth(photoWidth);
         metrics.setHeight(photoHeight);
         return true;
@@ -427,8 +428,14 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     	// skip if photo has layout parameters, and is not and will not be visible on screen
     	if (_photoViews.get(id).getLayoutParams() != null &&
     		(_photoViews.get(id).getRight() < 0 && layoutParams.x + layoutParams.width < 0) || // left of screen
-    		(_photoViews.get(id).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) // right of screen
+    		(_photoViews.get(id).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) { // right of screen
+    		_photoViews.get(id).setVisibility(View.GONE);
+    		_borderViews.get(id).setVisibility(View.GONE);
     		return;
+    	}
+    	
+		_photoViews.get(id).setVisibility(View.VISIBLE);
+		_borderViews.get(id).setVisibility(View.VISIBLE);
     	
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _redrawPhoto: id = "+id+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
     	

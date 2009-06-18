@@ -96,6 +96,8 @@ public final class ApplicationModel {
 		_minDistance = minDistance;
 		_minDistanceRel = (MAX_MAX_DISTANCE == 0) ? 0F : _minDistance / MAX_MAX_DISTANCE;
 		_minDistanceStr = OutputFormatter.formatDistance(_minDistance);
+
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxDistance: minDist = "+_minDistance+", maxDist = "+_maxDistance);
 		
 		// broadcast change
 	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
@@ -148,6 +150,8 @@ public final class ApplicationModel {
 		_maxDistance = maxDistance;
 		_maxDistanceRel = (MAX_MAX_DISTANCE == 0) ? 0F : _maxDistance / MAX_MAX_DISTANCE;
 		_maxDistanceStr = OutputFormatter.formatDistance(_maxDistance);
+
+//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxDistance: minDist = "+_minDistance+", maxDist = "+_maxDistance);
 		
 		// broadcast change
 	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
