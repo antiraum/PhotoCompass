@@ -16,10 +16,14 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 final class PhotoBorderView extends View {
 
-	private static final float BORDER_WIDTH = 3.1F; // stroke width of the border
-	private static final int ALPHA_DECREASE_PER_OCCLUSION = 20; // number by which the alpha value gets decreased for 
+	private static final float BORDER_WIDTH = 3.6F; // stroke width of the border
+	private static final float BORDER_WIDTH_DECREASE_PER_OCCLUSION = 0.25F; // number by which the stroke width of the border
+																		   // gets decreased for each photo occluding the
+																		   // one this border belongs to
+	private static final float MIN_BORDER_WIDTH = 2.1F; // minimum stroke width of the border
+	private static final int ALPHA_DECREASE_PER_OCCLUSION = 35; // number by which the alpha value gets decreased for 
 															    // each photo occluding the one this border belongs to
-	private static final int MINIMAL_ALPHA = 20; // minimum alpha value
+	private static final int MINIMAL_ALPHA = 10; // minimum alpha value
 	
 	private int _width = 0;
 	private int _height = 0;
@@ -46,6 +50,9 @@ final class PhotoBorderView extends View {
 	void setNumberOfOcclusions(final int numOcclusions) {
 		final int alpha = 255 - numOcclusions * ALPHA_DECREASE_PER_OCCLUSION;
 		_paint.setAlpha(Math.max(alpha, MINIMAL_ALPHA));
+		final float strokeWidth = BORDER_WIDTH - numOcclusions * BORDER_WIDTH_DECREASE_PER_OCCLUSION;
+		_paint.setStrokeWidth(Math.max(strokeWidth, MIN_BORDER_WIDTH));
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoBorderView: setNumberOfOcclusions: alpha = "+alpha+", strokeWidth = "+strokeWidth);
 	}
 	
 	/**

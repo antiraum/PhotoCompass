@@ -232,13 +232,15 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 
 		for (int resId1 : _photos) {
 			final PhotoMetrics met1 = _photoMetrics.get(resId1);
+			final boolean status = _photoViews.get(resId1).isMinimized(); 
 			int numOccludingPhotos = 0;
 			int resId2;
 			PhotoMetrics met2;
 			ListIterator<Integer> lit = _photos.listIterator(_photos.size());
 	        while (lit.hasPrevious()) { // iterate front to back
 	        	resId2 = lit.previous();
-				if (resId1 == resId2) break; 
+				if (resId1 == resId2) break;
+				if (_photoViews.get(resId2).isMinimized() != status) continue; // ignore photos with different status
 				met2 = _photoMetrics.get(resId2);
 				if (((met2.getTop() >= met1.getTop() && met2.getTop() <= met1.getBottom()) ||
 					 (met2.getBottom() >= met1.getTop() && met2.getBottom() <= met1.getBottom()) ||
@@ -484,6 +486,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         
         // redraw photo
         _redrawPhoto(flingedPhoto);
+		
+		// set number of occlusions for border alpha value
+		_setBorderOcclusions();
         
         return true;
     }
@@ -525,6 +530,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         
         // redraw photo
         _redrawPhoto(tappedPhoto);
+		
+		// set number of occlusions for border alpha value
+		_setBorderOcclusions();
         
         return true;
     }
