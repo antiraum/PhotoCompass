@@ -5,18 +5,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
  * This view is used by the {@link PhotosView} to display a photo.
  * It shows the photo and an overlaying text with information about the photo.
  */
-final class PhotoView extends AbsoluteLayout {
+final class PhotoView extends SimpleAbsoluteLayout {
 	
 	private Photo _photo; // Photo object for the displayed photo
 	private ImageView _imgView;

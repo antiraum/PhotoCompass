@@ -255,7 +255,7 @@ public final class LocationService extends Service {
     /**
      * Called when an activity connects to the service.
      * 
-     * @return The {@field #_binder} interface to the service.
+     * @return The {@link #_binder} interface to the service.
      */
 	@Override
 	public IBinder onBind(final Intent intent) {

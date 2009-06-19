@@ -10,12 +10,12 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
  * <p>This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the currently visible photos.</p>
@@ -29,8 +29,7 @@ import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
  * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
  * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
  */
-// TODO as AbsoluteLayout is depreciated in 1.5, we should implement our own layout
-public final class PhotosView extends AbsoluteLayout {
+public final class PhotosView extends SimpleAbsoluteLayout {
 	
 	// photo height constants
 	private static final float MIN_PHOTO_HEIGHT_PERCENT = .25F; // percent of the AVAILABLE_HEIGHT
@@ -49,12 +48,12 @@ public final class PhotosView extends AbsoluteLayout {
 	/**
 	 * Layer containing the {@link #_photoViews}.
 	 */
-	private AbsoluteLayout _photoLayer;
+	private SimpleAbsoluteLayout _photoLayer;
 	
 	/**
 	 * Layer containing the photo {@link #_borderViews}.
 	 */
-	private AbsoluteLayout _borderLayer;
+	private SimpleAbsoluteLayout _borderLayer;
 	
 	/**
 	 * {@link PhotoView}s for photos (currently and previously used).
@@ -110,11 +109,11 @@ public final class PhotosView extends AbsoluteLayout {
     	
         _photosModel = Photos.getInstance();
         
-        _photoLayer = new AbsoluteLayout(context);
+        _photoLayer = new SimpleAbsoluteLayout(context);
         _photoLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_photoLayer);
     	
-        _borderLayer = new AbsoluteLayout(context);
+        _borderLayer = new SimpleAbsoluteLayout(context);
         _borderLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_borderLayer);
 	}
@@ -233,13 +232,15 @@ public final class PhotosView extends AbsoluteLayout {
 
 		for (int resId1 : _photos) {
 			final PhotoMetrics met1 = _photoMetrics.get(resId1);
+			final boolean status = _photoViews.get(resId1).isMinimized(); 
 			int numOccludingPhotos = 0;
 			int resId2;
 			PhotoMetrics met2;
 			ListIterator<Integer> lit = _photos.listIterator(_photos.size());
 	        while (lit.hasPrevious()) { // iterate front to back
 	        	resId2 = lit.previous();
-				if (resId1 == resId2) break; 
+				if (resId1 == resId2) break;
+				if (_photoViews.get(resId2).isMinimized() != status) continue; // ignore photos with different status
 				met2 = _photoMetrics.get(resId2);
 				if (((met2.getTop() >= met1.getTop() && met2.getTop() <= met1.getBottom()) ||
 					 (met2.getBottom() >= met1.getTop() && met2.getBottom() <= met1.getBottom()) ||
@@ -410,6 +411,7 @@ public final class PhotosView extends AbsoluteLayout {
         final int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
         
         // update metrics
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoSize: id = "+id+", width = "+photoWidth+", height = "+photoHeight);
         metrics.setWidth(photoWidth);
         metrics.setHeight(photoHeight);
         return true;
@@ -422,14 +424,20 @@ public final class PhotosView extends AbsoluteLayout {
 	 */
 	private void _redrawPhoto(final int id) {
 		
-    	final LayoutParams layoutParams = _photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams()
+    	final LayoutParams layoutParams = _photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams(AVAILABLE_HEIGHT - 21) // available height minus space for the labels and padding
     															  			: _photoMetrics.get(id).getLayoutParams();
     	
     	// skip if photo has layout parameters, and is not and will not be visible on screen
     	if (_photoViews.get(id).getLayoutParams() != null &&
     		(_photoViews.get(id).getRight() < 0 && layoutParams.x + layoutParams.width < 0) || // left of screen
-    		(_photoViews.get(id).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) // right of screen
+    		(_photoViews.get(id).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) { // right of screen
+    		_photoViews.get(id).setVisibility(View.GONE);
+    		_borderViews.get(id).setVisibility(View.GONE);
     		return;
+    	}
+    	
+		_photoViews.get(id).setVisibility(View.VISIBLE);
+		_borderViews.get(id).setVisibility(View.VISIBLE);
     	
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _redrawPhoto: id = "+id+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
     	
@@ -452,6 +460,8 @@ public final class PhotosView extends AbsoluteLayout {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling");
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
 //    										   ", endX = "+endX+", endY = "+endY);
+    	
+    	// TODO enable restore photo restore by fling up (and out)
     	
     	/*
     	 *  Detect which photo is flinged.
@@ -476,6 +486,9 @@ public final class PhotosView extends AbsoluteLayout {
         
         // redraw photo
         _redrawPhoto(flingedPhoto);
+		
+		// set number of occlusions for border alpha value
+		_setBorderOcclusions();
         
         return true;
     }
@@ -502,10 +515,7 @@ public final class PhotosView extends AbsoluteLayout {
     	 * Detect which photo is tapped on.
     	 */
     	int tappedPhoto = 0; // id of the tapped photo
-    	int id;
-		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
-        while (lit.hasPrevious()) { // iterate front to back
-        	id = lit.previous();
+		for (int id : _photos) { // back to front
         	if (! _photoViews.get(id).isMinimized()) continue; // ignore not minimized photos
     		if (_photoViews.get(id).getLeft() < x && _photoViews.get(id).getRight() > x && // on the view in horizontal direction
     			_photoViews.get(id).getTop() - y_tap_tolerance < y && _photoViews.get(id).getBottom() + y_tap_tolerance > y) { // on the view in vertical direction
@@ -520,6 +530,9 @@ public final class PhotosView extends AbsoluteLayout {
         
         // redraw photo
         _redrawPhoto(tappedPhoto);
+		
+		// set number of occlusions for border alpha value
+		_setBorderOcclusions();
         
         return true;
     }

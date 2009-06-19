@@ -21,7 +21,6 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
@@ -57,7 +56,6 @@ public final class PhotoMapActivity extends MapActivity {
 	
 	// overlays
 	private ViewingDirectionOverlay _viewDirOverlay;
-	private MyLocationOverlay _myLocOverlay;
 	private CustomMyLocationOverlay _customMyLocOverlay;
 	private PhotosOverlay _photosOverlay;
 
@@ -118,12 +116,12 @@ public final class PhotoMapActivity extends MapActivity {
 		 */
         public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
         	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
         	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
         	
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
-        	
-        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
         	final boolean latChanged = (lat == currentLat) ? false : true;
         	final boolean lngChanged = (lng == currentLng) ? false : true;
@@ -190,8 +188,8 @@ public final class PhotoMapActivity extends MapActivity {
         public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from orientation service");
         	
-        	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
-	    	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	if (roll != _roll) {
 		    	_roll = roll;
 	            
@@ -225,6 +223,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMinDistanceChange(final float minDistance, final float minDistanceRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 
@@ -233,6 +234,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 
@@ -241,6 +245,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMinAgeChange(final long minAge, final float minAgeRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 
@@ -249,6 +256,9 @@ public final class PhotoMapActivity extends MapActivity {
 		 * Initiates a update of {@link #photosView}. 
 		 */
 		public void onMaxAgeChange(final long maxAge, final float maxAgeRel) {
+        	
+        	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+        	
 	    	updateMapView(false, false, false, true);
 		}
 	};
@@ -295,18 +305,10 @@ public final class PhotoMapActivity extends MapActivity {
 		_viewDirOverlay = new ViewingDirectionOverlay();
 		List<Overlay> overlays = _mapView.getOverlays();
 		overlays.add(_viewDirOverlay);
-
-		if (PhotoCompassApplication.USE_DUMMY_LOCATION) {
 		
-			// own current position overlay
-			_customMyLocOverlay = new CustomMyLocationOverlay();
-			overlays.add(_customMyLocOverlay);
-		} else {
-			
-			// build-in current position overlay
-			_myLocOverlay = new MyLocationOverlay(this, _mapView);
-			overlays.add(_myLocOverlay);
-		}
+		// own current position overlay
+		_customMyLocOverlay = new CustomMyLocationOverlay();
+		overlays.add(_customMyLocOverlay);
 		
 		// photos overlay
 		_photosOverlay = new PhotosOverlay();
@@ -340,9 +342,6 @@ public final class PhotoMapActivity extends MapActivity {
     	
     	// let photos model check if the available photos have changed
     	Photos.getInstance().updatePhotos(this);
-    	
-    	// enable location and compass overlay
-		if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.enableMyLocation();
     }
     
     /**
@@ -353,9 +352,6 @@ public final class PhotoMapActivity extends MapActivity {
     @Override
     public void onStop() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onStop");
-
-    	// disable location and compass overlay
-    	if (! PhotoCompassApplication.USE_DUMMY_LOCATION) _myLocOverlay.disableMyLocation();
 		
     	if (_boundToLocationService) {
 	    	
@@ -436,8 +432,8 @@ public final class PhotoMapActivity extends MapActivity {
 			// update viewing direction overlay
 			_viewDirOverlay.updateLocation(currentLocation);
 			
-			// add the current position overlay manually, as the one from _myLocOverlay is always displayed at the real location
-			if (PhotoCompassApplication.USE_DUMMY_LOCATION) _customMyLocOverlay.update(currentLocation);
+			// update current position overlay
+			_customMyLocOverlay.update(currentLocation);
     	}
 		
     	if (modelChanged) {

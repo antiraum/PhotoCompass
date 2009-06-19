@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.model.data;
 
-import android.widget.AbsoluteLayout.LayoutParams;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
+import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout.LayoutParams;
 
 /**
  * This class is a custom data type for photo metrics.
@@ -15,8 +16,8 @@ public final class PhotoMetrics {
 	private int _y = 0;
 	private int _width = 0;
 	private int _height = 0;
-	private LayoutParams _layoutParams; // layout parameters for AbsoluteLayout
-	private LayoutParams _minimizedLayoutParams; // layout parameters for AbsoluteLayout
+	private LayoutParams _layoutParams; // layout parameters for SimpleAbsoluteLayout
+	private LayoutParams _minimizedLayoutParams; // layout parameters for SimpleAbsoluteLayout
 
 	/**
 	 * @param left Left position.
@@ -40,7 +41,6 @@ public final class PhotoMetrics {
 	public void setTop(final int top) {
 		_y = top;
 		_setLayoutParams();
-		_setMinimizedLayoutParams();
 	}
 
 	/**
@@ -72,7 +72,6 @@ public final class PhotoMetrics {
 	public void setHeight(final int height) {
 		_height = height;
 		_setLayoutParams();
-		_setMinimizedLayoutParams();
 	}
 
 	/**
@@ -101,21 +100,23 @@ public final class PhotoMetrics {
 	}
 	
 	/**
-	 * @return {@link LayoutParams} for an {@link android.widget.AbsoluteLayout}.
+	 * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout}.
 	 */
 	public LayoutParams getLayoutParams() {
 		return _layoutParams;
 	}
 	
 	private void _setMinimizedLayoutParams() {
-    	// minimized photos are displayed with MINIMIZED_PHOTO_HEIGHT at the same bottom position as unminimized
-		_minimizedLayoutParams = new LayoutParams(_width, MINIMIZED_PHOTO_HEIGHT, _x, _y + _height - MINIMIZED_PHOTO_HEIGHT);
+    	// minimized photos are displayed with unchanged width and MINIMIZED_PHOTO_HEIGHT
+		_minimizedLayoutParams = new LayoutParams(_width, MINIMIZED_PHOTO_HEIGHT, _x, 0);
 	}
 
 	/**
-	 * @return {@link LayoutParams} for an {@link android.widget.AbsoluteLayout} for a photo in minimized state.
+	 * @param availableHeight Height at which bottom the minimized photos should be displayed.
+	 * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout} for a photo in minimized state.
 	 */
-	public LayoutParams getMinimizedLayoutParams() {
+	public LayoutParams getMinimizedLayoutParams(final int availableHeight) {
+		_minimizedLayoutParams.y = availableHeight - MINIMIZED_PHOTO_HEIGHT;
 		return _minimizedLayoutParams;
 	}
 }
