@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
-import android.view.ViewGroup.LayoutParams;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -33,6 +32,7 @@ import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.views.layouts.RotateView;
 import de.fraunhofer.fit.photocompass.views.overlays.CustomMyLocationOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.PhotosOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.ViewingDirectionOverlay;
@@ -51,6 +51,7 @@ public final class PhotoMapActivity extends MapActivity {
 	double currentAlt = 0; // package scoped for faster access by inner classes
 	float currentYaw = 0; // package scoped for faster access by inner classes
 
+	private RotateView _rotateView;
 	private MapView _mapView;
 	private MapController _mapController;
 	
@@ -199,6 +200,7 @@ public final class PhotoMapActivity extends MapActivity {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 		    		startActivity(new Intent(mapActivity, FinderActivity.class));
 			        finish(); // close this activity
+					System.gc(); // good point to run the GC
 		    	}
 	    	}
 	    	
@@ -299,7 +301,10 @@ public final class PhotoMapActivity extends MapActivity {
 		_mapView.setClickable(true);
 		_mapView.setEnabled(true);
 		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
-		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        _rotateView = new RotateView(this);
+        _rotateView.addView(_mapView);
+        setContentView(_rotateView);
 		
 		// viewing direction overlay
 		_viewDirOverlay = new ViewingDirectionOverlay();
@@ -446,8 +451,8 @@ public final class PhotoMapActivity extends MapActivity {
     		
     		// update photos
     		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos()));
-    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos()));
+    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.photos, false, true));
+    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.photos, false, true));
     	}
 		
     	if (yawChanged) {
@@ -458,6 +463,9 @@ public final class PhotoMapActivity extends MapActivity {
  
 		// redraw map
 		_mapView.postInvalidate();
+		
+		// rotate
+		if (yawChanged) _rotateView.setHeading(currentYaw);
 	}
     
     /**
