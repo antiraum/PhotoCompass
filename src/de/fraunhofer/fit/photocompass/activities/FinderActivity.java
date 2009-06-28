@@ -41,6 +41,7 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
 public final class FinderActivity extends Activity {
 
     private static final int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
+    private static int DISPLAY_HEIGHT = 320; // including status bar height
     private static final int BOTTOM_CONTROLS_HEIGHT = 25 + ControlsView.CONTROL_SIDE_PADDING + ControlsView.AGE_CONTROL_EXTRA_PADDING;
 
 	FinderActivity finderActivity; // package scoped for faster access by inner classes
@@ -52,8 +53,10 @@ public final class FinderActivity extends Activity {
 	
 	private CompassView _compassView;
     PhotosView photosView; // package scoped for faster access by inner classes
+    private long _lastCompassViewUpdate;
 	private long _lastPhotoViewUpdate;
-	private static final int PHOTO_VIEW_UPDATE_IVAL = 300; // in milliseconds
+	private static final int COMPASS_VIEW_UPDATE_IVAL = 100; // in milliseconds
+	private static final int PHOTO_VIEW_UPDATE_IVAL = 250; // in milliseconds
 
     ILocationService locationService; // package scoped for faster access by inner classes
     private boolean _boundToLocationService;
@@ -79,8 +82,14 @@ public final class FinderActivity extends Activity {
 	        	if (isFinishing()) return false; // activity is finishing, we don't do anything anymore
 	        	
 	        	// pass on to photos view
-	        	return photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
-	        							   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
+	        	boolean returnVal = photosView.onFling(event1.getRawX(), event1.getRawY() - STATUSBAR_HEIGHT,
+	        							   			   event2.getRawX(), event2.getRawY() - STATUSBAR_HEIGHT);
+	        	
+	        	// recycle events
+//	        	event1.recycle();
+//	        	event2.recycle();
+	        	
+	        	return returnVal;
 	        }
 	        
 	        /**
@@ -92,7 +101,12 @@ public final class FinderActivity extends Activity {
 	        	if (isFinishing()) return false; // activity is finishing, we don't do anything anymore
 	        	
 	        	// pass on to photos view
-	        	return photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
+	        	boolean returnVal = photosView.onSingleTapUp(event.getRawX(), event.getRawY() - STATUSBAR_HEIGHT);
+	        	
+	        	// recycle event
+//	        	event.recycle();
+	        	
+	        	return returnVal;
 	        }
 	    });
 
@@ -239,6 +253,7 @@ public final class FinderActivity extends Activity {
 		    			startActivity(new Intent(finderActivity, DummyMapActivity.class));
 		    		}
 			        finish(); // close this activity
+					System.gc(); // good point to run the GC
 		    	}
 	    	}
 
@@ -333,9 +348,28 @@ public final class FinderActivity extends Activity {
      * Passes the event on to the {@link #_gestureDetector}.
      */
     public boolean onTouchEvent(final MotionEvent event) {
-    	if (photosView == null || // photos view not yet created
-    		isFinishing()) return false;
-        return _gestureDetector.onTouchEvent(event);
+    	
+    	if (isFinishing()) {
+//    		event.recycle();
+    		return false;
+    	}
+		
+		boolean returnVal = true;
+		if (photosView == null || // photos view not yet created
+			event.getRawX() < ControlsView.CONTROL_SIDE_PADDING + ControlsView.DISTANCE_CONTROL_WIDTH || // over distance control
+			event.getRawY() > DISPLAY_HEIGHT - BOTTOM_CONTROLS_HEIGHT // over age control
+			) returnVal = false;
+		returnVal = _gestureDetector.onTouchEvent(event);
+    	
+    	// sleep to avoid event flooding
+//    	try {
+//			Thread.sleep(PhotoCompassApplication.SLEEP_ON_TOUCH_EVENT);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+
+//		event.recycle();
+        return returnVal;
     }
     
     /**
@@ -352,9 +386,10 @@ public final class FinderActivity extends Activity {
         // initialize views
         final FinderView finderView = new FinderView(this);
         final Display display = getWindowManager().getDefaultDisplay();
-        _compassView = new CompassView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        photosView = new PhotosView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        final ControlsView controlsView = new ControlsView(this, display.getWidth(), display.getHeight() - STATUSBAR_HEIGHT);
+        DISPLAY_HEIGHT = display.getHeight();
+        _compassView = new CompassView(this, display.getWidth(), DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
+        photosView = new PhotosView(this, display.getWidth(), DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
+        final ControlsView controlsView = new ControlsView(this, display.getWidth(), DISPLAY_HEIGHT - STATUSBAR_HEIGHT);
 
         // setup views
         setContentView(finderView);
@@ -449,6 +484,10 @@ public final class FinderActivity extends Activity {
      * Updates the compass view based on the current viewing direction.
      */
     void updateCompassView() {
+    	// redraw the view only if last redraw older than COMPASS_VIEW_UPDATE_IVAL
+		if (SystemClock.uptimeMillis() - _lastCompassViewUpdate < COMPASS_VIEW_UPDATE_IVAL) return;
+		_lastCompassViewUpdate = SystemClock.uptimeMillis();
+		
     	_compassView.update(currentYaw);
     }
     
@@ -482,9 +521,8 @@ public final class FinderActivity extends Activity {
     		
     		// update photos
     		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-    		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.getPhotos()),
-    															    doRedrawHere);
-    		photosView.removePhotos(_photosModel.getNoLongerVisiblePhotos(photosView.getPhotos()));
+    		photosView.addPhotos(_photosModel.getNewlyVisiblePhotos(photosView.photos, true, true), doRedrawHere);
+    		photosView.removePhotos(_photosModel.getNoLongerVisiblePhotos(photosView.photos, true, true));
     	}
     	
     	if (latChanged || lngChanged || altChanged) {
@@ -526,7 +564,7 @@ public final class FinderActivity extends Activity {
      */
     private void _updateCurrentPhotosProperties() {
     	Photo photo;
-    	for (int id : photosView.getPhotos()) {
+    	for (int id : photosView.photos) {
     		photo = _photosModel.getPhoto(id);
     		if (photo != null) photo.updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
     	}

@@ -94,7 +94,7 @@ public final class Photos {
 	    Cursor mediaCursor, thumbCursor;
 	    int idCol, latCol, lngCol, dateCol, thumbCol;
 	    int id; double lat, lng; String date, thumb;
-	    uris: for (int i = 0; i < mediaUris.length; i++) {
+	    URIS: for (int i = 0; i < mediaUris.length; i++) {
 //            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updatePhotos: uri = "+mediaUris[i].toString());
             
             // get cursor
@@ -138,7 +138,7 @@ public final class Photos {
                 }
     	        
                 thumbCursor = activity.managedQuery(thumbUris[i], thumbColumns, Thumbnails.IMAGE_ID+"='"+id+"'", null, null);
-    		    if (thumbCursor == null || thumbCursor.getCount() == 0) continue uris;
+    		    if (thumbCursor == null || thumbCursor.getCount() == 0) continue URIS;
 
     	    	thumbCol = thumbCursor.getColumnIndex(Thumbnails.DATA);
 //                Log.d(PhotoCompassApplication.LOG_TAG, "Photos: thumbCol = "+thumbCol);
@@ -180,16 +180,22 @@ public final class Photos {
     /**
      * Determines which photos are newly visible for the current viewing settings.
      * 
-     * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
-     * @return				ArrayList with photo/resource ids of the newly visible photos.
+     * @param currentPhotos   ArrayList with photo/resource ids of the currently displayed photos.
+     * @param limitByDistance Consider minimum and maximum distance settings.
+     * @param limitByAge	  Consider minimum and maximum age settings.
+     * @return				  ArrayList with photo/resource ids of the newly visible photos.
      */
-    public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos) {
+    public ArrayList<Integer> getNewlyVisiblePhotos(final ArrayList<Integer> currentPhotos,
+    												final boolean limitByDistance, final boolean limitByAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
+    	int numPhotos;
     	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
-            for (int i = 0; i < photos.size(); i++) {
-	    		if (_isPhotoVisible(photos.valueAt(i)) && ! currentPhotos.contains(photos.keyAt(i))) results.add(photos.keyAt(i));
+    		numPhotos = photos.size();
+            for (int i = 0; i < numPhotos; i++) {
+	    		if (_isPhotoVisible(photos.valueAt(i), limitByDistance, limitByAge) &&
+	    			! currentPhotos.contains(photos.keyAt(i))) results.add(photos.keyAt(i));
 	    	}
     	}
     	
@@ -200,16 +206,19 @@ public final class Photos {
      * Determines which photos are no longer visible for the current viewing settings.
      * 
      * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
+     * @param limitByDistance Consider minimum and maximum distance settings.
+     * @param limitByAge	  Consider minimum and maximum age settings.
      * @return				ArrayList with photo/resource ids of the no longer visible photos.
      */
-    public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos) {
+    public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos,
+													   final boolean limitByDistance, final boolean limitByAge) {
     	
     	ArrayList<Integer> results = new ArrayList<Integer>();
     	
     	Photo photo;
     	for (int id : currentPhotos) {
     		photo = getPhoto(id);
-    		if (photo == null || ! _isPhotoVisible(photo)) results.add(id);
+    		if (photo == null || ! _isPhotoVisible(photo, limitByDistance, limitByAge)) results.add(id);
     	}
     	
     	return results;
@@ -218,19 +227,24 @@ public final class Photos {
     /**
      * Checks if a photo is visible with the current settings.
      * 
-     * @param photo		  Photo to check.
-     * @return			  <code>true</code> if photo is visible, or
-     * 					  <code>false</code> if photo is not visible.
+     * @param photo		      Photo to check.
+     * @param limitByDistance Consider minimum and maximum distance settings.
+     * @param limitByAge	  Consider minimum and maximum age settings.
+     * @return			      <code>true</code> if photo is visible, or
+     * 					      <code>false</code> if photo is not visible.
      */
-    private boolean _isPhotoVisible(final Photo photo) {
+    private boolean _isPhotoVisible(final Photo photo,
+			   						final boolean limitByDistance, final boolean limitByAge) {
 	    ApplicationModel appModel = ApplicationModel.getInstance();
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: id = "+photo.getId());
-		if (photo.getDistance() < appModel.getMinDistance() || photo.getDistance() > appModel.getMaxDistance()) { // photo is too close or too far away
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away: photo.getDistance() = "+photo.getDistance());
+		if (limitByDistance &&
+			photo.distance < appModel.minDistance || photo.distance > appModel.maxDistance) { // photo is too close or too far away
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too close or too far away: photo.distance = "+photo.distance);
 			return false;
 		}
 		final long photoAge = photo.getAge();
-		if (photoAge < appModel.getMinAge() || photoAge > appModel.getMaxAge()) { // photo is too young or too old
+		if (limitByAge &&
+			photoAge < appModel.minAge || photoAge > appModel.maxAge) { // photo is too young or too old
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too young or too old");
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photoAge = "+photoAge+", minAge = "+minAge+", maxAge = "+maxAge);
 			return false;
@@ -246,8 +260,10 @@ public final class Photos {
      * @param alt Current altitude.
      */
     public void updatePhotoProperties(final double lat, final double lng, final double alt) {
+    	int numPhotos;
     	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
-            for (int i = 0; i < photos.size(); i++) photos.valueAt(i).updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
+    		numPhotos = photos.size();
+            for (int i = 0; i < numPhotos; i++) photos.valueAt(i).updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
     	}
     	updateAppModelMinMaxValues();
     }
@@ -256,13 +272,15 @@ public final class Photos {
 	    ApplicationModel appModel = ApplicationModel.getInstance();
 	    float maxDistance = 0;
 	    long maxAge = 0;
+    	int numPhotos;
 	    Photo photo;
 	    float dist;
 	    long age;
     	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
-            for (int i = 0; i < photos.size(); i++) {
+    		numPhotos = photos.size();
+            for (int i = 0; i < numPhotos; i++) {
             	photo = photos.valueAt(i);
-            	dist = photo.getDistance();
+            	dist = photo.distance;
             	if (dist == 0) continue; // photo properties not set
             	if (dist > maxDistance && dist <= appModel.MAX_DISTANCE_LIMIT) maxDistance = dist;
             	age = photo.getAge();
@@ -270,6 +288,8 @@ public final class Photos {
             }
     	}
     	appModel.setMaxMaxDistance(maxDistance);
+    	maxAge += 60 * 60 * 1000; // as the photo age is always calculated from the current time we add a buffer of one hour
+    	                          // which should be enough for any usage time of the application
     	appModel.setMaxMaxAge(maxAge);
     }
 	
@@ -293,14 +313,14 @@ public final class Photos {
 	    // dummy photos (stuff near FIT)
 	    _dummies.append(R.drawable.fit_11067049, new Photo(R.drawable.fit_11067049, Location.convert("50:45:8.10"), Location.convert("7:12:28.59"), 105, dateTime));
 	    _dummies.append(R.drawable.fit_4138394, new Photo(R.drawable.fit_4138394, Location.convert("50:45:20.71"), Location.convert("7:11:53.83"), 145, dateTime));
-	    _dummies.append(R.drawable.fit_11092935, new Photo(R.drawable.fit_11092935, Location.convert("50:45:23.27"), Location.convert("7:12:16.96"), 160, dateTime));
+//	    _dummies.append(R.drawable.fit_11092935, new Photo(R.drawable.fit_11092935, Location.convert("50:45:23.27"), Location.convert("7:12:16.96"), 160, dateTime));
 	    _dummies.append(R.drawable.fit_12610213, new Photo(R.drawable.fit_12610213, Location.convert("50:45:19.29"), Location.convert("7:12:52.97"), 100, dateTime));
-	    _dummies.append(R.drawable.fit_14308427, new Photo(R.drawable.fit_14308427, Location.convert("50:44:56.21"), Location.convert("7:13:16.02"), 120, dateTime));
-	    _dummies.append(R.drawable.fit_8503628, new Photo(R.drawable.fit_8503628, Location.convert("50:44:29.47"), Location.convert("7:10:53.81"), 125, dateTime));
+//	    _dummies.append(R.drawable.fit_14308427, new Photo(R.drawable.fit_14308427, Location.convert("50:44:56.21"), Location.convert("7:13:16.02"), 120, dateTime));
+//	    _dummies.append(R.drawable.fit_8503628, new Photo(R.drawable.fit_8503628, Location.convert("50:44:29.47"), Location.convert("7:10:53.81"), 125, dateTime));
 	    _dummies.append(R.drawable.fit_3038737, new Photo(R.drawable.fit_3038737, Location.convert("50:43:49.21"), Location.convert("7:13:11.66"), 123, dateTime));
-	    _dummies.append(R.drawable.fit_4410168, new Photo(R.drawable.fit_4410168, Location.convert("50:45:22.80"), Location.convert("7:13:56.62"), 122, dateTime));
-		_dummies.append(R.drawable.fit_12610204, new Photo(R.drawable.fit_12610204, Location.convert("50:45:17.73"), Location.convert("7:12:51.92"), 126, dateTime));
-		_dummies.append(R.drawable.fit_14308344, new Photo(R.drawable.fit_14308344, Location.convert("50:44:57.02"), Location.convert("7:13:24.18"), 127, dateTime));
+//	    _dummies.append(R.drawable.fit_4410168, new Photo(R.drawable.fit_4410168, Location.convert("50:45:22.80"), Location.convert("7:13:56.62"), 122, dateTime));
+//		_dummies.append(R.drawable.fit_12610204, new Photo(R.drawable.fit_12610204, Location.convert("50:45:17.73"), Location.convert("7:12:51.92"), 126, dateTime));
+//		_dummies.append(R.drawable.fit_14308344, new Photo(R.drawable.fit_14308344, Location.convert("50:44:57.02"), Location.convert("7:13:24.18"), 127, dateTime));
 		_dummies.append(R.drawable.fit_1798151678_af72c8f78d, new Photo(R.drawable.fit_1798151678_af72c8f78d, Location.convert("50:44:58"), Location.convert("7:12:21"), 126, dateTime));
 		_dummies.append(R.drawable.fit_2580082727_1faf043ec1, new Photo(R.drawable.fit_2580082727_1faf043ec1, Location.convert("50:44:5"), Location.convert("7:12:19"), 125, dateTime));
 		_dummies.append(R.drawable.fit_2417313476_d588a4e2b5, new Photo(R.drawable.fit_2417313476_d588a4e2b5, Location.convert("50:44:56"), Location.convert("7:12:23"), 124, dateTime));
