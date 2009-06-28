@@ -44,6 +44,8 @@ public final class PhotoCompassApplication extends Application {
     // dummy photo settings (enable for development when a fixed set of photos is needed)
     public static final boolean USE_DUMMY_PHOTOS = false;
     
+    public static final long SLEEP_ON_TOUCH_EVENT = 16L; // time to sleep after a touch event to avoid event flooding (in milliseconds) 
+    
     /**
      * Constructor.
      * Initializes the models {@link ApplicationModel} and {@link Photos}.
@@ -71,16 +73,13 @@ public final class PhotoCompassApplication extends Application {
      * Returns the activity constant for a roll value from the orientation sensor.
      * Is used by the activities to determine when they have to switch to another activity.
      * 
-     * @param roll Roll value of the orientation sensor (values from -180 to 180).
+     * @param roll Roll value of the orientation sensor (values from -180 to 180 (on sensor simulator) / -90 to 90 mirrored (on G1)).
      * @return Activity constant of the correct activity at this roll value.
      * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
      * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
     public static int getActivityForRoll(final float roll) {
-    	if ((roll > -135 && roll < -45) || (roll > 45 && roll < 135)) {
-    		return FINDER_ACTIVITY;
-    	} else {
-    		return MAP_ACTIVITY;
-    	}
+//    	Log.d(LOG_TAG, "roll = "+roll);
+    	return (roll > -45 && roll < 45) ? MAP_ACTIVITY : FINDER_ACTIVITY;
     }
 }
