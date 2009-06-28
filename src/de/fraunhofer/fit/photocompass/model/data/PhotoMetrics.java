@@ -12,91 +12,63 @@ public final class PhotoMetrics {
 	public static final int MINIMIZED_PHOTO_HEIGHT = 30; // height of a minimized photo in the PhotosView 
 	public static final int MAPS_MINIMIZED_PHOTO_HEIGHT = 20; // height of a minimized photo in the PhotosOverlay
 	
-	private int _x;
-	private int _y = 0;
-	private int _width = 0;
-	private int _height = 0;
+	public int left = 0; // Left position
+	public int top = 0; // Top position
+	public int width = 0;
+	public int height = 0;
 	private LayoutParams _layoutParams; // layout parameters for SimpleAbsoluteLayout
 	private LayoutParams _minimizedLayoutParams; // layout parameters for SimpleAbsoluteLayout
 
 	/**
 	 * @param left Left position.
 	 */
-	public void setLeft(final int left) {
-		_x = left;
+	public void setLeft(final int value) {
+		left = value;
 		_setLayoutParams();
 		_setMinimizedLayoutParams();
-	}
-
-	/**
-	 * @return Left position.
-	 */
-	public int getLeft() {
-		return _x;
 	}
 
 	/**
 	 * @param top Top position.
 	 */
-	public void setTop(final int top) {
-		_y = top;
+	public void setTop(final int value) {
+		top = value;
 		_setLayoutParams();
-	}
-
-	/**
-	 * @return Top position.
-	 */
-	public int getTop() {
-		return _y;
 	}
 
 	/**
 	 * @param width
 	 */
-	public void setWidth(final int width) {
-		_width = width;
+	public void setWidth(final int value) {
+		width = value;
 		_setLayoutParams();
 		_setMinimizedLayoutParams();
 	}
 
 	/**
-	 * @return Width
-	 */
-	public int getWidth() {
-		return _width;
-	}
-
-	/**
 	 * @param height
 	 */
-	public void setHeight(final int height) {
-		_height = height;
+	public void setHeight(final int value) {
+		height = value;
 		_setLayoutParams();
-	}
-
-	/**
-	 * @return Height
-	 */
-	public int getHeight() {
-		return _height;
 	}
 
 	/**
 	 * @return Right position.
 	 */
 	public int getRight() {
-		return _x + _width;
+		return left + width;
 	}
 
 	/**
 	 * @return Bottom position.
 	 */
 	public int getBottom() {
-		return _y + _height;
+		return top + height;
 	}
 	
 	private void _setLayoutParams() {
-		_layoutParams = new LayoutParams(_width, _height, _x, _y);
+		_layoutParams = new LayoutParams(width, height, left, top);
 	}
 	
 	/**
@@ -108,7 +80,7 @@ public final class PhotoMetrics {
 	
 	private void _setMinimizedLayoutParams() {
     	// minimized photos are displayed with unchanged width and MINIMIZED_PHOTO_HEIGHT
-		_minimizedLayoutParams = new LayoutParams(_width, MINIMIZED_PHOTO_HEIGHT, _x, 0);
+		_minimizedLayoutParams = new LayoutParams(width, MINIMIZED_PHOTO_HEIGHT, left, 0);
 	}
 
 	/**
