@@ -93,6 +93,7 @@ public final class DummyMapActivity extends Activity {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
 		        finish(); // close this activity
+				System.gc(); // good point to run the GC
 	    	}
         }
     };
@@ -135,7 +136,8 @@ public final class DummyMapActivity extends Activity {
         // connect to orientation service
     	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
-    	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
+    	if (! _boundToOrientationService)
+    		Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
     }
     
     /**
