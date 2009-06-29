@@ -79,6 +79,9 @@ public final class LocationService extends Service {
 	 */
 	final LocationListener locationListener = new LocationListener() {
 		
+		private double _lastLat = 0;
+		private double _lastLng = 0;
+		
 		/**
 		 * Called when the location has changed.
 		 * Broadcasts the new location to all registered callbacks.
@@ -88,15 +91,27 @@ public final class LocationService extends Service {
 			if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
 			
 			if (location == null) return;
+
+			final double lat = location.getLatitude();
+			final double lng = location.getLongitude();
+			
+			// Check the distance between last and new location and only update if greater than the minimum distance
+			// change. Otherwise we get too many updates because of bad altitude values. 
+			float[] results = new float[1];
+			Location.distanceBetween(_lastLat, _lastLng, lat, lng, results);
+			if (results[0] < MIN_LOCATION_UPDATE_DISTANCE) return;
+			_lastLat = lat;
+			_lastLng = lng;
 			
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
 			
 	        // broadcast the new location to all registered callbacks
+			final boolean hasAlt = location.hasAltitude();
+			final double alt = location.getAltitude(); 
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
-	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(location.getLatitude(), location.getLongitude(),
-	                													location.hasAltitude(), location.getAltitude());
+	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(lat, lng, hasAlt, alt);
 	            } catch (final DeadObjectException e) {
 	                // the RemoteCallbackList will take care of removing the dead object
 	            } catch (final RemoteException e) {
@@ -143,6 +158,7 @@ public final class LocationService extends Service {
 		    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onStatusChanged: provider = "+provider+
 		    										   ", status = TEMPORARILY_UNAVAILABLE");
 	    		chooseLocationProvider(locationProvider); // look for better provider 
+	    		// TODO make a time limit for TEMPORARILY_UNAVAILABLE / if exceeded switch to any other available provider
 	    	}
 		}
     };
