@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -118,8 +119,13 @@ public final class PhotoMapActivity extends MapActivity {
         public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
         	
         	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-        	
-        	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
+			
+			// Check the distance between last and new location and only update if greater than the minimum
+        	// update distance. Otherwise we get too many updates because of invalid altitude values. 
+			float[] results = new float[1];
+			Location.distanceBetween(currentLat, currentLng, lat, lng, results);
+//			Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: distance = "+results[0]);
+			if (results[0] < LocationService.MIN_LOCATION_UPDATE_DISTANCE) return;
         	
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);

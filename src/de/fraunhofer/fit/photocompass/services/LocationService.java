@@ -25,8 +25,8 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 public final class LocationService extends Service {
 	
-	private static int MIN_LOCATION_UPDATE_TIME = 30 * 1000; // in milliseconds
-	private static int MIN_LOCATION_UPDATE_DISTANCE = 5; // in meters
+	private static int MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000; // in milliseconds
+	public static int MIN_LOCATION_UPDATE_DISTANCE = 6; // in meters
 	
 	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000; // in milliseconds
     private final Handler _providerCheckHandler = new Handler();
@@ -79,9 +79,6 @@ public final class LocationService extends Service {
 	 */
 	final LocationListener locationListener = new LocationListener() {
 		
-		private double _lastLat = 0;
-		private double _lastLng = 0;
-		
 		/**
 		 * Called when the location has changed.
 		 * Broadcasts the new location to all registered callbacks.
@@ -91,21 +88,12 @@ public final class LocationService extends Service {
 			if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
 			
 			if (location == null) return;
-
-			final double lat = location.getLatitude();
-			final double lng = location.getLongitude();
-			
-			// Check the distance between last and new location and only update if greater than the minimum distance
-			// change. Otherwise we get too many updates because of bad altitude values. 
-			float[] results = new float[1];
-			Location.distanceBetween(_lastLat, _lastLng, lat, lng, results);
-			if (results[0] < MIN_LOCATION_UPDATE_DISTANCE) return;
-			_lastLat = lat;
-			_lastLng = lng;
 			
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
 			
 	        // broadcast the new location to all registered callbacks
+			final double lat = location.getLatitude();
+			final double lng = location.getLongitude();
 			final boolean hasAlt = location.hasAltitude();
 			final double alt = location.getAltitude(); 
 	        final int numCallbacks = remoteCallbacks.beginBroadcast();
@@ -166,7 +154,7 @@ public final class LocationService extends Service {
     public LocationService() {
     	// the emulator is always getting new locations with a great variety
     	if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
-	    	MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000; // in milliseconds
+	    	MIN_LOCATION_UPDATE_TIME = 5 * 60 * 1000; // in milliseconds
 	    	MIN_LOCATION_UPDATE_DISTANCE = 1000; // in meters
     	}
     }
