@@ -609,7 +609,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     	if (action == MotionEvent.ACTION_UP) {
         	// sleep to avoid event flooding
         	try {
-//				Log.w(PhotoCompassApplication.LOG_TAG, "PhotosView: sleep");
+//				Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: sleep");
     			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
     		} catch (InterruptedException e) {
     			e.printStackTrace();

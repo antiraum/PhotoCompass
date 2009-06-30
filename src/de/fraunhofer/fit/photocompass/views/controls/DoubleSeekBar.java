@@ -217,7 +217,7 @@ public abstract class DoubleSeekBar extends View {
 			
         	// sleep to avoid event flooding
         	try {
-//				Log.w(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: sleep");
+//				Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: sleep");
     			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
     		} catch (InterruptedException e) {
     			e.printStackTrace();
