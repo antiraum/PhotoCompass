@@ -265,10 +265,14 @@ public final class Photos {
     		numPhotos = photos.size();
             for (int i = 0; i < numPhotos; i++) photos.valueAt(i).updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
     	}
-    	updateAppModelMinMaxValues();
+    	updateAppModelMaxValues();
     }
     
-    public void updateAppModelMinMaxValues() {
+    /**
+     * Updates the maximum limits of the {@link ApplicationModel} for distance and age according to
+     * the data of the used photos.
+     */
+    public void updateAppModelMaxValues() {
 	    ApplicationModel appModel = ApplicationModel.getInstance();
 	    float maxDistance = 0;
 	    long maxAge = 0;

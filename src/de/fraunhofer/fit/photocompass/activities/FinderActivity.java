@@ -499,7 +499,7 @@ public final class FinderActivity extends Activity {
     		photo = _photosModel.getPhoto(id);
     		if (photo != null) photo.updateDistanceDirectionAndAltitudeOffset(currentLat, currentLng, currentAlt);
     	}
-    	_photosModel.updateAppModelMinMaxValues();
+    	_photosModel.updateAppModelMaxValues();
     }
     
     /**
