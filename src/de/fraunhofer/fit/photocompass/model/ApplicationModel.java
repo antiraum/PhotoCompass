@@ -94,7 +94,7 @@ public final class ApplicationModel {
 		
 		// update values
 		minDistance = value;
-		minDistanceRel = (MAX_MAX_DISTANCE == 0) ? 0F : minDistance / MAX_MAX_DISTANCE;
+		minDistanceRel = absoluteToRelativeDistance(minDistance);
 		minDistanceStr = OutputFormatter.formatDistance(minDistance);
 
 //		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxDistance: minDist = "+_minDistance+", maxDist = "+_maxDistance);
@@ -127,7 +127,7 @@ public final class ApplicationModel {
 		
 		// update values
 		maxDistance = value;
-		maxDistanceRel = (MAX_MAX_DISTANCE == 0) ? 0F : maxDistance / MAX_MAX_DISTANCE;
+		maxDistanceRel = absoluteToRelativeDistance(maxDistance);
 		maxDistanceStr = OutputFormatter.formatDistance(maxDistance);
 
 //		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxDistance: minDist = "+_minDistance+", maxDist = "+_maxDistance);
@@ -145,6 +145,16 @@ public final class ApplicationModel {
 	    }
 	    _remoteCallbacks.finishBroadcast();
 	}
+	
+	/**
+	 * Translates an absolute distance in meters to a relative distance (0..1).
+	 * 
+	 * @param absoluteDistance Distance in meters.
+	 * @return				   Distance in 0..1.
+	 */
+	public float absoluteToRelativeDistance(final float absoluteDistance) {
+		return (MAX_MAX_DISTANCE == 0) ? 0F : absoluteDistance / MAX_MAX_DISTANCE;
+	}
 
 	/**
 	 * @param value The new maximum distance for photos to be displayed. From 0..1.
@@ -160,7 +170,7 @@ public final class ApplicationModel {
 		
 		// update values
 		minAge = value;
-		minAgeRel = (MAX_MAX_AGE == 0) ? 0F : (float) minAge / (float) MAX_MAX_AGE;
+		minAgeRel = absoluteToRelativeAge(minAge);
 		minAgeStr = OutputFormatter.formatAge(minAge);
 		
 		// broadcast change
@@ -193,7 +203,7 @@ public final class ApplicationModel {
 		
 		// update values
 		maxAge = value;
-		maxAgeRel = (MAX_MAX_AGE == 0) ? 0F : (float) maxAge / (float) MAX_MAX_AGE;
+		maxAgeRel = absoluteToRelativeAge(maxAge);
 		maxAgeStr = OutputFormatter.formatAge(maxAge);
 		
 		// broadcast change
@@ -208,6 +218,16 @@ public final class ApplicationModel {
 	        }
 	    }
 	    _remoteCallbacks.finishBroadcast();
+	}
+	
+	/**
+	 * Translates an absolute age in milliseconds to a relative age (0..1).
+	 * 
+	 * @param absoluteAge Age in milliseconds.
+	 * @return		      Age in 0..1.
+	 */
+	public float absoluteToRelativeAge(final long absoluteAge) {
+		return (MAX_MAX_AGE == 0) ? 0F : (float) absoluteAge / (float) MAX_MAX_AGE;
 	}
 
 	/**
