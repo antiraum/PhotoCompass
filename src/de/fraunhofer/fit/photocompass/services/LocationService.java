@@ -25,10 +25,10 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 public final class LocationService extends Service {
 	
-	private static int MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000; // in milliseconds
-	public static int MIN_LOCATION_UPDATE_DISTANCE = 6; // in meters
+	private static long MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000L; // in milliseconds
+	public static float MIN_LOCATION_UPDATE_DISTANCE = 10F; // in meters
 	
-	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000; // in milliseconds
+	private static final long CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000L; // in milliseconds
     private final Handler _providerCheckHandler = new Handler();
     private final Runnable _providerCheckCaller = new Runnable() {
         public void run() {
