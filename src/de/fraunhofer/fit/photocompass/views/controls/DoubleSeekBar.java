@@ -160,7 +160,7 @@ public abstract class DoubleSeekBar extends View {
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
 		final int action = event.getAction();
-    	Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: onTouchEvent: action = "+action);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: onTouchEvent: action = "+action);
 		final float touchX = event.getX();
 		final float touchY = event.getY();
 		final float newValue = convertToAbstract(getEventCoordinate(event));
@@ -217,6 +217,7 @@ public abstract class DoubleSeekBar extends View {
 			
         	// sleep to avoid event flooding
         	try {
+//				Log.w(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: sleep");
     			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
     		} catch (InterruptedException e) {
     			e.printStackTrace();

@@ -601,7 +601,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	@Override
     public boolean onTouchEvent(final MotionEvent event) {
 		final int action = event.getAction();
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onTouchEvent: action = "+action);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onTouchEvent: action = "+action);
     	
     	// pass on to gesture detector
     	_gestureDetector.onTouchEvent(event);
@@ -609,6 +609,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     	if (action == MotionEvent.ACTION_UP) {
         	// sleep to avoid event flooding
         	try {
+//				Log.w(PhotoCompassApplication.LOG_TAG, "PhotosView: sleep");
     			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
     		} catch (InterruptedException e) {
     			e.printStackTrace();
