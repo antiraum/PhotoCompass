@@ -60,10 +60,10 @@ final class PhotoView extends SimpleAbsoluteLayout {
         
         // distance
 		stringBuilder.append(_photo.getFormattedDistance());
-        stringBuilder.append(" away\n");
+        stringBuilder.append(" away");
         
         // altitude offset
-    	stringBuilder.append(_photo.getFormattedAltOffset());
+//    	stringBuilder.append(_photo.getFormattedAltOffset());
         
         _textView.setText(stringBuilder.toString());
 	}
@@ -85,13 +85,14 @@ final class PhotoView extends SimpleAbsoluteLayout {
 			if (_photo.isDummyPhoto()) {
 				rawBmp = BitmapFactory.decodeResource(getResources(), _photo.getId());
 			} else {
-				rawBmp = BitmapFactory.decodeFile(_photo.getThumbUri().getPath());
+				rawBmp = BitmapFactory.decodeFile(_photo.thumbUri.getPath());
 			}
 			if (rawBmp == null) { // file does not exists
 		    	return;
 			}
 			_imgView.setImageBitmap(Bitmap.createScaledBitmap(rawBmp, _width, _height, true));
 			rawBmp.recycle();
+			rawBmp = null;
 		}
 		
         super.setLayoutParams(params);
