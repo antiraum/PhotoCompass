@@ -114,10 +114,10 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         public boolean onFling(final MotionEvent event1, final MotionEvent event2, final float velocityX, final float velocityY) {
         	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling");
         	
-        	float startX = event1.getX();
-        	float startY = event1.getY();
-        	float endX = event2.getX();
-        	float endY = event2.getY();
+        	final float startX = event1.getX();
+        	final float startY = event1.getY();
+        	final float endX = event2.getX();
+        	final float endY = event2.getY();
         	
         	if (Math.abs(startX - endX) > Math.abs(startY - endY)) return false; // fling in horizontal direction
 
@@ -181,8 +181,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         public boolean onSingleTapUp(final MotionEvent event) {
         	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp");
         	
-        	float eventX = event.getX();
-        	float eventY = event.getY();
+        	final float eventX = event.getX();
+        	final float eventY = event.getY();
 
         	// tap tolerance
         	int y_tap_tolerance = 0;
@@ -351,8 +351,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	private void _sortPhotos() {
 		Collections.sort(photos, new Comparator<Integer>() {
 	    	public int compare(final Integer id1, final Integer id2) {
-	    		Photo photo1 = _photosModel.getPhoto(id1);
-	    		Photo photo2 = _photosModel.getPhoto(id2);
+	    		final Photo photo1 = _photosModel.getPhoto(id1);
+	    		final Photo photo2 = _photosModel.getPhoto(id2);
 	    		if (photo1 == null || photo2 == null) return 0;
 	    		if (photo1.distance > photo2.distance) return -1;
 	    		return 1;
