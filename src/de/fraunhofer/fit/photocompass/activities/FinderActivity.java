@@ -203,7 +203,7 @@ public final class FinderActivity extends Activity {
 		    	_roll = roll;
             
 	            // switch to activity based on orientation
-	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.FINDER_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
 		    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {

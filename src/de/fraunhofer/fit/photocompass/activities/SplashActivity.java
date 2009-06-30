@@ -72,7 +72,7 @@ public final class SplashActivity extends Activity {
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
             
             // switch to activity based on orientation
-        	final int activity = PhotoCompassApplication.getActivityForRoll(roll);
+        	final int activity = PhotoCompassApplication.getActivityForRoll(roll, PhotoCompassApplication.SPLASH_ACTIVITY);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to finder activity");
 	    		startActivity(new Intent(splashActivity, FinderActivity.class));

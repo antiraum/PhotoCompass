@@ -201,7 +201,7 @@ public final class PhotoMapActivity extends MapActivity {
 		    	_roll = roll;
 	            
 	            // switch to activity based on orientation
-	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 		    		startActivity(new Intent(mapActivity, FinderActivity.class));

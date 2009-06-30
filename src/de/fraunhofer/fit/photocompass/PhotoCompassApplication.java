@@ -20,6 +20,7 @@ public final class PhotoCompassApplication extends Application {
     public static final int TARGET_PLATFORM = 3; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
     
     // activity constants
+    public static final int SPLASH_ACTIVITY = 0;
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
 
@@ -42,9 +43,9 @@ public final class PhotoCompassApplication extends Application {
     public static Location dummyLocation;
     
     // dummy photo settings (enable for development when a fixed set of photos is needed)
-    public static final boolean USE_DUMMY_PHOTOS = false;
+    public static final boolean USE_DUMMY_PHOTOS = true;
     
-    public static final long SLEEP_ON_TOUCH_EVENT = 16L; // time to sleep after a touch event to avoid event flooding (in milliseconds) 
+    public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds) 
     
     /**
      * Constructor.
@@ -74,12 +75,19 @@ public final class PhotoCompassApplication extends Application {
      * Is used by the activities to determine when they have to switch to another activity.
      * 
      * @param roll Roll value of the orientation sensor (values from -180 to 180 (on sensor simulator) / -90 to 90 mirrored (on G1)).
+     * @param currentActivity Current activity ({@link #FINDER_ACTIVITY} or {@link #MAP_ACTIVITY})
      * @return Activity constant of the correct activity at this roll value.
      * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
      * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
-    public static int getActivityForRoll(final float roll) {
-//    	Log.d(LOG_TAG, "roll = "+roll);
-    	return (roll > -45 && roll < 45) ? MAP_ACTIVITY : FINDER_ACTIVITY;
+    public static int getActivityForRoll(final float roll, final int currentActivity) {
+    	switch (currentActivity) {
+	    	case FINDER_ACTIVITY:
+	    		return (roll > -30 && roll < 30) ? MAP_ACTIVITY : FINDER_ACTIVITY;
+	    	case MAP_ACTIVITY:
+	    		return (roll < -60 || roll > 60) ? FINDER_ACTIVITY : MAP_ACTIVITY;
+	    	default:
+	    		return (roll > -45 && roll < 45) ? MAP_ACTIVITY : FINDER_ACTIVITY;
+    	}
     }
 }
