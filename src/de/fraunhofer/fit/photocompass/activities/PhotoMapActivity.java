@@ -125,11 +125,10 @@ public final class PhotoMapActivity extends MapActivity {
         	// update distance. Otherwise we get too many updates because of invalid altitude values. 
 			float[] results = new float[1];
 			Location.distanceBetween(currentLat, currentLng, lat, lng, results);
-//			Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: distance = "+results[0]);
 			if (results[0] < LocationService.MIN_LOCATION_UPDATE_DISTANCE) return;
         	
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
+			Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: changed by "+results[0]+" meters");
             
         	final boolean latChanged = (lat == currentLat) ? false : true;
         	final boolean lngChanged = (lng == currentLng) ? false : true;
