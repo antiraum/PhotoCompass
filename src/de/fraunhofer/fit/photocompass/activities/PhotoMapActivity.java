@@ -306,9 +306,9 @@ public final class PhotoMapActivity extends MapActivity {
         
         // map view
 		_mapView = new MapView(this, MAPS_API_KEY);
-		_mapView.setClickable(true);
+		_mapView.setClickable(false); // disable panning
 		_mapView.setEnabled(true);
-		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
+//		_mapView.setBuiltInZoomControls(true); // disabled by purpose (comment this line for target 1 compatibility)
 //		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         _rotateView = new RotateView(this);
         _rotateView.addView(_mapView);
