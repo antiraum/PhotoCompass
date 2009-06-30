@@ -39,7 +39,7 @@ public final class PhotosOverlay extends Overlay {
 	/**
 	 * Ids of the currently used photos (sorted from north to south).
 	 */
-	private final ArrayList<Integer> _photos = new ArrayList<Integer>();
+	public final ArrayList<Integer> photos = new ArrayList<Integer>();
 
 	/**
 	 * {@link PhotoMetrics} of photos (currently and previously used).
@@ -92,7 +92,7 @@ public final class PhotosOverlay extends Overlay {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: addPhotos: newPhotos.size() = "+newPhotos.size());
     	
     	// add to list of currently used photos
-		_photos.addAll(newPhotos);
+		photos.addAll(newPhotos);
 		
 		// sort photo order
 		_sortPhotos();
@@ -109,7 +109,7 @@ public final class PhotosOverlay extends Overlay {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: removePhotos: oldPhotos.size() = "+oldPhotos.size());
     	
     	// remove from list of currently used photos
-		_photos.removeAll(oldPhotos);
+		photos.removeAll(oldPhotos);
 
 		// update photo order
 		_sortPhotos();
@@ -119,7 +119,7 @@ public final class PhotosOverlay extends Overlay {
 	 * Sorts ({@link #_photos}) based on their latitude. North to south.
 	 */
 	private void _sortPhotos() {
-		Collections.sort(_photos, new Comparator<Integer>() {
+		Collections.sort(photos, new Comparator<Integer>() {
 	    	public int compare(final Integer id1, final Integer id2) {
 	    		final Photo photo1 = _photosModel.getPhoto(id1);
 	    		final Photo photo2 = _photosModel.getPhoto(id2);
@@ -128,13 +128,6 @@ public final class PhotosOverlay extends Overlay {
 	    		return 1;
 	        }
 	    });
-	}
-	
-	/**
-	 * @return The photos currently used by the view.
-	 */
-	public ArrayList<Integer> getPhotos() {
-		return _photos;
 	}
 	
 	// variables for draw
@@ -160,7 +153,7 @@ public final class PhotosOverlay extends Overlay {
 		PhotoMetrics metrics;
 //		Path path;
 		float bmpXPos, bmpYPos;
-		for (int id : _photos) {
+		for (int id : photos) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: draw: id = "+id);
 
 			// get photo
@@ -174,7 +167,7 @@ public final class PhotosOverlay extends Overlay {
 				if (photo.isDummyPhoto()) {
 					bmp = BitmapFactory.decodeResource(mapView.getResources(), id);
 				} else {
-					bmp = BitmapFactory.decodeFile(photo.getThumbUri().getPath());
+					bmp = BitmapFactory.decodeFile(photo.thumbUri.getPath());
 				}
 				if (bmp == null) { // file does not exists
 			    	continue;
@@ -239,7 +232,7 @@ public final class PhotosOverlay extends Overlay {
 //													  PhotoCompassApplication.DARK_ORANGE, PhotoCompassApplication.LIGHT_ORANGE,
 //													  Shader.TileMode.MIRROR));
 //			canvas.drawPath(_drawPath, _borderPaint);
-			canvas.drawRect(metrics.getLeft(), metrics.getTop(), metrics.getRight(), metrics.getBottom(), _borderPaint);
+			canvas.drawRect(metrics.left, metrics.top, metrics.getRight(), metrics.getBottom(), _borderPaint);
 			
 			// draw bitmap
 			_matrix.reset();
@@ -255,9 +248,12 @@ public final class PhotosOverlay extends Overlay {
      * Removes the currently not needed bitmaps to save memory.
      */
     public void clearUnneededBitmaps() {
-    	for (int i = 0; i < _photoBitmaps.size(); i++) {
-    		if (_photos.contains(_photoBitmaps.keyAt(i))) continue; // currently needed
-    		_photoBitmaps.remove(_photoBitmaps.keyAt(i));
+    	final int numBmps = _photoBitmaps.size();
+    	int photoId;
+    	for (int i = 0; i < numBmps; i++) {
+    		photoId = _photoBitmaps.keyAt(i);
+    		if (photos.contains(photoId)) continue; // currently needed
+    		_photoBitmaps.remove(photoId);
     	}
     }
     
@@ -284,12 +280,12 @@ public final class PhotosOverlay extends Overlay {
     	Integer tappedPhoto = 0; // id of the tapped photo
     	int id;
     	PhotoMetrics metrics;
-		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
+		ListIterator<Integer> lit = photos.listIterator(photos.size());
         while (lit.hasPrevious()) { // iterate south to north
         	id = lit.previous();
         	metrics = _photoMetrics.get(id);
-    		if (metrics.getLeft() < _point.x && metrics.getRight() > _point.x && // on the photo in horizontal direction
-				metrics.getTop() - y_tap_tolerance < _point.y && metrics.getBottom() + y_tap_tolerance > _point.y) { // on the photo in vertical direction
+    		if (metrics.left < _point.x && metrics.getRight() > _point.x && // on the photo in horizontal direction
+				metrics.top - y_tap_tolerance < _point.y && metrics.getBottom() + y_tap_tolerance > _point.y) { // on the photo in vertical direction
     			tappedPhoto = id;
     			break;
     		}

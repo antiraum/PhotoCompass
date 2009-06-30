@@ -13,7 +13,7 @@ import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
  * Displays a horizontal line in the middle of the {@link #AVAILABLE_WIDTH}. Every 45 degrees a marker is drawn with a text label
  * of the compass direction.
  */
-public class CompassView extends SimpleAbsoluteLayout {
+public final class CompassView extends SimpleAbsoluteLayout {
 	
 	static final int POSITION_MARKER_HALFHEIGHT = 7;
 	static final int LABEL_WIDTH = 25;
@@ -83,6 +83,7 @@ public class CompassView extends SimpleAbsoluteLayout {
 		
 		// update direction positions and place labels
 		LayoutParams layoutParams;
+		TextView dirLabel;
         for (int deg : _directionDegrees) {
         	_directionPositions.put(deg, (int) Math.round(AVAILABLE_WIDTH / 2 + (deg - _direction) * DEGREE_WIDTH));
         	
@@ -90,14 +91,15 @@ public class CompassView extends SimpleAbsoluteLayout {
 					  						CENTER_HEIGHT + POSITION_MARKER_HALFHEIGHT);
         	
         	// skip if label has layout parameters, and is not and will not be visible on screen
-        	if (_directionLabels.get(deg).getLayoutParams() != null &&
-        		(_directionLabels.get(deg).getRight() < 0 && layoutParams.x + LABEL_WIDTH < 0) || // left of screen
-        		(_directionLabels.get(deg).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) // right of screen
+        	dirLabel = _directionLabels.get(deg);
+        	if (dirLabel.getLayoutParams() != null &&
+        		(dirLabel.getRight() < 0 && layoutParams.x + LABEL_WIDTH < 0) || // left of screen
+        		(dirLabel.getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) // right of screen
         		continue;
         	
 //        	Log.d(PhotoCompassApplication.LOG_TAG, "CompassView: update: deg = "+deg+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
         	
-        	_directionLabels.get(deg).setLayoutParams(layoutParams);
+        	dirLabel.setLayoutParams(layoutParams);
         }
 		
 		// update lineView

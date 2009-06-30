@@ -10,7 +10,7 @@ import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
-public class VerticalDoubleSeekBar extends DoubleSeekBar {
+public final class VerticalDoubleSeekBar extends DoubleSeekBar {
 
 	public VerticalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback) {
 		super(context, callback);

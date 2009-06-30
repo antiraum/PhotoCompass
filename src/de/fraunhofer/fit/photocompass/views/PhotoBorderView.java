@@ -23,7 +23,7 @@ final class PhotoBorderView extends View {
 	private static final float MIN_BORDER_WIDTH = 2.1F; // minimum stroke width of the border
 	private static final int ALPHA_DECREASE_PER_OCCLUSION = 35; // number by which the alpha value gets decreased for 
 															    // each photo occluding the one this border belongs to
-	private static final int MINIMAL_ALPHA = 10; // minimum alpha value
+	private static final int MINIMAL_ALPHA = 25; // minimum alpha value
 	
 	private int _width = 0;
 	private int _height = 0;

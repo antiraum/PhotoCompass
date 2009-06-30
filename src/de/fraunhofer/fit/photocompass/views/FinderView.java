@@ -60,7 +60,6 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
         
         // release the camera
         _camera.release();
-//        Thread.sleep(1000L) 
         _camera = null;
     }
 

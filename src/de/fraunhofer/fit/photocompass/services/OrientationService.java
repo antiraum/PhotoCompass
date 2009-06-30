@@ -50,7 +50,7 @@ public final class OrientationService extends Service {
 	/**
 	 * {@link SensorListener} for the {@link #_sensorManager}.
 	 */
-	// TODO change to SensorEventListener when we no longer need to support building for target platform 1
+	// TODO change to SensorEventListener when we no longer need to support target platform 1
 	private final SensorListener _sensorListener = new SensorListener() {
 
 		/**
@@ -123,7 +123,7 @@ public final class OrientationService extends Service {
 		}
     	
     	// start listening to sensors
-    	_sensorManager.registerListener(_sensorListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_NORMAL);
+    	_sensorManager.registerListener(_sensorListener, SensorManager.SENSOR_ORIENTATION, SensorManager.SENSOR_DELAY_GAME);
     }
 
     /**
