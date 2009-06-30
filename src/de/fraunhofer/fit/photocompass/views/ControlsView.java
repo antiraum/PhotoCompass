@@ -21,8 +21,9 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 													  // at the bottom of the age control
 	private static final int BOTTOM_LEFT_PADDING = 39; // padding at the bottom of the distance control and
 	   												   // at the left of the age control
-	private static final int AGE_CONTROL_HEIGHT = 42; // height of the age scroll bar (including text labels)
-	public static final int AGE_CONTROL_EXTRA_PADDING = 10; // extra bottom padding of the age scroll bar, because
+	public static final int DISTANCE_CONTROL_WIDTH = 80; // width of the distance seek bar (including text labels)
+	private static final int AGE_CONTROL_HEIGHT = 42; // height of the age seek bar (including text labels)
+	public static final int AGE_CONTROL_EXTRA_PADDING = 12; // extra bottom padding of the age seek bar, because
 														    // the touch screen on the G1 doesn't work well at the bottom
 
 	/**
@@ -41,19 +42,19 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 			ApplicationModel model = ApplicationModel.getInstance();
 			
 			public String getMaxLabel() {
-				return model.getFormattedMaxDistance();
+				return model.maxDistanceStr;
 			}
 
 			public float getMaxValue() {
-				return model.getRelativeMaxDistance();
+				return model.maxDistanceRel;
 			}
 
 			public String getMinLabel() {
-				return model.getFormattedMinDistance();
+				return model.minDistanceStr;
 			}
 
 			public float getMinValue() {
-				return model.getRelativeMinDistance();
+				return model.minDistanceRel;
 			}
 
 			public void onMaxValueChange(float newValue) {
@@ -65,7 +66,7 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 			}		
 		});
 		distanceSlider.setLayoutParams(
-			new LayoutParams(LayoutParams.WRAP_CONTENT,
+			new LayoutParams(DISTANCE_CONTROL_WIDTH,
 							 availableHeight - CONTROL_END_PADDING - BOTTOM_LEFT_PADDING - AGE_CONTROL_EXTRA_PADDING,
 							 CONTROL_SIDE_PADDING, CONTROL_END_PADDING)
 		);
@@ -76,19 +77,19 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 			ApplicationModel model = ApplicationModel.getInstance();
 			
 			public String getMaxLabel() {
-				return model.getFormattedMaxAge();
+				return model.maxAgeStr;
 			}
 
 			public float getMaxValue() {
-				return model.getRelativeMaxAge();
+				return model.maxAgeRel;
 			}
 
 			public String getMinLabel() {
-				return model.getFormattedMinAge();
+				return model.minAgeStr;
 			}
 
 			public float getMinValue() {
-				return model.getRelativeMinAge();
+				return model.minAgeRel;
 			}
 
 			public void onMaxValueChange(float newValue) {
