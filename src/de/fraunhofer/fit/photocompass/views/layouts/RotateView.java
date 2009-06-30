@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * @author tom
- *
+ * Container for the map view of the {@link de.fraunhofer.fit.photocompass.activities.PhotoMapActivity}. 
+ * Taken from com.example.android.apis.view.MapViewCompassDemo.
  */
 public class RotateView extends ViewGroup {
 	
@@ -68,7 +68,7 @@ public class RotateView extends ViewGroup {
 
     @Override
     public boolean dispatchTouchEvent(final MotionEvent event) {
-        // TODO: rotate events too
+        // TODO rotate events too
         return super.dispatchTouchEvent(event);
     }
 }

@@ -15,8 +15,8 @@ import android.graphics.RectF;
 import android.graphics.Region;
 
 /**
- * @author tom
- *
+ * Canvas for the {@link RotateView} that smooths the rotated bitmap.
+ * Taken from com.example.android.apis.view.MapViewCompassDemo.
  */
 public final class SmoothCanvas extends Canvas {
     Canvas delegate;
