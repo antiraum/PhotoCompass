@@ -3,6 +3,7 @@ package de.fraunhofer.fit.photocompass.activities;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -204,6 +205,7 @@ public final class PhotoMapActivity extends MapActivity {
 	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
+		    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);
 		    		startActivity(new Intent(mapActivity, FinderActivity.class));
 			        finish(); // close this activity
 					System.gc(); // good point to run the GC

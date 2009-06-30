@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -206,6 +207,7 @@ public final class FinderActivity extends Activity {
 	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.FINDER_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
+		    		ProgressDialog.show(finderActivity, "",  "Switching to map view. Please wait...", true);
 		    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {
 		    			startActivity(new Intent(finderActivity, PhotoMapActivity.class));
 		    		} else {

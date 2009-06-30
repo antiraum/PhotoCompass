@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -75,9 +76,11 @@ public final class SplashActivity extends Activity {
         	final int activity = PhotoCompassApplication.getActivityForRoll(roll, PhotoCompassApplication.SPLASH_ACTIVITY);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to finder activity");
+	    		ProgressDialog.show(splashActivity, "",  "Loading camera view. Please wait...", true);
 	    		startActivity(new Intent(splashActivity, FinderActivity.class));
 	    	} else {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to map activity");
+	    		ProgressDialog.show(splashActivity, "",  "Loading map view. Please wait...", true);
 	    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {
 	    			startActivity(new Intent(splashActivity, PhotoMapActivity.class));
 	    		} else {
