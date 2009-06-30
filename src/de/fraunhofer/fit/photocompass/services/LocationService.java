@@ -174,7 +174,8 @@ public final class LocationService extends Service {
         	
     	// setup criteria for choosing the location provider
     	_criteria.setAccuracy(Criteria.ACCURACY_FINE);
-    	_criteria.setAltitudeRequired(true);
+//    	_criteria.setAltitudeRequired(true);
+    	_criteria.setAltitudeRequired(false); // disabled altitude support in this release
     	_criteria.setBearingRequired(false);
     	_criteria.setCostAllowed(false);
     	_criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
