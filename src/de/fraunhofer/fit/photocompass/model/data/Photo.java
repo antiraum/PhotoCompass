@@ -153,12 +153,13 @@ public final class Photo {
 	        // end direction calculation
 		}
 
-		if (_lastUpdateAlt != currentAlt && _alt != 0) { // altitude has changed
+// disabled altitude offset calculation - keep the code for later releases
+/*		if (_lastUpdateAlt != currentAlt && _alt != 0) { // altitude has changed
 			
 			// altitude offset calculation
 	        altOffset = (currentAlt == 0) ? 0 // no valid altitude -> no valid offset possible
 	        							  : _alt - currentAlt;
-		}
+		} */
 		
 		_lastUpdateLat = currentLat;
 		_lastUpdateLng = currentLng;
