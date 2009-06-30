@@ -159,10 +159,12 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
-		float touchX = event.getX();
-		float touchY = event.getY();
-		float newValue = convertToAbstract(getEventCoordinate(event));
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		final int action = event.getAction();
+    	Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: onTouchEvent: action = "+action);
+		final float touchX = event.getX();
+		final float touchY = event.getY();
+		final float newValue = convertToAbstract(getEventCoordinate(event));
+		if (action == MotionEvent.ACTION_DOWN) {
 			// ignore if distance to bar larger than tolerance constant
 			if ((this.backgroundRect.left - touchX) > TOUCH_DOWN_TOLERANCE
 					|| (touchX - this.backgroundRect.right) > TOUCH_DOWN_TOLERANCE
@@ -185,7 +187,7 @@ public abstract class DoubleSeekBar extends View {
 				this.updateEndValueWithCallback(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
-		} else if (event.getAction() == MotionEvent.ACTION_MOVE
+		} else if (action == MotionEvent.ACTION_MOVE
 				&& this.thumbDown != NONE) {
 			if (this.thumbDown == START
 					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE)) {
@@ -196,23 +198,30 @@ public abstract class DoubleSeekBar extends View {
 				this.updateEndValueWithCallback(newValue);
 				this.invalidate();
 			}
-		} else if (event.getAction() == MotionEvent.ACTION_UP
-				&& this.thumbDown != NONE) {
-			if (this.thumbDown == START) {
-				this.startThumb = this.startThumbNormal;
-				this.updateStartValueWithCallback(newValue);
-			} else {
-				this.endThumb = this.endThumbNormal;
-				this.updateEndValueWithCallback(newValue);
-			}
-			this.thumbDown = NONE;
-			this.invalidate();
 		} else {
-			Log.w(PhotoCompassApplication.LOG_TAG,
-					"DoubleSeekBar: Unexpected TouchEvent, action "
-							+ event.getAction());
+			if (action == MotionEvent.ACTION_UP && this.thumbDown != NONE) {
+				if (this.thumbDown == START) {
+					this.startThumb = this.startThumbNormal;
+					this.updateStartValueWithCallback(newValue);
+				} else {
+					this.endThumb = this.endThumbNormal;
+					this.updateEndValueWithCallback(newValue);
+				}
+				this.thumbDown = NONE;
+				this.invalidate();
+			} else {
+				Log.w(PhotoCompassApplication.LOG_TAG,
+						"DoubleSeekBar: Unexpected TouchEvent, action "
+								+ action);
+			}
+			
+        	// sleep to avoid event flooding
+        	try {
+    			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
 		}
-
 		return true;
 	}
 
