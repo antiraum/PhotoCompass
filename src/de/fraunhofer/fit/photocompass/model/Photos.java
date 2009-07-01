@@ -412,7 +412,7 @@ public final class Photos {
 		return true;
     }
     
-    private float[] _listToPrimitives(ArrayList<Float> list) {
+    private static float[] _listToPrimitives(ArrayList<Float> list) {
     	final int size = list.size();
     	final float[] array = new float[size];
     	for (int i = 0; i < size; i++) array[i] = list.get(i);
