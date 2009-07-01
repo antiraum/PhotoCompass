@@ -84,19 +84,24 @@ public final class LocationService extends Service {
 		 * Broadcasts the new location to all registered callbacks.
 		 */
 		public void onLocationChanged(Location location) {
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
+	    	
+	    	// check if there are callbacks registered
+		    final int numCallbacks = remoteCallbacks.beginBroadcast();
+	    	if (numCallbacks == 0) {
+	    		remoteCallbacks.finishBroadcast();
+	    		return;
+	    	}
 			
 			if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
 			
 			if (location == null) return;
-			
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
 			
 	        // broadcast the new location to all registered callbacks
 			final double lat = location.getLatitude();
 			final double lng = location.getLongitude();
 			final boolean hasAlt = location.hasAltitude();
 			final double alt = location.getAltitude(); 
-	        final int numCallbacks = remoteCallbacks.beginBroadcast();
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
 	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(lat, lng, hasAlt, alt);

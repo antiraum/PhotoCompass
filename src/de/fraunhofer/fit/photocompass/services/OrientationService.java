@@ -60,6 +60,13 @@ public final class OrientationService extends Service {
 		public void onSensorChanged(final int sensor, final float[] values) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged: "+
 //	    										   "yaw = "+values[0]+", pitch = "+values[1]+", roll = "+values[2]);
+	    	
+	    	// check if there are callbacks registered
+		    final int numCallbacks = remoteCallbacks.beginBroadcast();
+	    	if (numCallbacks == 0) {
+	    		remoteCallbacks.finishBroadcast();
+	    		return;
+	    	}
 			
 			final float yaw = values[0];
 			float pitch, roll;
@@ -73,7 +80,6 @@ public final class OrientationService extends Service {
 			}
 		
 	        // broadcast the new location to all registered callbacks
-	        final int numCallbacks = remoteCallbacks.beginBroadcast();
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
 	                remoteCallbacks.getBroadcastItem(i).onOrientationEvent(yaw, pitch, roll);
