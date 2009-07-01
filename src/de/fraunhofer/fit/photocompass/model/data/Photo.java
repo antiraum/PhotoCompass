@@ -165,7 +165,7 @@ public final class Photo {
 		_lastUpdateLng = currentLng;
 		_lastUpdateAlt = currentAlt;
 		
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", _distance = "+_distance+", _direction = "+_direction+", _altOffset = "+_altOffset);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
 	}
 	
 	/**

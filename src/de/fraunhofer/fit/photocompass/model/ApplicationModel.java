@@ -18,10 +18,10 @@ public final class ApplicationModel {
 	// minimum & maximum values
 	private final float MIN_DISTANCE_LIMIT = 1000F; // in meters
 	final float MAX_DISTANCE_LIMIT = 15 * 1000F; // in meters
-	private float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
+	float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
 	private final long MIN_AGE_LIMIT = 60 * 60 * 1000L; // in milliseconds
 	final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
-	private long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
+	long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
 
     private static ApplicationModel _instance;
 
@@ -66,25 +66,37 @@ public final class ApplicationModel {
     /**
      * Set the maximum value for maximum distance.
      * Call this from the {@link Photos} model when the photos are read of the device.
+     * 
+     * @param value
+     * @return      <code>true</code> if {@link #MAX_MAX_DISTANCE} was changed, or
+     * 				<code>false</code> if no change.
      */
-    public void setMaxMaxDistance(final float value) {
+    public boolean setMaxMaxDistance(final float value) {
 //		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxDistance = "+value);
+    	final float oldValue = MAX_MAX_DISTANCE;
     	MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT
     													: (value < MIN_DISTANCE_LIMIT) ? MIN_DISTANCE_LIMIT
     																				   : value;
     	if (maxDistance != MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
+    	return (oldValue == MAX_MAX_DISTANCE) ? false : true;
     }
     
     /**
      * Set the maximum value for maximum age.
      * Call this from the {@link Photos} model when the photos are read of the device.
+     * 
+     * @param value
+     * @return      <code>true</code> if {@link #MAX_MAX_DISTANCE} was changed, or
+     * 				<code>false</code> if no change.
      */
-    public void setMaxMaxAge(final long value) {
+    public boolean setMaxMaxAge(final long value) {
 //		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxAge = "+value);
+    	final long oldValue = MAX_MAX_AGE;
     	MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT
 											  : (value < MIN_AGE_LIMIT) ? MIN_AGE_LIMIT
 													  					: value;
     	if (maxAge != MAX_MAX_AGE) setMaxAge(MAX_MAX_AGE);
+    	return (oldValue == MAX_MAX_AGE) ? false : true;
     }
 
 	/**

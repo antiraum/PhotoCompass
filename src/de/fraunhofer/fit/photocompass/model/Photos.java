@@ -6,6 +6,9 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
+import android.os.DeadObjectException;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images.ImageColumns;
@@ -38,6 +41,8 @@ public final class Photos {
 	 * Key is photo id, value is {@link Photo} object.
 	 */
 	private final SparseArray<Photo> _dummies = new SparseArray<Photo>();
+	
+    private final RemoteCallbackList<IPhotosCallback> _remoteCallbacks = new RemoteCallbackList<IPhotosCallback>();
 
 	/**
 	 * @return The instance of this Singleton model.
@@ -64,6 +69,20 @@ public final class Photos {
 	    
         _initialized = true;
 	}
+    
+    /**
+     * Register a callback object.
+     */
+    public void registerCallback(final IPhotosCallback cb) {
+        if (cb != null) _remoteCallbacks.register(cb);
+    }
+    
+    /**
+     * Unregister a callback object.
+     */
+    public void unregisterCallback(final IPhotosCallback cb) {
+        if (cb != null) _remoteCallbacks.unregister(cb);
+    }
     
     /**
      * Checks if {@link #_photos} is up-to-date with the photos stores on the device.
@@ -162,6 +181,10 @@ public final class Photos {
 	    
 	    // replace the existing _photos
 	    _photos = _photosNew;
+	    
+	    // broadcast the photo distances and ages
+	    _broadcastPhotoDistances();
+	    _broadcastPhotoAges();
     }
     
     /**
@@ -205,10 +228,10 @@ public final class Photos {
     /**
      * Determines which photos are no longer visible for the current viewing settings.
      * 
-     * @param currentPhotos ArrayList with photo/resource ids of the currently displayed photos.
+     * @param currentPhotos   ArrayList with photo/resource ids of the currently displayed photos.
      * @param limitByDistance Consider minimum and maximum distance settings.
      * @param limitByAge	  Consider minimum and maximum age settings.
-     * @return				ArrayList with photo/resource ids of the no longer visible photos.
+     * @return				  ArrayList with photo/resource ids of the no longer visible photos.
      */
     public ArrayList<Integer> getNoLongerVisiblePhotos(final ArrayList<Integer> currentPhotos,
 													   final boolean limitByDistance, final boolean limitByAge) {
@@ -273,6 +296,7 @@ public final class Photos {
      * the data of the used photos.
      */
     public void updateAppModelMaxValues() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updateAppModelMaxValues");
 	    ApplicationModel appModel = ApplicationModel.getInstance();
 	    float maxDistance = 0;
 	    long maxAge = 0;
@@ -291,10 +315,108 @@ public final class Photos {
             	if (age > maxAge && age <= appModel.MAX_AGE_LIMIT) maxAge = age;
             }
     	}
-    	appModel.setMaxMaxDistance(maxDistance);
+    	if (appModel.setMaxMaxDistance(maxDistance)) _broadcastPhotoDistances();
     	maxAge += 60 * 60 * 1000; // as the photo age is always calculated from the current time we add a buffer of one hour
     	                          // which should be enough for any usage time of the application
-    	appModel.setMaxMaxAge(maxAge);
+    	if (appModel.setMaxMaxAge(maxAge)) _broadcastPhotoAges();
+    }
+    
+    /**
+     * Broadcasts a list with the distances of all photos used by the application.
+     * The distances are translated into relative values.
+     */
+    private void _broadcastPhotoDistances() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _broadcastPhotoDistances");
+    	
+    	// check if there are callbacks registered
+	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
+    	if (numCallbacks == 0) {
+    		_remoteCallbacks.finishBroadcast();
+    		return;
+    	}
+    	
+    	// collect distances
+    	final ArrayList<Float> dists = new ArrayList<Float>();
+    	int numPhotos;
+    	Photo photo;
+    	final ApplicationModel appModel = ApplicationModel.getInstance();
+    	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
+    		numPhotos = photos.size();
+            for (int i = 0; i < numPhotos; i++) {
+            	photo = photos.valueAt(i);
+            	if (! _isPhotoUsed(photo)) continue;
+            	dists.add(appModel.absoluteToRelativeDistance(photo.distance));
+            }
+    	}
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _broadcastPhotoDistances: dists = "+dists.toString());
+    	
+		// broadcast
+	    for (int i = 0; i < numCallbacks; i++) {
+	        try {
+	            _remoteCallbacks.getBroadcastItem(i).onPhotosDistancesChange(_listToPrimitives(dists));
+	        } catch (final DeadObjectException e) {
+	            // the RemoteCallbackList will take care of removing the dead object
+	        } catch (final RemoteException e) {
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: broadcast to callback failed");
+	        }
+	    }
+	    _remoteCallbacks.finishBroadcast();
+    }
+    
+    /**
+     * Broadcasts a list with the age of all photos used by the application to the registered callbacks.
+     * The ages are translated into relative values.
+     */
+    private void _broadcastPhotoAges() {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _broadcastPhotoAges");
+    	
+    	// check if there are callbacks registered
+	    final int numCallbacks = _remoteCallbacks.beginBroadcast();
+    	if (numCallbacks == 0) {
+    		_remoteCallbacks.finishBroadcast();
+    		return;
+    	}
+    	
+    	// collect ages
+    	final ArrayList<Float> ages = new ArrayList<Float>();
+    	int numPhotos;
+    	Photo photo;
+    	final ApplicationModel appModel = ApplicationModel.getInstance();
+    	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
+    		numPhotos = photos.size();
+            for (int i = 0; i < numPhotos; i++) {
+            	photo = photos.valueAt(i);
+            	if (! _isPhotoUsed(photo)) continue;
+            	ages.add(appModel.absoluteToRelativeAge(photo.getAge()));
+            }
+    	}
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _broadcastPhotoAges: ages = "+ages.toString());
+		
+		// broadcast
+	    for (int i = 0; i < numCallbacks; i++) {
+	        try {
+	            _remoteCallbacks.getBroadcastItem(i).onPhotosAgesChange(_listToPrimitives(ages));
+	        } catch (final DeadObjectException e) {
+	            // the RemoteCallbackList will take care of removing the dead object
+	        } catch (final RemoteException e) {
+		    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: broadcast to callback failed");
+	        }
+	    }
+	    _remoteCallbacks.finishBroadcast();
+    }
+    
+    private boolean _isPhotoUsed(final Photo photo) {
+	    ApplicationModel appModel = ApplicationModel.getInstance();
+		if (photo.distance > appModel.MAX_MAX_DISTANCE ||
+			photo.getAge() > appModel.MAX_MAX_AGE) return false;
+		return true;
+    }
+    
+    private float[] _listToPrimitives(ArrayList<Float> list) {
+    	final int size = list.size();
+    	final float[] array = new float[size];
+    	for (int i = 0; i < size; i++) array[i] = list.get(i);
+    	return array;
     }
 	
 	/**
