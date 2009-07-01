@@ -23,7 +23,7 @@ public final class ApplicationModel {
 	final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
 	long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
 
-    private static ApplicationModel _instance;
+    private static final ApplicationModel _instance = new ApplicationModel();
 
     // current settings
     public float minDistance = 0F; // The current minimum distance for photos to be displayed. In meters.
@@ -41,11 +41,16 @@ public final class ApplicationModel {
 
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
 
+    /**
+     * Constructor.
+     * Private because Singleton. Use {@link #getInstance()}.
+     */
+    private ApplicationModel() {}
+    
 	/**
 	 * @return The instance of this Singleton model.
 	 */
     public static ApplicationModel getInstance() {
-        if (_instance == null) _instance = new ApplicationModel();
         return _instance;
     }
     

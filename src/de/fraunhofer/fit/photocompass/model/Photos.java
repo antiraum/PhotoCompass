@@ -27,7 +27,7 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
  */
 public final class Photos {
 
-    private static Photos _instance;
+    private static final Photos _instance = new Photos();
 	private boolean _initialized = false;
     
     /**
@@ -44,11 +44,16 @@ public final class Photos {
 	
     private final RemoteCallbackList<IPhotosCallback> _remoteCallbacks = new RemoteCallbackList<IPhotosCallback>();
 
+    /**
+     * Constructor.
+     * Private because Singleton. Use {@link #getInstance()}.
+     */
+    private Photos() {}
+    
 	/**
 	 * @return The instance of this Singleton model.
 	 */
     public static Photos getInstance() {
-        if (_instance == null) _instance = new Photos();
         return _instance;
     }
 	
