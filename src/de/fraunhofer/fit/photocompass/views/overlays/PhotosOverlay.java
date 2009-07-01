@@ -68,14 +68,13 @@ public final class PhotosOverlay extends Overlay {
 //	 */
 //	private final SparseArray<Path> _minimizedBorderPaths = new SparseArray<Path>();
 	
-    private Photos _photosModel;
+    private final Photos _photosModel = Photos.getInstance();
 	private final Paint _borderPaint = new Paint();
 //	private Bitmap _borderBmp;
 	private Bitmap _arrowBmp;
 	
 	public PhotosOverlay() {
-        _photosModel = Photos.getInstance();
-        
+		// setup border paint
         _borderPaint.setStrokeWidth(BORDER_WIDTH);
         _borderPaint.setColor(PhotoCompassApplication.ORANGE);
         _borderPaint.setStyle(Paint.Style.FILL_AND_STROKE);

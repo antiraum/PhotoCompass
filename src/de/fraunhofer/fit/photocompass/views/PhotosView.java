@@ -46,7 +46,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	
 	private static float DEGREE_WIDTH; // width of one degree direction  
 	
-	private Photos _photosModel;
+	private final Photos _photosModel = Photos.getInstance();
 	
 	/**
 	 * Layer containing the {@link #photoViews}.
@@ -239,8 +239,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         MAX_PHOTO_HEIGHT = (int) Math.round(MAX_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
         MIN_PHOTO_HEIGHT = (int) Math.round(MIN_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
     	
-        _photosModel = Photos.getInstance();
-        
         _photoLayer = new SimpleAbsoluteLayout(context);
         _photoLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_photoLayer);
@@ -531,8 +529,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		if (metrics == null || photo == null) return false;
 
     	// calculate the photo height
+		final ApplicationModel appModel = ApplicationModel.getInstance();
         final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
-        								   		 (1 - photo.distance / (ApplicationModel.getInstance().maxDistance - ApplicationModel.getInstance().minDistance)));
+        								   		 (1 - photo.distance / (appModel.maxDistance - appModel.minDistance)));
         
         if (metrics.height == photoHeight) return false;
 

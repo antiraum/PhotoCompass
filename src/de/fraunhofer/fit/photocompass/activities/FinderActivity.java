@@ -57,13 +57,13 @@ public final class FinderActivity extends Activity {
 	private static final int COMPASS_VIEW_UPDATE_IVAL = 100; // in milliseconds
 	private static final int PHOTO_VIEW_UPDATE_IVAL = 250; // in milliseconds
 
-    ILocationService locationService; // package scoped for faster access by inner classes
-    private boolean _boundToLocationService;
-    IOrientationService orientationService; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService;
+    ILocationService locationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToLocationService = false;
+    IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToOrientationService = false;
 
-    private Photos _photosModel;
-    private ApplicationModel _appModel;
+    private final Photos _photosModel = Photos.getInstance();
+    private final ApplicationModel _appModel = ApplicationModel.getInstance();
 
     /**
      * Connection object for the connection with the {@link LocationService}.
@@ -285,21 +285,12 @@ public final class FinderActivity extends Activity {
     
     /**
      * Constructor.
-     * Initializes the state variables.
      */
     public FinderActivity() {
     	super();
     	finderActivity = this;
-    	
-    	// initialize service variables
-        locationService = null;
-        _boundToLocationService = false;
-        orientationService = null;
-        _boundToOrientationService = false;
         
-        // initialize model variables and register as callback
-        _photosModel = Photos.getInstance();
-    	_appModel = ApplicationModel.getInstance();
+        // register as application model callback
     	_appModel.registerCallback(_appModelCallback);
     }
     
@@ -317,10 +308,11 @@ public final class FinderActivity extends Activity {
         // initialize views
         final FinderView finderView = new FinderView(this);
         final Display display = getWindowManager().getDefaultDisplay();
+        final int displayWidth = display.getWidth();
         DISPLAY_HEIGHT = display.getHeight();
-        _compassView = new CompassView(this, display.getWidth(), DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        _photosView = new PhotosView(this, display.getWidth(), DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        final ControlsView controlsView = new ControlsView(this, display.getWidth(), DISPLAY_HEIGHT - STATUSBAR_HEIGHT);
+        _compassView = new CompassView(this, displayWidth, DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
+        _photosView = new PhotosView(this, displayWidth, DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
+        final ControlsView controlsView = new ControlsView(this, displayWidth, DISPLAY_HEIGHT - STATUSBAR_HEIGHT);
 
         // setup views
         setContentView(finderView);

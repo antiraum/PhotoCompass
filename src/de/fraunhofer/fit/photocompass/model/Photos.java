@@ -263,7 +263,7 @@ public final class Photos {
      */
     private boolean _isPhotoVisible(final Photo photo,
 			   						final boolean limitByDistance, final boolean limitByAge) {
-	    ApplicationModel appModel = ApplicationModel.getInstance();
+	    final ApplicationModel appModel = ApplicationModel.getInstance();
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: id = "+photo.getId());
 		if (limitByDistance &&
 			photo.distance < appModel.minDistance || photo.distance > appModel.maxDistance) { // photo is too close or too far away
@@ -302,7 +302,7 @@ public final class Photos {
      */
     public void updateAppModelMaxValues() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: updateAppModelMaxValues");
-	    ApplicationModel appModel = ApplicationModel.getInstance();
+	    final ApplicationModel appModel = ApplicationModel.getInstance();
 	    float maxDistance = 0;
 	    long maxAge = 0;
     	int numPhotos;
@@ -411,7 +411,7 @@ public final class Photos {
     }
     
     private boolean _isPhotoUsed(final Photo photo) {
-	    ApplicationModel appModel = ApplicationModel.getInstance();
+	    final ApplicationModel appModel = ApplicationModel.getInstance();
 		if (photo.distance > appModel.MAX_MAX_DISTANCE ||
 			photo.getAge() > appModel.MAX_MAX_AGE) return false;
 		return true;

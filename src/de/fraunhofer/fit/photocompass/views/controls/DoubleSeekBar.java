@@ -44,7 +44,7 @@ public abstract class DoubleSeekBar extends View {
 	protected Drawable endThumb;
 	protected Drawable endThumbNormal;
 	protected Drawable endThumbActive;
-	protected Rect selectionRect;
+	protected final Rect selectionRect = new Rect();
 	protected int halfAThumb = -1;
 
 	protected int startLabelX = 0;
@@ -79,7 +79,6 @@ public abstract class DoubleSeekBar extends View {
 		this.setEndValue(callback.getMaxValue());
 		this.endLabel = callback.getMaxLabel();
 
-		this.selectionRect = new Rect();
 		this.paint.setStyle(Style.FILL);
 		this.paint.setAntiAlias(true);
 

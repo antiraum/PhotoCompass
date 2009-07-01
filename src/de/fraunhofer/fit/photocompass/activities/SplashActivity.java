@@ -30,8 +30,8 @@ public final class SplashActivity extends Activity {
 
 	SplashActivity splashActivity; // package scoped for faster access by inner classes
 	
-    private IOrientationService orientationService; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService;
+    private IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToOrientationService = false;
 
     /**
      * Connection object for the connection with the {@link OrientationService}.
@@ -95,14 +95,10 @@ public final class SplashActivity extends Activity {
 
     /**
      * Constructor.
-     * Initializes the state variables.
      */
     public SplashActivity() {
     	super();
-    	
     	splashActivity = this;
-        orientationService = null;
-        _boundToOrientationService = false;
     }
 
     /**

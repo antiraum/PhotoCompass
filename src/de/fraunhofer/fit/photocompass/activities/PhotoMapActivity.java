@@ -62,13 +62,13 @@ public final class PhotoMapActivity extends MapActivity {
 	private CustomMyLocationOverlay _customMyLocOverlay;
 	private PhotosOverlay _photosOverlay;
 
-    ILocationService locationService; // package scoped for faster access by inner classes
-    private boolean _boundToLocationService;
-    IOrientationService orientationService; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService;
+    ILocationService locationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToLocationService = false;
+    IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToOrientationService = false;
 
-    private Photos _photosModel;
-    private ApplicationModel _appModel;
+    private final Photos _photosModel = Photos.getInstance();
+    private final ApplicationModel _appModel = ApplicationModel.getInstance();
 
     /**
      * Connection object for the connection with the {@link LocationService}.
@@ -274,21 +274,12 @@ public final class PhotoMapActivity extends MapActivity {
 	
     /**
      * Constructor.
-     * Initializes the state variables.
      */
     public PhotoMapActivity() {
     	super();
     	mapActivity = this;
-    	
-    	// initialize service variables
-        locationService = null;
-        _boundToLocationService = false;
-        orientationService = null;
-        _boundToOrientationService = false;
         
-        // initialize model variables and register as callback
-        _photosModel = Photos.getInstance();
-    	_appModel = ApplicationModel.getInstance();
+        // register as application model callback
     	_appModel.registerCallback(_appModelCallback);
     }
 
@@ -353,7 +344,7 @@ public final class PhotoMapActivity extends MapActivity {
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to connect to orientation service");
     	
     	// let photos model check if the available photos have changed
-    	Photos.getInstance().updatePhotos(this);
+    	_photosModel.updatePhotos(this);
     }
     
     /**

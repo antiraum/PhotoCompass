@@ -39,7 +39,7 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 
 		// distance slider
 		final DoubleSeekBar distanceSlider = new VerticalDoubleSeekBar(context, new IDoubleSeekBarCallback() {
-			ApplicationModel model = ApplicationModel.getInstance();
+			final ApplicationModel model = ApplicationModel.getInstance();
 			
 			public String getMaxLabel() {
 				return model.maxDistanceStr;
@@ -74,7 +74,7 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 
 		// age slider
 		final DoubleSeekBar ageSlider = new HorizontalDoubleSeekBar(context, new IDoubleSeekBarCallback() {
-			ApplicationModel model = ApplicationModel.getInstance();
+			final ApplicationModel model = ApplicationModel.getInstance();
 			
 			public String getMaxLabel() {
 				return model.maxAgeStr;

@@ -27,8 +27,8 @@ import de.fraunhofer.fit.photocompass.services.OrientationService;
 public final class DummyMapActivity extends Activity {
 
 	DummyMapActivity mapActivity; // package scoped for faster access by inner classes
-    IOrientationService orientationService; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService;
+    IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToOrientationService = false;
 
     /**
      * Connection object for the connection with the {@link OrientationService}.
@@ -102,13 +102,10 @@ public final class DummyMapActivity extends Activity {
     
     /**
      * Constructor.
-     * Initializes the state variables.
      */
     public DummyMapActivity() {
     	super();
     	mapActivity = this;
-        orientationService = null;
-        _boundToOrientationService = false;
     }
 
     /**

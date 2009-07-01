@@ -64,10 +64,6 @@ public final class PhotoCompassApplication extends Application {
 	    	dummyLocation.setLongitude(Location.convert("7:12:14.54")); // FIT
 	    	dummyLocation.setAltitude(125); // FIT
     	}
-    	
-    	// initialize models
-    	ApplicationModel.getInstance();
-    	Photos.getInstance();
     }
     
     /**
