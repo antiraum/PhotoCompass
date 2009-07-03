@@ -85,13 +85,13 @@ public abstract class DoubleSeekBar extends View {
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 	}
 
-	protected void initialize() {
+	protected final void initialize() {
 		this.startOffset = this.halfAThumb;
 		this.endOffset = this.halfAThumb;
 	}
 
 	@Override
-	protected void onDraw(final Canvas canvas) {
+	protected final void onDraw(final Canvas canvas) {
 		// this.updateAllBounds();
 
 		super.onDraw(canvas);
@@ -126,15 +126,15 @@ public abstract class DoubleSeekBar extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
-	protected void updateStartValueWithCallback(float newValue) {
+	protected final void updateStartValueWithCallback(float newValue) {
 		this.callback.onMinValueChange(this.tryStartValue(newValue));
 	}
 
-	protected void updateEndValueWithCallback(final float newValue) {
+	protected final void updateEndValueWithCallback(final float newValue) {
 		this.callback.onMaxValueChange(this.tryEndValue(newValue));
 	}
 
-	public void updateStartValue(float newValue) {
+	public final void updateStartValue(float newValue) {
 		Log.d(PhotoCompassApplication.LOG_TAG,
 				"DoubleSeekBar.updateStartValue()");
 		this.setStartValue(newValue);
@@ -142,7 +142,7 @@ public abstract class DoubleSeekBar extends View {
 		this.updateStartBounds();
 	}
 
-	public void updateEndValue(final float newValue) {
+	public final void updateEndValue(final float newValue) {
 		Log
 				.d(PhotoCompassApplication.LOG_TAG,
 						"DoubleSeekBar.updateEndValue()");
@@ -156,7 +156,7 @@ public abstract class DoubleSeekBar extends View {
 	protected abstract void updateEndBounds();
 
 	@Override
-	public boolean onTouchEvent(final MotionEvent event) {
+	public final boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
 		final int action = event.getAction();
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: onTouchEvent: action = "+action);
@@ -229,7 +229,7 @@ public abstract class DoubleSeekBar extends View {
 	 * @return the start value (left slider thumb), as a float from the range
 	 *         [0,1].
 	 */
-	public float getStartValue() {
+	public final float getStartValue() {
 		return this.startValue;
 	}
 
@@ -237,23 +237,23 @@ public abstract class DoubleSeekBar extends View {
 	 * @return the end value (right slider thumb), as a float from the range
 	 *         [0,1].
 	 */
-	public float getEndValue() {
+	public final float getEndValue() {
 		return this.endValue;
 	}
 
-	protected float setStartValue(float newValue) {
+	protected final float setStartValue(float newValue) {
 		return this.startValue = this.tryStartValue(newValue);
 	}
 
-	protected float setEndValue(float newValue) {
+	protected final float setEndValue(float newValue) {
 		return this.endValue = this.tryEndValue(newValue);
 	}
 
-	private float tryStartValue(float newValue) {
+	private final float tryStartValue(float newValue) {
 		return Math.max(0f, Math.min(newValue, this.endValue));
 	}
 
-	private float tryEndValue(float newValue) {
+	private final float tryEndValue(float newValue) {
 		return Math.min(1f, Math.max(newValue, this.startValue));
 	}
 
@@ -263,7 +263,7 @@ public abstract class DoubleSeekBar extends View {
 
 	protected abstract float convertToAbstract(final float concreteValue);
 
-	public void setCallback(IDoubleSeekBarCallback callback) {
+	public final void setCallback(IDoubleSeekBarCallback callback) {
 		this.callback = callback;
 	}
 }

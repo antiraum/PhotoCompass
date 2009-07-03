@@ -16,7 +16,7 @@ public class SimpleAbsoluteLayout extends ViewGroup {
     }
 
     @Override
-    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+    protected final void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
 
         // find out how big everyone wants to be
         measureChildren(widthMeasureSpec, heightMeasureSpec);
@@ -45,12 +45,12 @@ public class SimpleAbsoluteLayout extends ViewGroup {
     }
     
     @Override
-    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
+    protected final ViewGroup.LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0, 0);
     }
 
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    protected final void onLayout(boolean changed, int left, int top, int right, int bottom) {
     	
     	// we just place every child where it wants to be
         int count = getChildCount();
@@ -69,7 +69,7 @@ public class SimpleAbsoluteLayout extends ViewGroup {
     /**
      * Per-child layout information associated with SimpleAbsoluteLayout.
      */
-    public static class LayoutParams extends ViewGroup.LayoutParams {
+    public static final class LayoutParams extends ViewGroup.LayoutParams {
     	
         /**
          * The horizontal, or X, location of the child within the view group.
