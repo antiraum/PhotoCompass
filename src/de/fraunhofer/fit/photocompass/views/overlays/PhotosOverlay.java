@@ -36,6 +36,10 @@ public final class PhotosOverlay extends Overlay {
 	private static final float ARROW_HEIGHT = 18;
 	private static final float BORDER_WIDTH = 2.1F; // stroke width of the border
 	
+	private GeoPoint _location; // current location
+	private float _direction; // in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
+	private boolean _directionSet = false;
+	
 	/**
 	 * Ids of the currently used photos (sorted from north to south).
 	 */
@@ -129,7 +133,25 @@ public final class PhotosOverlay extends Overlay {
 	    });
 	}
 	
+	/**
+	 * Update current location.
+	 * @param location
+	 */
+	public void updateLocation(final GeoPoint location) {
+		_location = location;
+	}
+	
+	/**
+	 * Update viewing direction.
+	 * @param direction
+	 */
+	public void updateDirection(final float direction) {
+		_direction = direction;
+		_directionSet = true;
+	}
+	
 	// variables for draw
+	private final Point _locationPoint = new Point();
 	private final Point _point = new Point();
 //	private final Path _drawPath = new Path();
 	private final Matrix _matrix = new Matrix();
@@ -142,10 +164,17 @@ public final class PhotosOverlay extends Overlay {
     public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
     	super.draw(canvas, mapView, shadow);
     	
+		if (_location == null || ! _directionSet) return;
+		
+		// transform current position to point on canvas
+		final Projection projection = mapView.getProjection();
+		projection.toPixels(_location, _locationPoint);
+    	
 //    	if (_borderBmp == null) _borderBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_border);
     	if (_arrowBmp == null) _arrowBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_arrow);
+    	
+		canvas.rotate(_direction, _locationPoint.x, _locationPoint.y);
 
-		final Projection projection = mapView.getProjection();
 		Photo photo;
 		Bitmap bmp;
 		float width, height, xScale, yScale, scale;
@@ -241,6 +270,7 @@ public final class PhotosOverlay extends Overlay {
 			if (_minimizedPhotos.contains(id)) _matrix.postScale(1, height / bmp.getHeight(), bmpXPos, bmpYPos);
 			canvas.drawBitmap(bmp, _matrix, null);
         }
+		canvas.rotate(-_direction, _locationPoint.x, _locationPoint.y);
     }
     
     /**

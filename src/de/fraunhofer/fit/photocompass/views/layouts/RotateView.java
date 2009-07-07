@@ -10,7 +10,7 @@ import android.view.ViewGroup;
  * Container for the map view of the {@link de.fraunhofer.fit.photocompass.activities.PhotoMapActivity}. 
  * Taken from com.example.android.apis.view.MapViewCompassDemo.
  */
-public class RotateView extends ViewGroup {
+public final class RotateView extends ViewGroup {
 	
     private static final float SQ2 = 1.414213562373095f;
     private final SmoothCanvas _canvas = new SmoothCanvas();
@@ -29,7 +29,7 @@ public class RotateView extends ViewGroup {
     protected void dispatchDraw(final Canvas canvas) {
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
         canvas.rotate(-_heading, getWidth() * 0.5f, getHeight() * 0.5f);
-        canvas.translate(0, 90); // move current location to bottom
+//        canvas.translate(0, 90); // move current location to bottom
         _canvas.delegate = canvas;
         super.dispatchDraw(_canvas);
         canvas.restore();

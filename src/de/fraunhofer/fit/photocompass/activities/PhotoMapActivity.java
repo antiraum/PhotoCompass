@@ -432,10 +432,9 @@ public final class PhotoMapActivity extends MapActivity {
 			final GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
 			_mapController.animateTo(currentLocation);
 			
-			// update viewing direction overlay
+			// update overlays
+			_photosOverlay.updateLocation(currentLocation);
 			_viewDirOverlay.updateLocation(currentLocation);
-			
-			// update current position overlay
 			_customMyLocOverlay.update(currentLocation);
     	}
 		
@@ -455,7 +454,8 @@ public final class PhotoMapActivity extends MapActivity {
 		
     	if (yawChanged) {
     		
-			// update viewing direction overlay
+			// update overlays
+    		_photosOverlay.updateDirection(currentYaw);
 			_viewDirOverlay.updateDirection(currentYaw);
     	}
  

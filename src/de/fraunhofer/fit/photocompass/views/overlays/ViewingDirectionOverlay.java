@@ -3,7 +3,9 @@ package de.fraunhofer.fit.photocompass.views.overlays;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Point;
 
 import com.google.android.maps.GeoPoint;
@@ -26,11 +28,16 @@ public final class ViewingDirectionOverlay extends Overlay {
 
 	private final Point _point = new Point();
 	private final Matrix _matrix = new Matrix();
+	private final Paint _paint = new Paint();
+	
+	public ViewingDirectionOverlay() {
+		_paint.setStrokeWidth(5F);
+		_paint.setColor(Color.BLUE);
+	}
 	
 	/**
 	 * Update current location.
 	 * @param location
-	 * @param direction
 	 */
 	public void updateLocation(final GeoPoint location) {
 //        Log.d(PhotoCompassApplication.LOG_TAG, "ViewingDirectionOverlay: updateLocation");
@@ -39,7 +46,6 @@ public final class ViewingDirectionOverlay extends Overlay {
 	
 	/**
 	 * Update viewing direction.
-	 * @param location
 	 * @param direction
 	 */
 	public void updateDirection(final float direction) {
@@ -62,14 +68,21 @@ public final class ViewingDirectionOverlay extends Overlay {
 		projection.toPixels(_location, _point);
  
 		// create bitmap
-		if (_bmp == null) {
-	        _bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_direction_arrow);
-		}
+//		if (_bmp == null) {
+//	        _bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_direction_arrow);
+//		}
+		
+		canvas.rotate(_direction, _point.x, _point.y);
 		
 		// draw the marker
-		_matrix.reset();
-		_matrix.postTranslate(_point.x - _bmp.getWidth() / 2, _point.y - _bmp.getHeight() / 2);
-		_matrix.postRotate(_direction, _point.x, _point.y);
-        canvas.drawBitmap(_bmp, _matrix, null);
+//		_matrix.reset();
+//		_matrix.postTranslate(_point.x - _bmp.getWidth() / 2, _point.y - _bmp.getHeight() / 2);
+//		_matrix.postRotate(_direction, _point.x, _point.y);
+//        canvas.drawBitmap(_bmp, _matrix, null);
+		
+		canvas.drawLine(_point.x, _point.y, _point.x + 40, _point.y - 250, _paint);
+		canvas.drawLine(_point.x, _point.y, _point.x - 40, _point.y - 250, _paint);
+        
+		canvas.rotate(-_direction, _point.x, _point.y);
 	}
 }

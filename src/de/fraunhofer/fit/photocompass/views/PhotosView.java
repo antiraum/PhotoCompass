@@ -29,8 +29,7 @@ import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
  * is removed, these instances are not dismissed, but kept for later reuse (for better performance).</p>
  * <p>To initiate updates of the position and dimension of the photos use these methods: {@link #updateXPositions(float, boolean)}, 
  * {@link #updateYPositions(boolean)}, {@link #updateSizes(boolean)}, and {@link #updateTextInfos(boolean)}.</p>
- * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
- * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
+ * <p>As photos can be interacted with, the view listens for touch events and interprets them with the {@link #_gestureDetector}.</p>
  */
 public final class PhotosView extends SimpleAbsoluteLayout {
 	
