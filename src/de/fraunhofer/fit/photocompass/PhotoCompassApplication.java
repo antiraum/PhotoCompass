@@ -23,6 +23,11 @@ public final class PhotoCompassApplication extends Application {
     public static final int SPLASH_ACTIVITY = 0;
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
+    
+    // display size constants (get set to measured values by the splash activity)
+    public static int DISPLAY_HEIGHT = 320;
+    public static int DISPLAY_WIDTH = 480;
+    public final static int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
 
 	// camera angle constants
 	// FIXME set this to a correct value determined by the camera capacities

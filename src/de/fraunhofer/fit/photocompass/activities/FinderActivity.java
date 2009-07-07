@@ -39,8 +39,6 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
  */
 public final class FinderActivity extends Activity {
 
-    private static final int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
-    private static int DISPLAY_HEIGHT = 320; // including status bar height
     private static final int BOTTOM_CONTROLS_HEIGHT = 25 + ControlsView.CONTROL_SIDE_PADDING + ControlsView.AGE_CONTROL_EXTRA_PADDING;
 
 	FinderActivity finderActivity; // package scoped for faster access by inner classes
@@ -307,12 +305,10 @@ public final class FinderActivity extends Activity {
         
         // initialize views
         final FinderView finderView = new FinderView(this);
-        final Display display = getWindowManager().getDefaultDisplay();
-        final int displayWidth = display.getWidth();
-        DISPLAY_HEIGHT = display.getHeight();
-        _compassView = new CompassView(this, displayWidth, DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        _photosView = new PhotosView(this, displayWidth, DISPLAY_HEIGHT - STATUSBAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT);
-        final ControlsView controlsView = new ControlsView(this, displayWidth, DISPLAY_HEIGHT - STATUSBAR_HEIGHT);
+        final int availableHeight = PhotoCompassApplication.DISPLAY_HEIGHT - PhotoCompassApplication.STATUSBAR_HEIGHT;
+        _compassView = new CompassView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight - BOTTOM_CONTROLS_HEIGHT);
+        _photosView = new PhotosView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight - BOTTOM_CONTROLS_HEIGHT);
+        final ControlsView controlsView = new ControlsView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight);
 
         // setup views
         setContentView(finderView);

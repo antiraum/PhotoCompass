@@ -11,6 +11,7 @@ import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
@@ -111,6 +112,11 @@ public final class SplashActivity extends Activity {
     public void onCreate(final Bundle savedInstanceState) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: onCreate");
         super.onCreate(savedInstanceState);
+        
+        // set application variables
+        final Display display = getWindowManager().getDefaultDisplay();
+        PhotoCompassApplication.DISPLAY_WIDTH = display.getWidth();
+        PhotoCompassApplication.DISPLAY_HEIGHT = display.getHeight();
         
         // initialize photos model
         Photos.getInstance().initialize(this);
