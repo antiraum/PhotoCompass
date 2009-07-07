@@ -13,6 +13,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
 
@@ -20,6 +21,9 @@ import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
  * This Overlay is used by {@link PhotoMapActivity} to display the current viewing direction on the map.
  */
 public final class ViewingDirectionOverlay extends Overlay {
+	
+	private static final int OVERLAY_HEIGHT = PhotoCompassApplication.DISPLAY_HEIGHT - PhotoCompassApplication.STATUSBAR_HEIGHT;
+	private static final int OVERLAY_HALF_WIDTH = (int) (Math.sin(Math.toRadians(PhotoCompassApplication.CAMERA_HDEGREES / 2)) * OVERLAY_HEIGHT);
 	
 	private GeoPoint _location; // current location
 	private float _direction; // in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
@@ -80,8 +84,8 @@ public final class ViewingDirectionOverlay extends Overlay {
 //		_matrix.postRotate(_direction, _point.x, _point.y);
 //        canvas.drawBitmap(_bmp, _matrix, null);
 		
-		canvas.drawLine(_point.x, _point.y, _point.x + 40, _point.y - 250, _paint);
-		canvas.drawLine(_point.x, _point.y, _point.x - 40, _point.y - 250, _paint);
+		canvas.drawLine(_point.x, _point.y, _point.x + OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT, _paint);
+		canvas.drawLine(_point.x, _point.y, _point.x - OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT, _paint);
         
 		canvas.rotate(-_direction, _point.x, _point.y);
 	}
