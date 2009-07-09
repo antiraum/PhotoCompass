@@ -28,8 +28,8 @@ public final class RotateView extends ViewGroup {
     @Override
     protected void dispatchDraw(final Canvas canvas) {
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.translate(0, 80); // move current location to bottom
         canvas.rotate(-_heading, getWidth() * 0.5f, getHeight() * 0.5f);
-//        canvas.translate(0, 90); // move current location to bottom
         _canvas.delegate = canvas;
         super.dispatchDraw(_canvas);
         canvas.restore();
