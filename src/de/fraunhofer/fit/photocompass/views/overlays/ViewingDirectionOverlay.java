@@ -1,11 +1,11 @@
 package de.fraunhofer.fit.photocompass.views.overlays;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 
 import com.google.android.maps.GeoPoint;
@@ -14,7 +14,6 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
 
 /**
@@ -32,11 +31,15 @@ public final class ViewingDirectionOverlay extends Overlay {
 
 	private final Point _point = new Point();
 	private final Matrix _matrix = new Matrix();
-	private final Paint _paint = new Paint();
+	private final Paint _borderPaint = new Paint();
+	private final Paint _fillPaint = new Paint();
 	
 	public ViewingDirectionOverlay() {
-		_paint.setStrokeWidth(5F);
-		_paint.setColor(Color.BLUE);
+		_borderPaint.setStrokeWidth(2.1F);
+		_borderPaint.setColor(Color.BLUE);
+		_fillPaint.setColor(Color.BLUE);
+		_fillPaint.setAlpha(50);
+		_fillPaint.setStyle(Paint.Style.FILL);
 	}
 	
 	/**
@@ -83,9 +86,15 @@ public final class ViewingDirectionOverlay extends Overlay {
 //		_matrix.postTranslate(_point.x - _bmp.getWidth() / 2, _point.y - _bmp.getHeight() / 2);
 //		_matrix.postRotate(_direction, _point.x, _point.y);
 //        canvas.drawBitmap(_bmp, _matrix, null);
-		
-		canvas.drawLine(_point.x, _point.y, _point.x + OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT, _paint);
-		canvas.drawLine(_point.x, _point.y, _point.x - OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT, _paint);
+
+		Path path = new Path();
+		path.moveTo(_point.x, _point.y);
+		path.lineTo(_point.x + OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT);
+		path.lineTo(_point.x - OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT);
+		path.close(); // left border
+		canvas.drawPath(path, _fillPaint);
+		canvas.drawLine(_point.x, _point.y, _point.x + OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT, _borderPaint);
+		canvas.drawLine(_point.x, _point.y, _point.x - OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT, _borderPaint);
         
 		canvas.rotate(-_direction, _point.x, _point.y);
 	}
