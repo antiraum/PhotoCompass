@@ -458,6 +458,6 @@ public final class Photos {
 		
 		// dummy photos (stuff near Thomas)
 		_dummies.append(R.drawable.tom_0047, new Photo(R.drawable.tom_0047, Location.convert("50:55:38.4"), Location.convert("6:56:31.2"), 102, dateTime));
-		_dummies.append(R.drawable.tom_0049, new Photo(R.drawable.tom_0049, Location.convert("50:55:37.8"), Location.convert("6:56:31.2"), 102, dateTime));
+//		_dummies.append(R.drawable.tom_0049, new Photo(R.drawable.tom_0049, Location.convert("50:55:37.8"), Location.convert("6:56:31.2"), 102, dateTime));
 	}
 }
