@@ -16,13 +16,6 @@ import android.provider.MediaStore.Images.Thumbnails;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.drew.imaging.jpeg.JpegMetadataReader;
-import com.drew.imaging.jpeg.JpegSegmentReader;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.MetadataException;
-import com.drew.metadata.Tag;
-
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
@@ -140,7 +133,8 @@ public final class Photos {
                 	continue;
 	        	}
 	        	img = mediaCursor.getString(imgCol);
-	        	alt = getAltitude(img);
+//	        	alt = getAltitude(img);
+	        	alt = 0;
                 lat = mediaCursor.getDouble(latCol); 
                 lng = mediaCursor.getDouble(lngCol); 
                 date = mediaCursor.getString(dateCol);
@@ -176,57 +170,57 @@ public final class Photos {
 	    // replace the existing _photos
 	    _photos = _photosNew;
     }
-    /**
-     * This method gets the raw path for the JPEG photo and analyze the Metadata thanks to an external 
-     * package "MetadataEtractor" located in "com.drew.*;"
-     * This function extract the altitude and put it in the  
-     * @param path
-     * @return
-     */
-    public int getAltitude (String path){
-    	Metadata metadata = null;
-		int altitude = 0;
-//TODO - I do not know if "path" is the whole path for a photo or we should search in the directory and choose a specific one
-//In order to obtain the altitude of the correct file I have to check which file I am dealing with
-        try {
-        	File file = new File(path);
-            JpegSegmentReader segmentReader = new JpegSegmentReader(file);
-            metadata = JpegMetadataReader.extractMetadataFromJpegSegmentReader(segmentReader);
-            
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            System.exit(1);
-        }
-      //We iterate between all the metadata in order to get the GPS data and therefore the altitude.
-        Iterator directories = metadata.getDirectoryIterator();
-        while (directories.hasNext()) {
-            Directory directory = (Directory)directories.next();
-            Iterator tags = directory.getTagIterator();
-            while (tags.hasNext()) {
-                Tag tag = (Tag)tags.next();
-                try {
-                //This part obtains the GPS-altitude info.
-                	if (directory.getName().equals ("GPS")){
-                		if (tag.getTagName().equals("GPS Altitude")){
-                			String delims = "[ ]+";
-                			String[] tokens = (tag.getDescription()).split(delims);
-                			altitude= new Integer(tokens[0]); //parsed into int.
-                		}
-                	}
-                } catch (MetadataException e) {
-                    System.err.println(e.getMessage());
-                    System.err.println(tag.getDirectoryName() + " " + tag.getTagName() + " (error)");
-                }
-            }
-            if (directory.hasErrors()) {
-                Iterator errors = directory.getErrors();
-                while (errors.hasNext()) {
-                    System.out.println("ERROR: " + errors.next());
-                }
-            }
-        }
-        return altitude;
-    }    
+//    /**
+//     * This method gets the raw path for the JPEG photo and analyze the Metadata thanks to an external 
+//     * package "MetadataEtractor" located in "com.drew.*;"
+//     * This function extract the altitude and put it in the  
+//     * @param path
+//     * @return
+//     */
+//    public int getAltitude (String path){
+//    	Metadata metadata = null;
+//		int altitude = 0;
+////TODO - I do not know if "path" is the whole path for a photo or we should search in the directory and choose a specific one
+////In order to obtain the altitude of the correct file I have to check which file I am dealing with
+//        try {
+//        	File file = new File(path);
+//            JpegSegmentReader segmentReader = new JpegSegmentReader(file);
+//            metadata = JpegMetadataReader.extractMetadataFromJpegSegmentReader(segmentReader);
+//            
+//        } catch (Exception e) {
+//            e.printStackTrace(System.err);
+//            System.exit(1);
+//        }
+//      //We iterate between all the metadata in order to get the GPS data and therefore the altitude.
+//        Iterator directories = metadata.getDirectoryIterator();
+//        while (directories.hasNext()) {
+//            Directory directory = (Directory)directories.next();
+//            Iterator tags = directory.getTagIterator();
+//            while (tags.hasNext()) {
+//                Tag tag = (Tag)tags.next();
+//                try {
+//                //This part obtains the GPS-altitude info.
+//                	if (directory.getName().equals ("GPS")){
+//                		if (tag.getTagName().equals("GPS Altitude")){
+//                			String delims = "[ ]+";
+//                			String[] tokens = (tag.getDescription()).split(delims);
+//                			altitude= new Integer(tokens[0]); //parsed into int.
+//                		}
+//                	}
+//                } catch (MetadataException e) {
+//                    System.err.println(e.getMessage());
+//                    System.err.println(tag.getDirectoryName() + " " + tag.getTagName() + " (error)");
+//                }
+//            }
+//            if (directory.hasErrors()) {
+//                Iterator errors = directory.getErrors();
+//                while (errors.hasNext()) {
+//                    System.out.println("ERROR: " + errors.next());
+//                }
+//            }
+//        }
+//        return altitude;
+//    }    
     /**
      * Get a {@link Photo} object for a photo/resource id.
      * 

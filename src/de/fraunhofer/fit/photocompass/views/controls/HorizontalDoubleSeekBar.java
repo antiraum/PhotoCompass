@@ -10,10 +10,23 @@ import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
+/**
+ * SeekBar (slider) control with two thumbs for horizontal display. Displays
+ * labels above the thumbs. Label values are retrieved from the Callback.
+ */
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	private final int topPadding = 13;
 
-	public HorizontalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback) {
+	/**
+	 * Creates a new HorizontalDoubleSeekBar using the application's Context and
+	 * a custom callback that is used to retrieve the labels as well as to
+	 * notify the application model about changes.
+	 * 
+	 * @param context
+	 * @param callback
+	 */
+	public HorizontalDoubleSeekBar(final Context context,
+			final IDoubleSeekBarCallback callback) {
 		super(context, callback);
 		Resources res = this.getResources();
 		this.startThumbNormal = res.getDrawable(R.drawable.seek_thumb_normal);
@@ -28,13 +41,15 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.selectionRect.bottom = this.barThickness + this.barPadding
 				+ this.topPadding;
 		this.paint.setTextAlign(Align.CENTER);
-		backgroundGradient = new LinearGradient(0, topPadding + barPadding, 0, topPadding + barPadding + barThickness / 2,
-												PhotoCompassApplication.GREY, PhotoCompassApplication.DARK_GREY,
-												Shader.TileMode.MIRROR);
-		selectionGradient = new LinearGradient(0, topPadding + barPadding, 0, topPadding + barPadding + barThickness / 2,
-											   PhotoCompassApplication.ORANGE, PhotoCompassApplication.DARK_ORANGE,
-										 	   Shader.TileMode.MIRROR);
-		
+		backgroundGradient = new LinearGradient(0, topPadding + barPadding, 0,
+				topPadding + barPadding + barThickness / 2,
+				PhotoCompassApplication.GREY,
+				PhotoCompassApplication.DARK_GREY, Shader.TileMode.MIRROR);
+		selectionGradient = new LinearGradient(0, topPadding + barPadding, 0,
+				topPadding + barPadding + barThickness / 2,
+				PhotoCompassApplication.ORANGE,
+				PhotoCompassApplication.DARK_ORANGE, Shader.TileMode.MIRROR);
+
 		this.startLabelY = 9;
 		this.endLabelY = 9;
 	}
@@ -57,7 +72,7 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 		this.selectionRect.left = begin + halfAThumb;
 		this.startLabelX = this.startThumb.getBounds().centerX();
 	}
-	
+
 	protected void updateEndBounds() {
 		int begin = convertToConcrete(this.getEndValue()) - halfAThumb;
 		this.endThumb.setBounds(begin, topPadding, begin

@@ -14,6 +14,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
+/**
+ * Abstract SeekBar (slider) class that supports the selection of an interval. For this purpose,
+ * two thumbs are displayed and draggable. For concrete implementations, see
+ * {@link HorizontalDoubleSeekBar} or {@link VerticalDoubleSeekBar}.
+ * 
+ * @author joni
+ *
+ */
 public abstract class DoubleSeekBar extends View {
 
 	/**
