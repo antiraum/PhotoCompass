@@ -25,9 +25,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	 * @param context
 	 * @param callback
 	 */
-	public HorizontalDoubleSeekBar(final Context context,
-			final IDoubleSeekBarCallback callback) {
-		super(context, callback);
 	public HorizontalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback, boolean lightBackground) {
 		super(context, callback, lightBackground);
 		Resources res = this.getResources();
