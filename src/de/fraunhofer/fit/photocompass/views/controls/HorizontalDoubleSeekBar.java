@@ -13,8 +13,8 @@ import de.fraunhofer.fit.photocompass.R;
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	private final int topPadding = 13;
 
-	public HorizontalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback) {
-		super(context, callback);
+	public HorizontalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback, boolean lightBackground) {
+		super(context, callback, lightBackground);
 		Resources res = this.getResources();
 		this.startThumbNormal = res.getDrawable(R.drawable.seek_thumb_normal);
 		this.startThumbActive = res.getDrawable(R.drawable.seek_thumb_pressed);

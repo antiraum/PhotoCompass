@@ -68,10 +68,13 @@ public abstract class DoubleSeekBar extends View {
 	protected LinearGradient selectionGradient;
 
 	protected IDoubleSeekBarCallback callback;
+	
+	private boolean _lightBackground = false;
 
-	public DoubleSeekBar(final Context context, IDoubleSeekBarCallback callback) {
+	public DoubleSeekBar(final Context context, IDoubleSeekBarCallback callback, boolean lightBackground) {
 		super(context);
 		this.callback = callback;
+		_lightBackground = lightBackground;
 
 		this.setStartValue(callback.getMinValue());
 		this.startLabel = callback.getMinLabel();
@@ -106,7 +109,7 @@ public abstract class DoubleSeekBar extends View {
 		endThumb.draw(canvas);
 
 		paint.setShader(null);
-		paint.setColor(Color.WHITE);
+		paint.setColor(_lightBackground ? Color.DKGRAY : Color.WHITE);
 		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
 				paint);
 		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,

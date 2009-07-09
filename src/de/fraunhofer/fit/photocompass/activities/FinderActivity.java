@@ -38,7 +38,7 @@ import de.fraunhofer.fit.photocompass.views.PhotosView;
  */
 public final class FinderActivity extends Activity {
 
-    private static final int BOTTOM_CONTROLS_HEIGHT = 25 + ControlsView.CONTROL_SIDE_PADDING + ControlsView.AGE_CONTROL_EXTRA_PADDING;
+    private static final int BOTTOM_CONTROLS_HEIGHT = 25 + ControlsView.CONTROL_SIDE_PADDING + ControlsView.BOTTOM_EXTRA_PADDING;
 
 	FinderActivity finderActivity; // package scoped for faster access by inner classes
     
@@ -307,7 +307,8 @@ public final class FinderActivity extends Activity {
         final int availableHeight = PhotoCompassApplication.DISPLAY_HEIGHT - PhotoCompassApplication.STATUSBAR_HEIGHT;
         _compassView = new CompassView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight - BOTTOM_CONTROLS_HEIGHT);
         _photosView = new PhotosView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight - BOTTOM_CONTROLS_HEIGHT);
-        final ControlsView controlsView = new ControlsView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight);
+        final ControlsView controlsView = new ControlsView(this, PhotoCompassApplication.DISPLAY_WIDTH, availableHeight,
+        												   true, true, false);
 
         // setup views
         setContentView(finderView);

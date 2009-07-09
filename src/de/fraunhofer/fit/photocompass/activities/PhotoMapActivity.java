@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.view.ViewGroup.LayoutParams;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -34,6 +35,7 @@ import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.views.ControlsView;
 import de.fraunhofer.fit.photocompass.views.layouts.RotateView;
 import de.fraunhofer.fit.photocompass.views.overlays.CustomMyLocationOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.PhotosOverlay;
@@ -303,6 +305,13 @@ public final class PhotoMapActivity extends MapActivity {
         _rotateView = new RotateView(this);
         _rotateView.addView(_mapView);
         setContentView(_rotateView);
+
+        // controls view
+        final ControlsView controlsView =
+        	new ControlsView(this, PhotoCompassApplication.DISPLAY_WIDTH, 
+        					 PhotoCompassApplication.DISPLAY_HEIGHT - PhotoCompassApplication.STATUSBAR_HEIGHT,
+        					 false, true, true);
+        addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
 		// viewing direction overlay
 		_viewDirOverlay = new ViewingDirectionOverlay();
