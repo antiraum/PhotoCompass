@@ -2,6 +2,7 @@ package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -93,5 +94,13 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
 	protected float getEventCoordinate(final MotionEvent event) {
 		return event.getY();
 	}
-
+	
+    @Override
+    protected void drawLabels(Canvas canvas) {
+		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
+				this.paint);
+		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,
+				this.paint);
+    }
+    
 }

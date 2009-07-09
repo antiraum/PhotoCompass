@@ -2,6 +2,7 @@ package de.fraunhofer.fit.photocompass.views.controls;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -16,6 +17,7 @@ import de.fraunhofer.fit.photocompass.R;
  */
 public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	private final int topPadding = 13;
+	private static final int LABEL_PADDING = 5;
 
 	/**
 	 * Creates a new HorizontalDoubleSeekBar using the application's Context and
@@ -25,7 +27,8 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	 * @param context
 	 * @param callback
 	 */
-	public HorizontalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback, boolean lightBackground) {
+	public HorizontalDoubleSeekBar(final Context context,
+			final IDoubleSeekBarCallback callback, boolean lightBackground) {
 		super(context, callback, lightBackground);
 		Resources res = this.getResources();
 		this.startThumbNormal = res.getDrawable(R.drawable.seek_thumb_normal);
@@ -98,6 +101,34 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	@Override
 	protected float getEventCoordinate(final MotionEvent event) {
 		return event.getX();
+	}
+
+	@Override
+	protected void drawLabels(Canvas canvas) {
+		float slWidth2 = this.paint.measureText(this.startLabel) / 2;
+		float elWidth2 = this.paint.measureText(this.endLabel) / 2;
+		float slX = this.startLabelX;
+		float elX = this.endLabelX;
+
+		if (elX - slX + slWidth2 + elWidth2 + LABEL_PADDING <= size) {
+			if ((elX - elWidth2) - (slX + slWidth2) < LABEL_PADDING) {
+				float offset = ((slWidth2 + elWidth2 + LABEL_PADDING) - (elX - slX))/2;
+				slX -= offset;
+				elX += offset;
+			}
+			if (slX - slWidth2 < 0) {
+				slX = slWidth2;
+				elX = Math.min(elX, slX + slWidth2 + LABEL_PADDING);
+			} else if (elX + elWidth2 > size) {
+				elX = size - elWidth2;
+				slX = Math.max(slX, elX - LABEL_PADDING);
+			}
+		} else {
+			// TODO Labels too big for screen - should not really happen...
+		}
+
+		canvas.drawText(this.startLabel, slX, this.startLabelY, this.paint);
+		canvas.drawText(this.endLabel, elX, this.endLabelY, this.paint);
 	}
 
 }

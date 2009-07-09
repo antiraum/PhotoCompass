@@ -99,8 +99,8 @@ public abstract class DoubleSeekBar extends View {
 	 * @param callback
 	 *            The callback used for interaction with the model
 	 * @param lightBackground
-	 *            Whether the bar should have a light (<code>true</code>) or a
-	 *            dark (<code>false</code>) background
+	 *            Whether the DoubleSeekBar is drawn on a light (
+	 *            <code>true</code>) or a dark (<code>false</code>) background
 	 */
 	public DoubleSeekBar(final Context context,
 			IDoubleSeekBarCallback callback, boolean lightBackground) {
@@ -142,14 +142,12 @@ public abstract class DoubleSeekBar extends View {
 
 		paint.setShader(null);
 		paint.setColor(_lightBackground ? Color.DKGRAY : Color.WHITE);
-		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
-				paint);
-		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,
-				this.paint);
-
+		this.drawLabels(canvas);
 		// paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
+
+	protected abstract void drawLabels(Canvas canvas);
 
 	/**
 	 * Updates size-dependent positions and values upon resizing. backgroundRect
