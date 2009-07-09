@@ -20,8 +20,14 @@ public final class PhotoCompassApplication extends Application {
     public static final int TARGET_PLATFORM = 1; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
     
     // activity constants
+    public static final int SPLASH_ACTIVITY = 0;
     public static final int FINDER_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
+    
+    // display size constants (get set to measured values by the splash activity)
+    public static int DISPLAY_HEIGHT = 320;
+    public static int DISPLAY_WIDTH = 480;
+    public final static int STATUSBAR_HEIGHT = 25; // FIXME no hard-coded values
 
 	// camera angle constants
 	// FIXME set this to a correct value determined by the camera capacities
@@ -44,6 +50,8 @@ public final class PhotoCompassApplication extends Application {
     // dummy photo settings (enable for development when a fixed set of photos is needed)
     public static final boolean USE_DUMMY_PHOTOS = true;
     
+    public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds) 
+    
     /**
      * Constructor.
      * Initializes the models {@link ApplicationModel} and {@link Photos}.
@@ -61,26 +69,26 @@ public final class PhotoCompassApplication extends Application {
 	    	dummyLocation.setLongitude(Location.convert("7:12:14.54")); // FIT
 	    	dummyLocation.setAltitude(125); // FIT
     	}
-    	
-    	// initialize models
-    	ApplicationModel.getInstance();
-    	Photos.getInstance();
     }
     
     /**
      * Returns the activity constant for a roll value from the orientation sensor.
      * Is used by the activities to determine when they have to switch to another activity.
      * 
-     * @param roll Roll value of the orientation sensor (values from -180 to 180).
+     * @param roll Roll value of the orientation sensor (values from -180 to 180 (on sensor simulator) / -90 to 90 mirrored (on G1)).
+     * @param currentActivity Current activity ({@link #FINDER_ACTIVITY} or {@link #MAP_ACTIVITY})
      * @return Activity constant of the correct activity at this roll value.
      * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
      * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
-    public static int getActivityForRoll(final float roll) {
-    	if ((roll > -135 && roll < -45) || (roll > 45 && roll < 135)) {
-    		return FINDER_ACTIVITY;
-    	} else {
-    		return MAP_ACTIVITY;
+    public static int getActivityForRoll(final float roll, final int currentActivity) {
+    	switch (currentActivity) {
+	    	case FINDER_ACTIVITY:
+	    		return (roll > -30 && roll < 30) ? MAP_ACTIVITY : FINDER_ACTIVITY;
+	    	case MAP_ACTIVITY:
+	    		return (roll < -60 || roll > 60) ? FINDER_ACTIVITY : MAP_ACTIVITY;
+	    	default:
+	    		return (roll > -45 && roll < 45) ? MAP_ACTIVITY : FINDER_ACTIVITY;
     	}
     }
 }

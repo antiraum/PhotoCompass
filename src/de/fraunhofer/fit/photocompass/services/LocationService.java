@@ -25,10 +25,10 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
  */
 public final class LocationService extends Service {
 	
-	private static int MIN_LOCATION_UPDATE_TIME = 30 * 1000; // in milliseconds
-	private static int MIN_LOCATION_UPDATE_DISTANCE = 5; // in meters
+	private static long MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000L; // in milliseconds
+	public static float MIN_LOCATION_UPDATE_DISTANCE = 10F; // in meters
 	
-	private static final int CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000; // in milliseconds
+	private static final long CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000L; // in milliseconds
     private final Handler _providerCheckHandler = new Handler();
     private final Runnable _providerCheckCaller = new Runnable() {
         public void run() {
@@ -84,19 +84,27 @@ public final class LocationService extends Service {
 		 * Broadcasts the new location to all registered callbacks.
 		 */
 		public void onLocationChanged(Location location) {
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
+	    	
+	    	// check if there are callbacks registered
+		    final int numCallbacks = remoteCallbacks.beginBroadcast();
+	    	if (numCallbacks == 0) {
+	    		remoteCallbacks.finishBroadcast();
+	    		return;
+	    	}
 			
 			if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
 			
 			if (location == null) return;
 			
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onLocationChanged");
-			
 	        // broadcast the new location to all registered callbacks
-	        final int numCallbacks = remoteCallbacks.beginBroadcast();
+			final double lat = location.getLatitude();
+			final double lng = location.getLongitude();
+			final boolean hasAlt = location.hasAltitude();
+			final double alt = location.getAltitude(); 
 	        for (int i = 0; i < numCallbacks; i++) {
 	            try {
-	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(location.getLatitude(), location.getLongitude(),
-	                													location.hasAltitude(), location.getAltitude());
+	                remoteCallbacks.getBroadcastItem(i).onLocationEvent(lat, lng, hasAlt, alt);
 	            } catch (final DeadObjectException e) {
 	                // the RemoteCallbackList will take care of removing the dead object
 	            } catch (final RemoteException e) {
@@ -143,6 +151,7 @@ public final class LocationService extends Service {
 		    	Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onStatusChanged: provider = "+provider+
 		    										   ", status = TEMPORARILY_UNAVAILABLE");
 	    		chooseLocationProvider(locationProvider); // look for better provider 
+	    		// TODO make a time limit for TEMPORARILY_UNAVAILABLE / if exceeded switch to any other available provider
 	    	}
 		}
     };
@@ -150,7 +159,7 @@ public final class LocationService extends Service {
     public LocationService() {
     	// the emulator is always getting new locations with a great variety
     	if (PhotoCompassApplication.RUNNING_ON_EMULATOR) {
-	    	MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000; // in milliseconds
+	    	MIN_LOCATION_UPDATE_TIME = 5 * 60 * 1000; // in milliseconds
 	    	MIN_LOCATION_UPDATE_DISTANCE = 1000; // in meters
     	}
     }
@@ -170,7 +179,8 @@ public final class LocationService extends Service {
         	
     	// setup criteria for choosing the location provider
     	_criteria.setAccuracy(Criteria.ACCURACY_FINE);
-    	_criteria.setAltitudeRequired(true);
+//    	_criteria.setAltitudeRequired(true);
+    	_criteria.setAltitudeRequired(false); // disabled altitude support in this release
     	_criteria.setBearingRequired(false);
     	_criteria.setCostAllowed(false);
     	_criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);

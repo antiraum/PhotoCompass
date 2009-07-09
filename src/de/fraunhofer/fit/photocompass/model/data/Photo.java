@@ -18,18 +18,18 @@ public final class Photo {
 
 	private int _resourceId = 0;
 	private int _photoId = 0; // MediaStore.Images.Thumbnails.IMAGE_ID of the photo
-	private double _lat;
-	private double _lng;
+	public double lat; // Latitude of the photo
+	public double lng; // Longitude of the photo
 	private double _alt = 0;
 	private long _date; // The date & time that the image was taken in units of milliseconds since January 1, 1970
-	private Uri _thumbUri; // URI of the Thumbnail file
+	public Uri thumbUri; // URI of the Thumbnail file
 	
 	private GeoPoint _geoPoint;
-	private int _origWidth = 0;
-	private int _origHeight = 0;
-	private float _distance = 0;
-	private double _direction = 0;
-	private double _altOffset = 0;
+	public int origWidth = 0; // Original width of the photo
+	public int origHeight = 0; // Original height of the photo
+	public float distance = 0; // Saved distance in meters
+	public double direction = 0; // Saved direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
+	public double altOffset = 0; // Saved altitude offset in meters
 	
 	// position on the last updateDistanceAndDirection call
 	private double _lastUpdateLat;
@@ -48,11 +48,11 @@ public final class Photo {
 	 */
 	public Photo(final int photoId, final Uri thumbUri, final double lat, final double lng, final double alt, final long date) {
 		_photoId = photoId;
-		_lat = lat;
-		_lng = lng;
+		this.lat = lat;
+		this.lng = lng;
 		_alt = alt;
 		_date = date;
-		_thumbUri = thumbUri;
+		this.thumbUri = thumbUri;
 	}
 	
 	/**
@@ -66,8 +66,8 @@ public final class Photo {
 	 */
 	public Photo(final int resourceId, final double lat, final double lng, final double alt, final long date) {
 		_resourceId = resourceId;
-		_lat = lat;
-		_lng = lng;
+		this.lat = lat;
+		this.lng = lng;
 		_alt = alt;
 		_date = date;
 	}
@@ -93,31 +93,10 @@ public final class Photo {
 	}
 	
 	/**
-	 * @return URI of the thumbnail file.
-	 */
-	public Uri getThumbUri() {
-		return _thumbUri;
-	}
-
-	/**
-	 * @return Latitude of the photo.
-	 */
-	public double getLat() {
-		return _lat;
-	}
-
-	/**
-	 * @return Longitude of the photo.
-	 */
-	public double getLng() {
-		return _lng;
-	}
-	
-	/**
 	 * @return GeoPoint of the photo location for use in Google maps.
 	 */
 	public GeoPoint getGeoPoint() {
-		if (_geoPoint == null) _geoPoint = new GeoPoint((int)(_lat * 1E6), (int)(_lng * 1E6));
+		if (_geoPoint == null) _geoPoint = new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
 		return _geoPoint;
 	}
 
@@ -130,38 +109,25 @@ public final class Photo {
 	 * @param resources {@link Resources} of the application.
 	 */
 	public void determineOrigSize(final Resources resources) {
-		if (_origWidth != 0 && _origHeight != 0) return; // already determined
+		if (origWidth != 0 && origHeight != 0) return; // already determined
 		Bitmap bmp;
 		if (isDummyPhoto()) {
 			bmp = BitmapFactory.decodeResource(resources, _resourceId);
 		} else {
-			bmp = BitmapFactory.decodeFile(_thumbUri.getPath());
+			bmp = BitmapFactory.decodeFile(thumbUri.getPath());
 		}
 		if (bmp == null) { // file does not exists
 	    	return;
 		}
-		_origWidth = bmp.getWidth();
-		_origHeight = bmp.getHeight();
+		origWidth = bmp.getWidth();
+		origHeight = bmp.getHeight();
 		bmp.recycle();
+		bmp = null;
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: _origWidth = "+_origWidth+", _origHeight = "+_origHeight);
-	}
-
-	/**
-	 * @return Original width of the photo.
-	 */
-	public int getOrigWidth() {
-		return _origWidth;
-	}
-
-	/**
-	 * @return Original height of the photo.
-	 */
-	public int getOrigHeight() {
-		return _origHeight;
 	}
 	
 	/**
-	 * Updates {@link #_distance}, {@link #_direction}, and {@link #_altOffset} relative to a given position.
+	 * Updates {@link #distance}, {@link #direction}, and {@link #altOffset} relative to a given position.
 	 * Only performs calculations if the position parameters have changed since the last call.
 	 * 
 	 * @param currentLat Latitude of the current location.
@@ -174,40 +140,32 @@ public final class Photo {
 		
 			// distance calculation
 			float[] results = new float[1];
-			Location.distanceBetween(currentLat, currentLng, _lat, _lng, results);
-			_distance = results[0];
+			Location.distanceBetween(currentLat, currentLng, lat, lng, results);
+			distance = results[0];
 	
 			// direction calculation - taken from com.google.android.radar.GeoUtils (http://code.google.com/p/apps-for-android)
 	        final double lat1Rad = Math.toRadians(currentLat);
-	        final double lat2Rad = Math.toRadians(_lat);
-	        final double deltaLonRad = Math.toRadians(_lng - currentLng);
+	        final double lat2Rad = Math.toRadians(lat);
+	        final double deltaLonRad = Math.toRadians(lng - currentLng);
 	        final double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
 	        final double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad);
-	        _direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
+	        direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
 	        // end direction calculation
 		}
 
-		if (_lastUpdateAlt != currentAlt && _alt != 0) { // altitude has changed
+// disabled altitude offset calculation - keep the code for later releases
+/*		if (_lastUpdateAlt != currentAlt && _alt != 0) { // altitude has changed
 			
 			// altitude offset calculation
-	        _altOffset = (currentAlt == 0) ? 0 // no valid altitude -> no valid offset possible
-	        							   : _alt - currentAlt;
-		}
+	        altOffset = (currentAlt == 0) ? 0 // no valid altitude -> no valid offset possible
+	        							  : _alt - currentAlt;
+		} */
 		
 		_lastUpdateLat = currentLat;
 		_lastUpdateLng = currentLng;
 		_lastUpdateAlt = currentAlt;
 		
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", _distance = "+_distance+", _direction = "+_direction+", _altOffset = "+_altOffset);
-	}
-	
-	/**
-	 * Returns the saved distance.
-	 * 
-	 * @return Distance in meters.
-	 */
-	public float getDistance() {
-		return _distance;
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
 	}
 	
 	/**
@@ -216,25 +174,7 @@ public final class Photo {
 	 * @return Distance as a formatted string for display.
 	 */
 	public String getFormattedDistance() {
-		return OutputFormatter.formatDistance(_distance);
-	}
-	
-	/**
-	 * Returns the saved direction.
-	 * 
-	 * @return Direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
-	 */
-	public double getDirection() {
-		return _direction;
-	}
-	
-	/**
-	 * Returns the saved altitude offset.
-	 * 
-	 * @return Altitude offset in meters.
-	 */
-	public double getAltOffset() {
-		return _altOffset;
+		return OutputFormatter.formatDistance(distance);
 	}
 	
 	/**
@@ -243,7 +183,7 @@ public final class Photo {
 	 * @return Altitude offset as a formatted string for display.
 	 */
 	public String getFormattedAltOffset() {
-		return OutputFormatter.formatAltOffset(_altOffset);
+		return OutputFormatter.formatAltOffset(altOffset);
 	}
 	
 	/**

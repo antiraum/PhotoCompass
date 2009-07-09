@@ -10,10 +10,10 @@ import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 
-public class VerticalDoubleSeekBar extends DoubleSeekBar {
+public final class VerticalDoubleSeekBar extends DoubleSeekBar {
 
-	public VerticalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback) {
-		super(context, callback);
+	public VerticalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback, boolean lightBackground) {
+		super(context, callback, lightBackground);
 		Resources res = this.getResources();
 		this.startThumbNormal = res
 				.getDrawable(R.drawable.seek_thumb_normal_vertical);

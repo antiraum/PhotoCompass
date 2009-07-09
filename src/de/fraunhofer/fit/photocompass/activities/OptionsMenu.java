@@ -26,6 +26,7 @@ public final class OptionsMenu {
 	 * @return	   Populated {@link Menu}.
 	 */
 	public static Menu populateMenu(Menu menu) {
+		System.gc(); // good point to run the GC
         menu.add(0, MENU_OPEN_CAMERA, 0, "Take New Photo").setIcon(R.drawable.menu_camera);
         menu.add(0, MENU_QUIT, 0, "Quit PhotoCompass").setIcon(R.drawable.menu_quit);
         return menu;

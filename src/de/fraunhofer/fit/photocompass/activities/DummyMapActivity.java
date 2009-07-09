@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,8 +27,8 @@ import de.fraunhofer.fit.photocompass.services.OrientationService;
 public final class DummyMapActivity extends Activity {
 
 	DummyMapActivity mapActivity; // package scoped for faster access by inner classes
-    IOrientationService orientationService; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService;
+    IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToOrientationService = false;
 
     /**
      * Connection object for the connection with the {@link OrientationService}.
@@ -88,24 +89,23 @@ public final class DummyMapActivity extends Activity {
 	    	_roll = roll;
             
             // switch to activity based on orientation
-        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
 	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 	    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
+	    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);
 	    		startActivity(new Intent(mapActivity, FinderActivity.class));
 		        finish(); // close this activity
+				System.gc(); // good point to run the GC
 	    	}
         }
     };
     
     /**
      * Constructor.
-     * Initializes the state variables.
      */
     public DummyMapActivity() {
     	super();
     	mapActivity = this;
-        orientationService = null;
-        _boundToOrientationService = false;
     }
 
     /**
@@ -135,7 +135,8 @@ public final class DummyMapActivity extends Activity {
         // connect to orientation service
     	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
     	_boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn, Context.BIND_AUTO_CREATE);
-    	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
+    	if (! _boundToOrientationService)
+    		Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
     }
     
     /**

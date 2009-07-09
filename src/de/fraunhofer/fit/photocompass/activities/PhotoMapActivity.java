@@ -3,10 +3,12 @@ package de.fraunhofer.fit.photocompass.activities;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.IBinder;
@@ -33,6 +35,8 @@ import de.fraunhofer.fit.photocompass.services.IOrientationService;
 import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
 import de.fraunhofer.fit.photocompass.services.LocationService;
 import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.views.ControlsView;
+import de.fraunhofer.fit.photocompass.views.layouts.RotateView;
 import de.fraunhofer.fit.photocompass.views.overlays.CustomMyLocationOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.PhotosOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.ViewingDirectionOverlay;
@@ -51,6 +55,7 @@ public final class PhotoMapActivity extends MapActivity {
 	double currentAlt = 0; // package scoped for faster access by inner classes
 	float currentYaw = 0; // package scoped for faster access by inner classes
 
+	private RotateView _rotateView;
 	private MapView _mapView;
 	private MapController _mapController;
 	
@@ -59,13 +64,13 @@ public final class PhotoMapActivity extends MapActivity {
 	private CustomMyLocationOverlay _customMyLocOverlay;
 	private PhotosOverlay _photosOverlay;
 
-    ILocationService locationService; // package scoped for faster access by inner classes
-    private boolean _boundToLocationService;
-    IOrientationService orientationService; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService;
+    ILocationService locationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToLocationService = false;
+    IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    private boolean _boundToOrientationService = false;
 
-    private Photos _photosModel;
-    private ApplicationModel _appModel;
+    private final Photos _photosModel = Photos.getInstance();
+    private final ApplicationModel _appModel = ApplicationModel.getInstance();
 
     /**
      * Connection object for the connection with the {@link LocationService}.
@@ -117,11 +122,15 @@ public final class PhotoMapActivity extends MapActivity {
         public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
         	
         	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
+			
+			// Check the distance between last and new location and only update if greater than the minimum
+        	// update distance. Otherwise we get too many updates because of invalid altitude values. 
+			float[] results = new float[1];
+			Location.distanceBetween(currentLat, currentLng, lat, lng, results);
+			if (results[0] < LocationService.MIN_LOCATION_UPDATE_DISTANCE) return;
         	
-        	if (lat == currentLat && lng == currentLng && (! hasAlt || alt == currentAlt)) return; // no change
-        	
-//        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent");
 	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = "+lat+", lng = "+lng+", alt = "+alt);
+			Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: changed by "+results[0]+" meters");
             
         	final boolean latChanged = (lat == currentLat) ? false : true;
         	final boolean lngChanged = (lng == currentLng) ? false : true;
@@ -194,11 +203,13 @@ public final class PhotoMapActivity extends MapActivity {
 		    	_roll = roll;
 	            
 	            // switch to activity based on orientation
-	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll);
+	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
+		    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);
 		    		startActivity(new Intent(mapActivity, FinderActivity.class));
 			        finish(); // close this activity
+					System.gc(); // good point to run the GC
 		    	}
 	    	}
 	    	
@@ -265,21 +276,12 @@ public final class PhotoMapActivity extends MapActivity {
 	
     /**
      * Constructor.
-     * Initializes the state variables.
      */
     public PhotoMapActivity() {
     	super();
     	mapActivity = this;
-    	
-    	// initialize service variables
-        locationService = null;
-        _boundToLocationService = false;
-        orientationService = null;
-        _boundToOrientationService = false;
         
-        // initialize model variables and register as callback
-        _photosModel = Photos.getInstance();
-    	_appModel = ApplicationModel.getInstance();
+        // register as application model callback
     	_appModel.registerCallback(_appModelCallback);
     }
 
@@ -296,10 +298,20 @@ public final class PhotoMapActivity extends MapActivity {
         
         // map view
 		_mapView = new MapView(this, MAPS_API_KEY);
-		_mapView.setClickable(true);
+		_mapView.setClickable(false); // disable panning
 		_mapView.setEnabled(true);
-//		_mapView.setBuiltInZoomControls(true); // XXX comment this line for target 1 compatibility
-		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+//		_mapView.setBuiltInZoomControls(true); // disabled by purpose (comment this line for target 1 compatibility)
+//		setContentView(_mapView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        _rotateView = new RotateView(this);
+        _rotateView.addView(_mapView);
+        setContentView(_rotateView);
+
+        // controls view
+        final ControlsView controlsView =
+        	new ControlsView(this, PhotoCompassApplication.DISPLAY_WIDTH, 
+        					 PhotoCompassApplication.DISPLAY_HEIGHT - PhotoCompassApplication.STATUSBAR_HEIGHT,
+        					 false, true, true);
+        addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		
 		// viewing direction overlay
 		_viewDirOverlay = new ViewingDirectionOverlay();
@@ -341,7 +353,7 @@ public final class PhotoMapActivity extends MapActivity {
     	if (! _boundToOrientationService) Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to connect to orientation service");
     	
     	// let photos model check if the available photos have changed
-    	Photos.getInstance().updatePhotos(this);
+    	_photosModel.updatePhotos(this);
     }
     
     /**
@@ -429,10 +441,9 @@ public final class PhotoMapActivity extends MapActivity {
 			final GeoPoint currentLocation = new GeoPoint((int)(currentLat * 1E6), (int)(currentLng * 1E6));
 			_mapController.animateTo(currentLocation);
 			
-			// update viewing direction overlay
+			// update overlays
+			_photosOverlay.updateLocation(currentLocation);
 			_viewDirOverlay.updateLocation(currentLocation);
-			
-			// update current position overlay
 			_customMyLocOverlay.update(currentLocation);
     	}
 		
@@ -446,18 +457,22 @@ public final class PhotoMapActivity extends MapActivity {
     		
     		// update photos
     		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.getPhotos()));
-    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.getPhotos()));
+    		_photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.photos, false, true));
+    		_photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.photos, false, true));
     	}
 		
     	if (yawChanged) {
     		
-			// update viewing direction overlay
+			// update overlays
+    		_photosOverlay.updateDirection(currentYaw);
 			_viewDirOverlay.updateDirection(currentYaw);
     	}
  
 		// redraw map
 		_mapView.postInvalidate();
+		
+		// rotate
+		if (yawChanged) _rotateView.setHeading(currentYaw);
 	}
     
     /**

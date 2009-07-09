@@ -8,8 +8,11 @@ import java.util.ListIterator;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.Photos;
@@ -26,8 +29,7 @@ import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
  * is removed, these instances are not dismissed, but kept for later reuse (for better performance).</p>
  * <p>To initiate updates of the position and dimension of the photos use these methods: {@link #updateXPositions(float, boolean)}, 
  * {@link #updateYPositions(boolean)}, {@link #updateSizes(boolean)}, and {@link #updateTextInfos(boolean)}.</p>
- * <p>As photos can be interacted with, the view provides the methods {@link #onFling(float, float, float, float)} and 
- * {@link #onSingleTapUp(float, float)} to pass touch events to it.</p>
+ * <p>As photos can be interacted with, the view listens for touch events and interprets them with the {@link #_gestureDetector}.</p>
  */
 public final class PhotosView extends SimpleAbsoluteLayout {
 	
@@ -43,10 +45,10 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	
 	private static float DEGREE_WIDTH; // width of one degree direction  
 	
-	private Photos _photosModel;
+	private final Photos _photosModel = Photos.getInstance();
 	
 	/**
-	 * Layer containing the {@link #_photoViews}.
+	 * Layer containing the {@link #photoViews}.
 	 */
 	private SimpleAbsoluteLayout _photoLayer;
 	
@@ -58,8 +60,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	/**
 	 * {@link PhotoView}s for photos (currently and previously used).
 	 * Key is the resource/photo id.
+	 * Package scoped for faster access by inner classes.
 	 */
-	private final SparseArray<PhotoView> _photoViews = new SparseArray<PhotoView>();
+	final SparseArray<PhotoView> photoViews = new SparseArray<PhotoView>();
 
 	/**
 	 * {@link PhotoBorderView}s for photos (currently and previously used).
@@ -73,7 +76,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	/**
 	 * Resource/photo ids of the currently used photos (sorted from farthest to nearest).
 	 */
-	private final ArrayList<Integer> _photos = new ArrayList<Integer>();
+	public final ArrayList<Integer> photos = new ArrayList<Integer>();
 
 	/**
 	 * {@link PhotoMetrics} of photos (currently and previously used).
@@ -85,6 +88,134 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	 * Current viewing direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
 	 */
 	private float _direction;
+
+    /**
+     * {@link GestureDetector} that detects the gestures used for interacting with the displayed photos.
+     */
+	private GestureDetector _gestureDetector;
+	
+	/**
+	 * {@link SimpleOnGestureListener} that performs the interactions with the displayed photos.
+	 */
+	private final SimpleOnGestureListener _gestureListener = new SimpleOnGestureListener() {
+    	
+    	/**
+    	 * Gets called when a fling/swipe gesture is detected.
+    	 * Determines if the gesture was performed either on an unminimized photo in down direction and minimizes it, or
+    	 * on an minimized photo in up direction and restores it.
+    	 * 
+    	 * @param event1 Event at the start of the gesture.
+    	 * @param event2 Event at the end of the gesture.
+    	 * @return       <code>true</code> if a photo is minimized/restored, or
+    	 * 				 <code>false</code> if no action is performed.
+    	 */
+        @Override
+        public boolean onFling(final MotionEvent event1, final MotionEvent event2, final float velocityX, final float velocityY) {
+        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling");
+        	
+        	final float startX = event1.getX();
+        	final float startY = event1.getY();
+        	final float endX = event2.getX();
+        	final float endY = event2.getY();
+        	
+        	if (Math.abs(startX - endX) > Math.abs(startY - endY)) return false; // fling in horizontal direction
+
+        	/*
+        	 * Detect which photo is flinged.
+        	 */
+        	int flingedPhoto = 0; // id of the flinged photo
+        	if (startY < endY) {
+        		// fling down (minimize)
+            	int id;
+            	PhotoView photoView;
+        		ListIterator<Integer> lit = photos.listIterator(photos.size());
+                while (lit.hasPrevious()) { // iterate front to back
+                	id = lit.previous();
+        			photoView = photoViews.get(id);
+                	if (photoView.isMinimized()) continue; // ignore minimized photos
+            		if (photoView.getLeft() < startX && photoView.getRight() > startX && // on the view in horizontal direction
+        				photoView.getTop() < startY && photoView.getBottom() > startY && // on the view in vertical direction
+            			endY - startY > photoView.getHeight() / 3) { // fling movement should run for at least one third of the photo height
+            			flingedPhoto = id;
+            			break;
+            		}
+            	}
+        	} else {
+        		// fling up (restore)
+            	PhotoView photoView;
+        		for (int id : photos) { // back to front
+        			photoView = photoViews.get(id);
+                	if (! photoView.isMinimized()) continue; // ignore restored photos
+            		if (photoView.getLeft() < startX && photoView.getRight() > startX && // on the view in horizontal direction
+        				photoView.getTop() < startY && photoView.getBottom() > startY && // on the view in vertical direction
+            			Math.abs(endY - startY) > photoView.getHeight() / 3) { // fling movement should run for at least one third of the photo height
+            			flingedPhoto = id;
+            			break;
+            		}
+            	}
+        	}
+            if (flingedPhoto == 0) return false; // no photo matched
+        	
+        	// minimize/restore photo view
+            photoViews.get(flingedPhoto).setMinimized((startY < endY) ? true : false);
+            
+            // redraw photo
+            redrawPhoto(flingedPhoto);
+    		
+    		// set number of occlusions for border alpha value
+    		setBorderOcclusions();
+            
+            return true;
+        }
+        
+        /**
+         * Gets called when a single tap gesture is completed.
+    	 * Determines if the gesture was performed on an minimized photo restores it.
+    	 * 
+    	 * @param event Event of the gesture.
+    	 * @return      <code>true</code> if a photo is restored, or
+    	 * 				<code>false</code> if no action is performed.
+         */
+        @Override
+        public boolean onSingleTapUp(final MotionEvent event) {
+        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp");
+        	
+        	final float eventX = event.getX();
+        	final float eventY = event.getY();
+
+        	// tap tolerance
+        	int y_tap_tolerance = 0;
+        	if (PhotoMetrics.MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE)
+        		y_tap_tolerance = (PhotoCompassApplication.MIN_TAP_SIZE - PhotoMetrics.MINIMIZED_PHOTO_HEIGHT) / 2;
+        	
+        	/*
+        	 * Detect which photo is tapped on.
+        	 */
+        	int tappedPhoto = 0; // id of the tapped photo
+        	PhotoView photoView;
+    		for (int id : photos) { // back to front
+    			photoView = photoViews.get(id);
+            	if (! photoView.isMinimized()) continue; // ignore not minimized photos
+        		if (photoView.getLeft() < eventX && photoView.getRight() > eventX && // on the view in horizontal direction
+        			photoView.getTop() - y_tap_tolerance < eventY && photoView.getBottom() + y_tap_tolerance > eventY) { // on the view in vertical direction
+        			tappedPhoto = id;
+        			break;
+        		}
+        	}
+            if (tappedPhoto == 0) return false; // no photo matched
+        	
+        	// set photo view restored
+            photoViews.get(tappedPhoto).setMinimized(false);
+            
+            // redraw photo
+            redrawPhoto(tappedPhoto);
+    		
+    		// set number of occlusions for border alpha value
+    		setBorderOcclusions();
+            
+            return true;
+        }
+    };
 
 	/**
 	 * Constructor.
@@ -107,8 +238,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         MAX_PHOTO_HEIGHT = (int) Math.round(MAX_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
         MIN_PHOTO_HEIGHT = (int) Math.round(MIN_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
     	
-        _photosModel = Photos.getInstance();
-        
         _photoLayer = new SimpleAbsoluteLayout(context);
         _photoLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_photoLayer);
@@ -116,6 +245,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         _borderLayer = new SimpleAbsoluteLayout(context);
         _borderLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_borderLayer);
+        
+        _gestureDetector = new GestureDetector(context, _gestureListener);
 	}
 	
 	/**
@@ -138,7 +269,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	    	if (_photoMetrics.get(id) != null) { // has been used before
 	    		
 	    		// show views
-	    		_photoViews.get(id).setVisibility(View.VISIBLE);
+	    		photoViews.get(id).setVisibility(View.VISIBLE);
 	    		_borderViews.get(id).setVisibility(View.VISIBLE);
 	    		
 	    	} else {
@@ -149,7 +280,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		    	// create views
 	    		final Context context = getContext();
 	    		final PhotoView photoView = new PhotoView(context, id);
-	    		_photoViews.append(id, photoView);
+	    		photoViews.append(id, photoView);
 	    		_photoLayer.addView(photoView);
 	    		final PhotoBorderView borderView = new PhotoBorderView(context);
 	    		_borderViews.append(id, borderView);
@@ -157,24 +288,24 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	    	}
 	    	
 	    	// add to list of currently used photos
-			_photos.add(id);
+			photos.add(id);
 	    	
     		// update size and position and redraw if changed and wanted
 			if (doRedraw && (_updatePhotoSize(id) || _updatePhotoXPosition(id) || _updatePhotoYPosition(id)))
-				_redrawPhoto(id);
+				redrawPhoto(id);
 		}
 		
 		// sort photo order
 		_sortPhotos();
 		
 		// update views z orders
-		for (int id : _photos) {
-			_photoViews.get(id).bringToFront();
+		for (int id : photos) {
+			photoViews.get(id).bringToFront();
 			_borderViews.get(id).bringToFront();
 		}
 		
 		// set number of occlusions for border alpha value
-		_setBorderOcclusions();
+		setBorderOcclusions();
 	}
 
 	/**
@@ -189,36 +320,38 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: removePhotos: oldPhotos.size() = "+oldPhotos.size());
     	
+    	PhotoView photoView;
 		for (int id : oldPhotos) {
+			photoView = photoViews.get(id);
 		
 			// hide views
-			_photoViews.get(id).setVisibility(View.GONE);
+			photoView.setVisibility(View.GONE);
 			_borderViews.get(id).setVisibility(View.GONE);
 			
 			// reset minimized state
-			_photoViews.get(id).setMinimized(false);
+			photoView.setMinimized(false);
 		}
 		
 		// remove from list of currently used photos
-		_photos.removeAll(oldPhotos);
+		photos.removeAll(oldPhotos);
 
 		// update photo order
 		_sortPhotos();
 		
 		// set number of occlusions for border alpha value
-		_setBorderOcclusions();
+		setBorderOcclusions();
 	}
 	
 	/**
 	 * Sorts ({@link #_photos}) based on their distance. Farthest to nearest.
 	 */
 	private void _sortPhotos() {
-		Collections.sort(_photos, new Comparator<Integer>() {
+		Collections.sort(photos, new Comparator<Integer>() {
 	    	public int compare(final Integer id1, final Integer id2) {
-	    		Photo photo1 = _photosModel.getPhoto(id1);
-	    		Photo photo2 = _photosModel.getPhoto(id2);
+	    		final Photo photo1 = _photosModel.getPhoto(id1);
+	    		final Photo photo2 = _photosModel.getPhoto(id2);
 	    		if (photo1 == null || photo2 == null) return 0;
-	    		if (photo1.getDistance() > photo2.getDistance()) return -1;
+	    		if (photo1.distance > photo2.distance) return -1;
 	    		return 1;
 	        }
 	    });
@@ -227,37 +360,31 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	/**
 	 * Sets the number of occluding photos for every border view.
 	 * The border view decreases it's alpha value for every photo that occludes the photo it belongs to.
+	 * Package scoped for faster access by inner classes.
 	 */
-	private void _setBorderOcclusions() {
+	void setBorderOcclusions() {
 
-		for (int resId1 : _photos) {
+		for (int resId1 : photos) {
 			final PhotoMetrics met1 = _photoMetrics.get(resId1);
-			final boolean status = _photoViews.get(resId1).isMinimized(); 
+			final boolean status = photoViews.get(resId1).isMinimized(); 
 			int numOccludingPhotos = 0;
 			int resId2;
 			PhotoMetrics met2;
-			ListIterator<Integer> lit = _photos.listIterator(_photos.size());
+			ListIterator<Integer> lit = photos.listIterator(photos.size());
 	        while (lit.hasPrevious()) { // iterate front to back
 	        	resId2 = lit.previous();
 				if (resId1 == resId2) break;
-				if (_photoViews.get(resId2).isMinimized() != status) continue; // ignore photos with different status
+				if (photoViews.get(resId2).isMinimized() != status) continue; // ignore photos with different status
 				met2 = _photoMetrics.get(resId2);
-				if (((met2.getTop() >= met1.getTop() && met2.getTop() <= met1.getBottom()) ||
-					 (met2.getBottom() >= met1.getTop() && met2.getBottom() <= met1.getBottom()) ||
-					 (met2.getTop() < met1.getTop() && met2.getBottom() > met1.getBottom())) &&
-					((met2.getLeft() >= met1.getLeft() && met2.getLeft() <= met1.getRight()) ||
-					 (met2.getRight() >= met1.getLeft() && met2.getRight() <= met1.getRight()) ||
-					 (met2.getLeft() < met1.getLeft() && met2.getRight() > met1.getRight()))) numOccludingPhotos++;
+				if (((met2.top >= met1.top && met2.top <= met1.getBottom()) ||
+					 (met2.getBottom() >= met1.top && met2.getBottom() <= met1.getBottom()) ||
+					 (met2.top < met1.top && met2.getBottom() > met1.getBottom())) &&
+					((met2.left >= met1.left && met2.left <= met1.getRight()) ||
+					 (met2.getRight() >= met1.left && met2.getRight() <= met1.getRight()) ||
+					 (met2.left < met1.left && met2.getRight() > met1.getRight()))) numOccludingPhotos++;
 			}
 	        _borderViews.get(resId1).setNumberOfOcclusions(numOccludingPhotos);
 		}
-	}
-	
-	/**
-	 * @return The photos currently used by the view.
-	 */
-	public ArrayList<Integer> getPhotos() {
-		return _photos;
 	}
 	
 	/**
@@ -268,7 +395,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	public void updateTextInfos(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
 
-		for (int id : _photos) _photoViews.get(id).updateText();
+		for (int id : photos) photoViews.get(id).updateText();
 	}
 
 	/**
@@ -282,8 +409,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		
 		_direction = direction;
 
-		for (int id : _photos) {
-			if (_updatePhotoXPosition(id) && doRedraw) _redrawPhoto(id);
+		for (int id : photos) {
+			if (_updatePhotoXPosition(id) && doRedraw) redrawPhoto(id);
 		}
 	}
 	
@@ -301,12 +428,12 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		if (metrics == null || photo == null) return false;
         
         // calculate the x position of the photo
-		final double directionOffset = photo.getDirection() - _direction;
-        final int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.getWidth() / 2);
+		final double directionOffset = photo.direction - _direction;
+        final int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.width / 2);
         
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoXPosition: directionOffset = "+directionOffset+", photoX = "+photoX);
 
-        if (metrics.getLeft() == photoX) return false;
+        if (metrics.left == photoX) return false;
         
         // update metrics
         metrics.setLeft(photoX);
@@ -321,8 +448,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	public void updateYPositions(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateYPositions");
     	
-		for (int id : _photos) {
-			if (_updatePhotoYPosition(id) && doRedraw) _redrawPhoto(id);
+		for (int id : photos) {
+			if (_updatePhotoYPosition(id) && doRedraw) redrawPhoto(id);
 		}
 	}
 	
@@ -344,11 +471,12 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		// calculate y position
 	    // TODO take the roll value of the orientation sensor into account, then the FinderActivity wouldn't need to subtract the
 	    // BOTTOM_CONTROLS_HEIGHT from the available height anymore -- also see the getPhotos method of the Photo model for this
-		final int photoHeight = metrics.getHeight();
+		final int photoHeight = metrics.height;
         int photoY = (AVAILABLE_HEIGHT - photoHeight) / 2;
-		final double photoAltOffset = photo.getAltOffset();
+// disabled altitude offset indication - keep the code for future versions 
+/*		final double photoAltOffset = photo.altOffset;
         if (photoAltOffset != 0) {
-	        final double halfOfMaxVisibleMeters = Math.sin(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2)) * photo.getDistance() /
+	        final double halfOfMaxVisibleMeters = Math.sin(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2)) * photo.distance /
 	        							    	  Math.cos(Math.toRadians(PhotoCompassApplication.CAMERA_VDEGREES / 2));
 	        int pixelOffset = (int) Math.round(Math.abs(photoAltOffset) / halfOfMaxVisibleMeters *
 	        								   (AVAILABLE_HEIGHT - photoHeight) / 2);
@@ -357,9 +485,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 //	        	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: altOffset = "+photoAltOffset+
 //	        										   ", halfOfMaxVisibleMeters = "+halfOfMaxVisibleMeters+
 //	        										   ", pixelOffset = "+pixelOffset);
-        }
+        }*/
         
-        if (metrics.getTop() == photoY) return false;
+        if (metrics.top == photoY) return false;
         
         // update metrics
         metrics.setTop(photoY);
@@ -374,11 +502,11 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	public void updateSizes(final boolean doRedraw) {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateSizes");
     	
-		for (int id : _photos) {
+		for (int id : photos) {
 			if (_updatePhotoSize(id)) {
 				_updatePhotoXPosition(id);
 				_updatePhotoYPosition(id);
-				if (doRedraw) _redrawPhoto(id);
+				if (doRedraw) redrawPhoto(id);
 			}
 		}
 	}
@@ -400,15 +528,16 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		if (metrics == null || photo == null) return false;
 
     	// calculate the photo height
+		final ApplicationModel appModel = ApplicationModel.getInstance();
         final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
-        								   		 (1 - photo.getDistance() / (ApplicationModel.getInstance().getMaxDistance() - ApplicationModel.getInstance().getMinDistance())));
+        								   		 (1 - photo.distance / (appModel.maxDistance - appModel.minDistance)));
         
-        if (metrics.getHeight() == photoHeight) return false;
+        if (metrics.height == photoHeight) return false;
 
         // calculate the photo width
         photo.determineOrigSize(getResources());
-        final float scale = (float) photoHeight / (float) photo.getOrigHeight();
-        final int photoWidth = (int) Math.round(photo.getOrigWidth() * scale);
+        final float scale = (float) photoHeight / (float) photo.origHeight;
+        final int photoWidth = (int) Math.round(photo.origWidth * scale);
         
         // update metrics
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoSize: id = "+id+", width = "+photoWidth+", height = "+photoHeight);
@@ -419,122 +548,31 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 	
 	/** 
 	 * Redraws the photo and border view for a photo by updating its {@link LayoutParams}.
+	 * Package scoped for faster access by inner classes.
 	 * 
 	 * @param id Photo/Resource id of the photo to be redrawn.
 	 */
-	private void _redrawPhoto(final int id) {
+	void redrawPhoto(final int id) {
 		
-    	final LayoutParams layoutParams = _photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams(AVAILABLE_HEIGHT - 21) // available height minus space for the labels and padding
+    	final LayoutParams layoutParams = photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams(AVAILABLE_HEIGHT - 21) // available height minus space for the labels and padding
     															  			: _photoMetrics.get(id).getLayoutParams();
     	
     	// skip if photo has layout parameters, and is not and will not be visible on screen
-    	if (_photoViews.get(id).getLayoutParams() != null &&
-    		(_photoViews.get(id).getRight() < 0 && layoutParams.x + layoutParams.width < 0) || // left of screen
-    		(_photoViews.get(id).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) { // right of screen
-    		_photoViews.get(id).setVisibility(View.GONE);
+    	if (photoViews.get(id).getLayoutParams() != null &&
+    		(photoViews.get(id).getRight() < 0 && layoutParams.x + layoutParams.width < 0) || // left of screen
+    		(photoViews.get(id).getLeft() > AVAILABLE_WIDTH && layoutParams.x > AVAILABLE_WIDTH)) { // right of screen
+    		photoViews.get(id).setVisibility(View.GONE);
     		_borderViews.get(id).setVisibility(View.GONE);
     		return;
     	}
     	
-		_photoViews.get(id).setVisibility(View.VISIBLE);
+		photoViews.get(id).setVisibility(View.VISIBLE);
 		_borderViews.get(id).setVisibility(View.VISIBLE);
     	
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _redrawPhoto: id = "+id+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: redrawPhoto: id = "+id+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
     	
-    	_photoViews.get(id).setLayoutParams(layoutParams);
+    	photoViews.get(id).setLayoutParams(layoutParams);
     	_borderViews.get(id).setLayoutParams(layoutParams);
-    }
-
-	/**
-	 * Gets called by the activity when a fling gesture is detected.
-	 * Determines if the gesture was performed on an unminimized photo in vertical direction and minimizes it.
-	 * 
-	 * @param startX X-Position at the start of the gesture. 
-	 * @param startY Y-Position at the start of the gesture. 
-	 * @param endX   X-Position at the end of the gesture. 
-	 * @param endY   Y-Position at the end of the gesture.
-	 * @return       <code>true</code> if a photo is minimized, or
-	 * 				 <code>false</code> if no action is performed.
-	 */
-    public boolean onFling(final float startX, final float startY, final float endX, final float endY) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling");
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onFling: startX = "+startX+", startY = "+startY+
-//    										   ", endX = "+endX+", endY = "+endY);
-    	
-    	// TODO enable restore photo restore by fling up (and out)
-    	
-    	/*
-    	 *  Detect which photo is flinged.
-    	 */
-    	int flingedPhoto = 0; // id of the flinged photo
-    	int id;
-		ListIterator<Integer> lit = _photos.listIterator(_photos.size());
-        while (lit.hasPrevious()) { // iterate front to back
-        	id = lit.previous();
-        	if (_photoViews.get(id).isMinimized()) continue; // ignore minimized photos
-    		if (_photoViews.get(id).getLeft() < startX && _photoViews.get(id).getRight() > startX && // on the view in horizontal direction
-    			_photoViews.get(id).getTop() < startY && _photoViews.get(id).getBottom() > startY && // on the view in vertical direction
-    			endY - startY > _photoViews.get(id).getHeight() / 3) { // fling movement should run for at least one third of the photo height
-    			flingedPhoto = id;
-    			break;
-    		}
-    	}
-        if (flingedPhoto == 0) return false; // no photo matched
-    	
-    	// set photo view minimized
-        _photoViews.get(flingedPhoto).setMinimized(true);
-        
-        // redraw photo
-        _redrawPhoto(flingedPhoto);
-		
-		// set number of occlusions for border alpha value
-		_setBorderOcclusions();
-        
-        return true;
-    }
-
-	/**
-	 * Gets called by the activity when a single tap gesture is detected.
-	 * Determines if the gesture was performed on a minimized photo and restores it.
-	 * 
-	 * @param x X-Position of the gesture. 
-	 * @param y Y-Position of the gesture. 
-	 * @return  <code>true</code> if a photo is restored, or
-	 * 		    <code>false</code> if no action is performed.
-	 */
-    public boolean onSingleTapUp(final float x, final float y) {
-    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp");
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onSingleTapUp: x = "+x+", y = "+y);
-
-    	// tap tolerance
-    	int y_tap_tolerance = 0;
-    	if (PhotoMetrics.MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE)
-    		y_tap_tolerance = (PhotoCompassApplication.MIN_TAP_SIZE - PhotoMetrics.MINIMIZED_PHOTO_HEIGHT) / 2;
-    	
-    	/*
-    	 * Detect which photo is tapped on.
-    	 */
-    	int tappedPhoto = 0; // id of the tapped photo
-		for (int id : _photos) { // back to front
-        	if (! _photoViews.get(id).isMinimized()) continue; // ignore not minimized photos
-    		if (_photoViews.get(id).getLeft() < x && _photoViews.get(id).getRight() > x && // on the view in horizontal direction
-    			_photoViews.get(id).getTop() - y_tap_tolerance < y && _photoViews.get(id).getBottom() + y_tap_tolerance > y) { // on the view in vertical direction
-    			tappedPhoto = id;
-    			break;
-    		}
-    	}
-        if (tappedPhoto == 0) return false; // no photo matched
-    	
-    	// set photo view restored
-        _photoViews.get(tappedPhoto).setMinimized(false);
-        
-        // redraw photo
-        _redrawPhoto(tappedPhoto);
-		
-		// set number of occlusions for border alpha value
-		_setBorderOcclusions();
-        
-        return true;
     }
     
     /**
@@ -542,13 +580,40 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     public void clearUnneededViews() {
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: clearUnneededViews");
+    	int numLayers;
     	View view;
     	for (ViewGroup layer : new ViewGroup[] {_photoLayer, _borderLayer}) {
-    		for (int i = 0; i < layer.getChildCount(); i++) {
+    		numLayers = layer.getChildCount();
+    		for (int i = 0; i < numLayers; i++) {
     			view = layer.getChildAt(i);
-    			if (_photos.contains(view.getId())) continue; // is currently needed
+    			if (photos.contains(view.getId())) continue; // is currently needed
     			layer.removeView(view);
     		}
     	}
+    }
+
+    /**
+     * Gets called when a touch events occurs.
+     * Passes the event on to the {@link #_gestureDetector}.
+     */
+	@Override
+    public boolean onTouchEvent(final MotionEvent event) {
+		final int action = event.getAction();
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: onTouchEvent: action = "+action);
+    	
+    	// pass on to gesture detector
+    	_gestureDetector.onTouchEvent(event);
+        	
+    	if (action == MotionEvent.ACTION_UP) {
+        	// sleep to avoid event flooding
+        	try {
+//				Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: sleep");
+    			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+    	}
+
+		return true;
     }
 }

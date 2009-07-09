@@ -13,7 +13,7 @@ import android.view.View;
 /**
  * This view is used by the {@link CompassView}. Displays the horizontal line and the marker lines.
  */
-public class CompassLineView extends View {
+public final class CompassLineView extends View {
 	
 	private static final float LINE_WIDTH = 2.1f;
 
@@ -62,11 +62,13 @@ public class CompassLineView extends View {
     	if (_directionPositions.size() == 0) return; // not yet updated
 
     	// draw markers
-        for (int i = 0; i < _directionPositions.size(); i++) {
-        	if (_directionPositions.valueAt(i) + LINE_WIDTH / 2 < 0 || 
-        		_directionPositions.valueAt(i) - LINE_WIDTH / 2 > AVAILABLE_WIDTH) continue; // not visible
-        	canvas.drawLine(_directionPositions.valueAt(i), CENTER_HEIGHT - CompassView.POSITION_MARKER_HALFHEIGHT,
-        					_directionPositions.valueAt(i), CENTER_HEIGHT + CompassView.POSITION_MARKER_HALFHEIGHT, _paint);
+    	final int numPositions = _directionPositions.size();
+    	int dirPos;
+        for (int i = 0; i < numPositions; i++) {
+        	dirPos = _directionPositions.valueAt(i);
+        	if (dirPos + LINE_WIDTH / 2 < 0 || dirPos - LINE_WIDTH / 2 > AVAILABLE_WIDTH) continue; // not visible
+        	canvas.drawLine(dirPos, CENTER_HEIGHT - CompassView.POSITION_MARKER_HALFHEIGHT,
+        					dirPos, CENTER_HEIGHT + CompassView.POSITION_MARKER_HALFHEIGHT, _paint);
         }
 	}
 }
