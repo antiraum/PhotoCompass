@@ -9,7 +9,10 @@ import android.graphics.Paint.Align;
 import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
-
+/**
+ * SeekBar (slider) control with two thumbs for vertical display. Displays
+ * labels above the thumbs. Label values are retrieved from the Callback.
+ */
 public final class VerticalDoubleSeekBar extends DoubleSeekBar {
 
 	public VerticalDoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback, boolean lightBackground) {

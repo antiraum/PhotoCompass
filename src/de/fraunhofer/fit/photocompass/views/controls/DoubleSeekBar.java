@@ -91,6 +91,17 @@ public abstract class DoubleSeekBar extends View {
 
 	private boolean _lightBackground = false;
 
+	/**
+	 * Creates a new {@link DoubleSeekBar}.
+	 * 
+	 * @param context
+	 *            The application's context
+	 * @param callback
+	 *            The callback used for interaction with the model
+	 * @param lightBackground
+	 *            Whether the bar should have a light (<code>true</code>) or a
+	 *            dark (<code>false</code>) background
+	 */
 	public DoubleSeekBar(final Context context,
 			IDoubleSeekBarCallback callback, boolean lightBackground) {
 		super(context);
@@ -283,7 +294,8 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	private final float tryEndValue(float newValue) {
-		return Math.min(1f, Math.max(newValue, this.startValue + this.minOffset));
+		return Math.min(1f, Math
+				.max(newValue, this.startValue + this.minOffset));
 	}
 
 	protected abstract float getEventCoordinate(final MotionEvent event);
