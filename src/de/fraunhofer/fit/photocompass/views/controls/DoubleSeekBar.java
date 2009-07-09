@@ -48,6 +48,9 @@ public abstract class DoubleSeekBar extends View {
 	private float startValue = 0f;
 	private float endValue = 1f;
 
+	protected float labelSize = 12f;
+	protected float labelSizeHighlight = 24f;
+
 	/**
 	 * Minimum offset (relative value) of start and end value, calculated upon
 	 * resizing from MINIMUM_THUMB_OFFSET
@@ -55,6 +58,9 @@ public abstract class DoubleSeekBar extends View {
 	private float minOffset = 0f;
 	protected int startOffset;
 	protected int endOffset;
+	/**
+	 * Size of the bar (not of the entire control, excluding start and end offset)
+	 */
 	protected int size;
 
 	protected RectF backgroundRect;
@@ -77,13 +83,14 @@ public abstract class DoubleSeekBar extends View {
 	// private float touchX = -5f;
 	// private float touchY = -5f;
 
-	private final static int NONE = 0;
-	private final static int START = 1;
-	private final static int END = 2;
+	protected final static int NONE = 0;
+	protected final static int START = 1;
+	protected final static int END = 2;
 
-	private int thumbDown = NONE;
+	protected int thumbDown = NONE;
 
 	protected final Paint paint = new Paint();
+	protected final Paint highlightPaint = new Paint();
 	protected LinearGradient backgroundGradient;
 	protected LinearGradient selectionGradient;
 
@@ -116,6 +123,7 @@ public abstract class DoubleSeekBar extends View {
 
 		this.paint.setStyle(Style.FILL);
 		this.paint.setAntiAlias(true);
+		this.paint.setTextSize(this.labelSize);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 	}
@@ -142,6 +150,9 @@ public abstract class DoubleSeekBar extends View {
 
 		paint.setShader(null);
 		paint.setColor(_lightBackground ? Color.DKGRAY : Color.WHITE);
+		// paint.setTextSize(10);
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: text size "
+				+ paint.getTextSize());
 		this.drawLabels(canvas);
 		// paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
@@ -156,7 +167,8 @@ public abstract class DoubleSeekBar extends View {
 	@Override
 	protected void onSizeChanged(final int w, final int h, final int oldw,
 			final int oldh) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.onSizeChanged(), new size " + this.size);
 		this.minOffset = (float) MINIMUM_THUMB_OFFSET / this.size;
 		this.updateStartBounds();
 		this.updateEndBounds();

@@ -21,8 +21,8 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 													  // at the bottom of the age control
 	private static final int BOTTOM_LEFT_PADDING = 39; // padding at the bottom of the distance control and
 	   												   // at the left of the age control
-	public static final int DISTANCE_CONTROL_WIDTH = 80; // width of the distance seek bar (including text labels)
-	private static final int AGE_CONTROL_HEIGHT = 42; // height of the age seek bar (including text labels)
+	public static final int DISTANCE_CONTROL_WIDTH = 120; // width of the distance seek bar (including text labels)
+	private static final int AGE_CONTROL_HEIGHT = 58; // height of the age seek bar (including text labels)
 	public static final int BOTTOM_EXTRA_PADDING = 12; // extra bottom padding, because the touch screen on the G1 
 													   // doesn't work well at the bottom
 
