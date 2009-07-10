@@ -14,6 +14,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 
+/**
+ * Abstract SeekBar (slider) class that supports the selection of an interval.
+ * For this purpose, two thumbs are displayed and draggable. For concrete
+ * implementations, see {@link HorizontalDoubleSeekBar} or
+ * {@link VerticalDoubleSeekBar}.
+ * 
+ * @author joni
+ * 
+ */
 public abstract class DoubleSeekBar extends View {
 
 	/**
@@ -28,13 +37,30 @@ public abstract class DoubleSeekBar extends View {
 	 */
 	private final static float TOUCH_DOWN_TOLERANCE = 15f;
 
+	/**
+	 * Minimum offset of the positions of the two thumbs, in pixels.
+	 */
+	private final static int MINIMUM_THUMB_OFFSET = 15;
+
 	protected int barThickness = 22;
 	protected int barPadding = 4;
 
 	private float startValue = 0f;
 	private float endValue = 1f;
+
+	protected float labelSize = 12f;
+	protected float labelSizeHighlight = 24f;
+
+	/**
+	 * Minimum offset (relative value) of start and end value, calculated upon
+	 * resizing from MINIMUM_THUMB_OFFSET
+	 */
+	private float minOffset = 0f;
 	protected int startOffset;
 	protected int endOffset;
+	/**
+	 * Size of the bar (not of the entire control, excluding start and end offset)
+	 */
 	protected int size;
 
 	protected RectF backgroundRect;
@@ -57,21 +83,34 @@ public abstract class DoubleSeekBar extends View {
 	// private float touchX = -5f;
 	// private float touchY = -5f;
 
-	private final static int NONE = 0;
-	private final static int START = 1;
-	private final static int END = 2;
+	protected final static int NONE = 0;
+	protected final static int START = 1;
+	protected final static int END = 2;
 
-	private int thumbDown = NONE;
+	protected int thumbDown = NONE;
 
 	protected final Paint paint = new Paint();
+	protected final Paint highlightPaint = new Paint();
 	protected LinearGradient backgroundGradient;
 	protected LinearGradient selectionGradient;
 
 	protected IDoubleSeekBarCallback callback;
-	
+
 	private boolean _lightBackground = false;
 
-	public DoubleSeekBar(final Context context, IDoubleSeekBarCallback callback, boolean lightBackground) {
+	/**
+	 * Creates a new {@link DoubleSeekBar}.
+	 * 
+	 * @param context
+	 *            The application's context
+	 * @param callback
+	 *            The callback used for interaction with the model
+	 * @param lightBackground
+	 *            Whether the DoubleSeekBar is drawn on a light (
+	 *            <code>true</code>) or a dark (<code>false</code>) background
+	 */
+	public DoubleSeekBar(final Context context,
+			IDoubleSeekBarCallback callback, boolean lightBackground) {
 		super(context);
 		this.callback = callback;
 		_lightBackground = lightBackground;
@@ -84,6 +123,7 @@ public abstract class DoubleSeekBar extends View {
 
 		this.paint.setStyle(Style.FILL);
 		this.paint.setAntiAlias(true);
+		this.paint.setTextSize(this.labelSize);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 	}
@@ -98,10 +138,10 @@ public abstract class DoubleSeekBar extends View {
 		// this.updateAllBounds();
 
 		super.onDraw(canvas);
-//		paint.setColor(Color.GRAY);
+		// paint.setColor(Color.GRAY);
 		paint.setShader(backgroundGradient);
 		canvas.drawRoundRect(this.backgroundRect, 5f, 5f, paint);
-//		paint.setColor(PhotoCompassApplication.ORANGE);
+		// paint.setColor(PhotoCompassApplication.ORANGE);
 		paint.setShader(selectionGradient);
 		canvas.drawRect(this.selectionRect, paint);
 
@@ -110,20 +150,26 @@ public abstract class DoubleSeekBar extends View {
 
 		paint.setShader(null);
 		paint.setColor(_lightBackground ? Color.DKGRAY : Color.WHITE);
-		canvas.drawText(this.startLabel, this.startLabelX, this.startLabelY,
-				paint);
-		canvas.drawText(this.endLabel, this.endLabelX, this.endLabelY,
-				this.paint);
-
-//		paint.setColor(Color.RED);
+		// paint.setTextSize(10);
+		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: text size "
+				+ paint.getTextSize());
+		this.drawLabels(canvas);
+		// paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
 
+	protected abstract void drawLabels(Canvas canvas);
+
+	/**
+	 * Updates size-dependent positions and values upon resizing. backgroundRect
+	 * and size have to be updated beforehand by the subclass.
+	 */
 	@Override
 	protected void onSizeChanged(final int w, final int h, final int oldw,
 			final int oldh) {
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged()");
-
+		Log.d(PhotoCompassApplication.LOG_TAG,
+				"DoubleSeekBar.onSizeChanged(), new size " + this.size);
+		this.minOffset = (float) MINIMUM_THUMB_OFFSET / this.size;
 		this.updateStartBounds();
 		this.updateEndBounds();
 		super.onSizeChanged(w, h, oldw, oldh);
@@ -162,7 +208,8 @@ public abstract class DoubleSeekBar extends View {
 	public final boolean onTouchEvent(final MotionEvent event) {
 		// TODO check GestureDetector
 		final int action = event.getAction();
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: onTouchEvent: action = "+action);
+		// Log.d(PhotoCompassApplication.LOG_TAG,
+		// "DoubleSeekBar: onTouchEvent: action = "+action);
 		final float touchX = event.getX();
 		final float touchY = event.getY();
 		final float newValue = convertToAbstract(getEventCoordinate(event));
@@ -189,8 +236,7 @@ public abstract class DoubleSeekBar extends View {
 				this.updateEndValueWithCallback(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
-		} else if (action == MotionEvent.ACTION_MOVE
-				&& this.thumbDown != NONE) {
+		} else if (action == MotionEvent.ACTION_MOVE && this.thumbDown != NONE) {
 			if (this.thumbDown == START
 					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE)) {
 				this.updateStartValueWithCallback(newValue);
@@ -216,14 +262,15 @@ public abstract class DoubleSeekBar extends View {
 						"DoubleSeekBar: Unexpected TouchEvent, action "
 								+ action);
 			}
-			
-        	// sleep to avoid event flooding
-        	try {
-//				Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: sleep");
-    			Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
-    		} catch (InterruptedException e) {
-    			e.printStackTrace();
-    		}
+
+			// sleep to avoid event flooding
+			try {
+				// Log.d(PhotoCompassApplication.LOG_TAG,
+				// "DoubleSeekBar: sleep");
+				Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		return true;
 	}
@@ -253,11 +300,12 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	private final float tryStartValue(float newValue) {
-		return Math.max(0f, Math.min(newValue, this.endValue));
+		return Math.max(0f, Math.min(newValue, this.endValue - this.minOffset));
 	}
 
 	private final float tryEndValue(float newValue) {
-		return Math.min(1f, Math.max(newValue, this.startValue));
+		return Math.min(1f, Math
+				.max(newValue, this.startValue + this.minOffset));
 	}
 
 	protected abstract float getEventCoordinate(final MotionEvent event);
