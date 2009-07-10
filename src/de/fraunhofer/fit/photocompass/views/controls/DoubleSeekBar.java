@@ -151,8 +151,8 @@ public abstract class DoubleSeekBar extends View {
 		paint.setShader(null);
 		paint.setColor(_lightBackground ? Color.DKGRAY : Color.WHITE);
 		// paint.setTextSize(10);
-		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: text size "
-				+ paint.getTextSize());
+//		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: text size "
+//				+ paint.getTextSize());
 		this.drawLabels(canvas);
 		// paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
