@@ -3,8 +3,6 @@ package de.fraunhofer.fit.photocompass;
 import android.app.Application;
 import android.graphics.Color;
 import android.location.Location;
-import de.fraunhofer.fit.photocompass.model.ApplicationModel;
-import de.fraunhofer.fit.photocompass.model.Photos;
 
 /**
  * This is the Application class of the PhotoCompass application. It gets initialized at application start.
@@ -44,17 +42,16 @@ public final class PhotoCompassApplication extends Application {
     public static final int MIN_TAP_SIZE = 40; // minimum size of an area that can be tapped on
 	
     // dummy location settings (enable for development when a fixed location is needed)
-    public static final boolean USE_DUMMY_LOCATION = true;
+    public static final boolean USE_DUMMY_LOCATION = false;
     public static Location dummyLocation;
     
     // dummy photo settings (enable for development when a fixed set of photos is needed)
-    public static final boolean USE_DUMMY_PHOTOS = true;
+    public static final boolean USE_DUMMY_PHOTOS = false;
     
-    public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds) 
-    
+    public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds)
+	
     /**
      * Constructor.
-     * Initializes the models {@link ApplicationModel} and {@link Photos}.
      */
     public PhotoCompassApplication() {
     	super();
