@@ -535,7 +535,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 //        final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 //        								   		 (1 - photo.distance / (appModel.maxDistance - appModel.minDistance)));
 		// exponential scaling
-		final double s = (Math.exp(1 - photo.distance / (appModel.maxDistance - appModel.minDistance)) - 1) / Math.E;
+		final double s = (Math.exp(1 - (photo.distance - appModel.minDistance) / (appModel.maxDistance - appModel.minDistance)) - 1) / Math.E;
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoSize: distance = "+photo.distance+", scale = "+s);
         final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) * s);
         

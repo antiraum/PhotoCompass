@@ -434,9 +434,8 @@ public final class FinderActivity extends Activity {
     	
 		boolean doRedrawHere;
     	if (latChanged || lngChanged || modelChanged) {
-    		
-    		doRedrawHere = modelChanged ? forceRedraw : false; // only redraw here if modelChanged, for location changes we do
-    														   // other updates first 
+
+    		doRedrawHere = false; // we do other updates first 
     		
     		// update photos
     		if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
@@ -453,7 +452,7 @@ public final class FinderActivity extends Activity {
     		_photosView.updateTextInfos(doRedrawHere);
     	}
     	
-    	if (latChanged || lngChanged) {
+    	if (latChanged || lngChanged || modelChanged) {
     		
     		doRedrawHere = forceRedraw;
     		
