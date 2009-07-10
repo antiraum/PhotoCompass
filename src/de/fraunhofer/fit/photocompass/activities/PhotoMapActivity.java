@@ -14,7 +14,6 @@ import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
@@ -188,6 +187,7 @@ public final class PhotoMapActivity extends MapActivity {
      */
     final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
+    	private float _pitch;
 		private float _roll;
 
 		/**
@@ -199,11 +199,13 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
         	
-	    	if (roll != _roll) {
+	    	if (pitch != _pitch || roll != _roll) {
+	    		_pitch = pitch;
 		    	_roll = roll;
 	            
 	            // switch to activity based on orientation
-	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
+	        	final int activity =
+	        		PhotoCompassApplication.getActivityForOrientation(_pitch, _roll, PhotoCompassApplication.MAP_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 		    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);

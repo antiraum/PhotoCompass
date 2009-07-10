@@ -56,9 +56,9 @@ public final class OrientationService extends Service {
 	    private final float[] _magneticData = new float[3];
 	    private final float[] _rotationMatrix = new float[16];
 	    private final float[] _orientation = new float[3];
-	    private float _lastYaw = 0;
-	    private float _lastPitch = 0;
-	    private float _lastRoll = 0;
+//	    private float _lastYaw = 0;
+//	    private float _lastPitch = 0;
+//	    private float _lastRoll = 0;
 	    private float _yaw = 0;
 	    private float _pitch = 0;
 	    private float _roll = 0;
@@ -101,12 +101,12 @@ public final class OrientationService extends Service {
 	        _pitch = _orientation[1] * _rad2deg;
 	        _roll = _orientation[2] * _rad2deg;
 	        
-	        if (Math.abs(_lastYaw - _yaw) > 5 || Math.abs(_lastPitch - _pitch) > 5 || Math.abs(_lastRoll - _roll) > 5)
-		    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged: "+
-						   							   "yaw = "+_yaw+", pitch = "+_pitch+", roll = "+_roll);
-	        _lastYaw = _yaw;
-	        _lastPitch = _pitch;
-	        _lastRoll = _roll;
+//	        if (Math.abs(_lastYaw - _yaw) > 5 || Math.abs(_lastPitch - _pitch) > 5 || Math.abs(_lastRoll - _roll) > 5)
+//		    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onSensorChanged: "+
+//						   							   "yaw = "+_yaw+", pitch = "+_pitch+", roll = "+_roll);
+//	        _lastYaw = _yaw;
+//	        _lastPitch = _pitch;
+//	        _lastRoll = _roll;
 		
 	        // broadcast the new orientation to all registered callbacks
 	        for (int i = 0; i < numCallbacks; i++) {
@@ -146,10 +146,10 @@ public final class OrientationService extends Service {
     	// start listening to sensors
         _sensorManager.registerListener(_sensorListener,
         								_sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-        								SensorManager.SENSOR_DELAY_UI);
+        								SensorManager.SENSOR_DELAY_GAME);
         _sensorManager.registerListener(_sensorListener,
         								_sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-        								SensorManager.SENSOR_DELAY_UI);
+        								SensorManager.SENSOR_DELAY_GAME);
     }
 
     /**

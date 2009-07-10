@@ -73,6 +73,7 @@ public final class DummyMapActivity extends Activity {
      */
     final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
+    	private float _pitch;
 		private float _roll;
     	
 		/**
@@ -83,19 +84,22 @@ public final class DummyMapActivity extends Activity {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-	    	
-        	// we are only interested in the roll value
-	    	if (roll == _roll) return; // value has not changed
-	    	_roll = roll;
+        	
+        	// pitch or roll value has changed
+	    	if (pitch != _pitch || roll != _roll) {
+	    		_pitch = pitch;
+		    	_roll = roll;
             
-            // switch to activity based on orientation
-        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
-	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
-	    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
-	    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);
-	    		startActivity(new Intent(mapActivity, FinderActivity.class));
-		        finish(); // close this activity
-				System.gc(); // good point to run the GC
+	            // switch to activity based on orientation
+	        	final int activity =
+	        		PhotoCompassApplication.getActivityForOrientation(_pitch, _roll, PhotoCompassApplication.MAP_ACTIVITY);
+		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
+		    		Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
+		    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);
+		    		startActivity(new Intent(mapActivity, FinderActivity.class));
+			        finish(); // close this activity
+					System.gc(); // good point to run the GC
+		    	}
 	    	}
         }
     };

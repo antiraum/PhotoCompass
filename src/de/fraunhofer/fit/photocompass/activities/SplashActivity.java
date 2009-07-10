@@ -12,7 +12,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
 import android.view.MenuItem;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
@@ -67,30 +66,39 @@ public final class SplashActivity extends Activity {
      * Package scoped for faster access by inner classes.
      */
     final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
+
+    	private float _pitch;
+		private float _roll;
     	
         public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // in the process of finishing, we don't need to do anything here
+        	
+	    	if (pitch != _pitch || roll != _roll) {
+	    		_pitch = pitch;
+		    	_roll = roll;
             
-            // switch to activity based on orientation
-        	final int activity = PhotoCompassApplication.getActivityForRoll(roll, PhotoCompassApplication.SPLASH_ACTIVITY);
-	    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
-	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to finder activity");
-	    		ProgressDialog.show(splashActivity, "",  "Loading camera view. Please wait...", true);
-	    		startActivity(new Intent(splashActivity, FinderActivity.class));
-	    	} else {
-	    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to map activity");
-	    		ProgressDialog.show(splashActivity, "",  "Loading map view. Please wait...", true);
-	    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {
-	    			startActivity(new Intent(splashActivity, PhotoMapActivity.class));
-	    		} else {
-	    			startActivity(new Intent(splashActivity, DummyMapActivity.class));
-	    		}
-	    	}
+	            // switch to activity based on orientation
+	        	final int activity =
+	        		PhotoCompassApplication.getActivityForOrientation(_pitch, _roll, PhotoCompassApplication.SPLASH_ACTIVITY);
+		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
+		    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to finder activity");
+		    		ProgressDialog.show(splashActivity, "",  "Loading camera view. Please wait...", true);
+		    		startActivity(new Intent(splashActivity, FinderActivity.class));
+		    	} else {
+		    		Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: switching to map activity");
+		    		ProgressDialog.show(splashActivity, "",  "Loading map view. Please wait...", true);
+		    		if (PhotoCompassApplication.TARGET_PLATFORM == 3) {
+		    			startActivity(new Intent(splashActivity, PhotoMapActivity.class));
+		    		} else {
+		    			startActivity(new Intent(splashActivity, DummyMapActivity.class));
+		    		}
+		    	}
 	        
-	        // close splash activity
-	        finish();
+		        // close splash activity
+		        finish();
+	    	}
         }
     };
 

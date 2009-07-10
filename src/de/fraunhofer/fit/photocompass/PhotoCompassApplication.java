@@ -71,14 +71,20 @@ public final class PhotoCompassApplication extends Application {
     /**
      * Returns the activity constant for a roll value from the orientation sensor.
      * Is used by the activities to determine when they have to switch to another activity.
-     * 
-     * @param roll Roll value of the orientation sensor (values from -180 to 180 (on sensor simulator) / -90 to 90 mirrored (on G1)).
+     * @param pitch 		  Pitch value of the orientation service (values from -90 to 90).
+     * @param roll  		  Roll value of the orientation service (values from -180 to 180).
      * @param currentActivity Current activity ({@link #FINDER_ACTIVITY} or {@link #MAP_ACTIVITY})
+     * 
      * @return Activity constant of the correct activity at this roll value.
      * 		   {@link #FINDER_ACTIVITY} when the phone is held vertically, or
      * 		   {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
-    public static int getActivityForRoll(final float roll, final int currentActivity) {
+    public static int getActivityForOrientation(final float pitch, final float roll, final int currentActivity) {
+    	
+    	// always show finder activity in portrait mode
+    	if (pitch < -45 || pitch > 45) return FINDER_ACTIVITY;
+    	
+    	// in landscape mode decide by the roll value and use different switching values for the different transitions
     	switch (currentActivity) {
 	    	case FINDER_ACTIVITY:
 	    		return (roll > -30 && roll < 30) ? MAP_ACTIVITY : FINDER_ACTIVITY;
