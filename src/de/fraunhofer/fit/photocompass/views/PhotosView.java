@@ -247,8 +247,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         addView(_borderLayer);
         
 // XXX unknown constructor for 1.1
-//        _gestureDetector = new GestureDetector(context, _gestureListener);
-        _gestureDetector = new GestureDetector(_gestureListener)	;
+        _gestureDetector = new GestureDetector(context, _gestureListener);
+//        _gestureDetector = new GestureDetector(_gestureListener);
 	}
 	
 	/**

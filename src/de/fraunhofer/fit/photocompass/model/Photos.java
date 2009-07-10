@@ -1,8 +1,6 @@
 package de.fraunhofer.fit.photocompass.model;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -18,7 +16,6 @@ import android.provider.MediaStore.Images.Media;
 import android.provider.MediaStore.Images.Thumbnails;
 import android.util.Log;
 import android.util.SparseArray;
-
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.model.data.Photo;

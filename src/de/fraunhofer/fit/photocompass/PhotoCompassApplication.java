@@ -16,8 +16,8 @@ public final class PhotoCompassApplication extends Application {
     public static final String LOG_TAG = "PhotoCompass";
     
     // running environment constants - change these if you switch between testing on the emulator and the G1
-    public static final boolean RUNNING_ON_EMULATOR = true;
-    public static final int TARGET_PLATFORM = 1; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
+    public static final boolean RUNNING_ON_EMULATOR = false;
+    public static final int TARGET_PLATFORM = 3; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
     
     // activity constants
     public static final int SPLASH_ACTIVITY = 0;
