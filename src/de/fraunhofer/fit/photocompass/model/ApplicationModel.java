@@ -17,7 +17,7 @@ public final class ApplicationModel {
 	
 	// minimum & maximum values
 	private final float MIN_DISTANCE_LIMIT = 1000F; // in meters
-	final float MAX_DISTANCE_LIMIT = 15 * 1000F; // in meters
+	final float MAX_DISTANCE_LIMIT = 5 * 1000F; // in meters
 	float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
 	private final long MIN_AGE_LIMIT = 60 * 60 * 1000L; // in milliseconds
 	final long MAX_AGE_LIMIT = 30 * 24 * 60 * 60 * 1000L; // in milliseconds
