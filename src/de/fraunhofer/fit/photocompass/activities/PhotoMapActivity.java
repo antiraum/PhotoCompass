@@ -478,10 +478,10 @@ public final class PhotoMapActivity extends MapActivity {
     /**
      * Populate the options menu.
      */
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	menu = OptionsMenu.populateMenu(menu);
-        return true;
-    }
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//    	menu = OptionsMenu.populateMenu(menu);
+//        return true;
+//    }
 
     /**
      * Handles the option menu item selections.

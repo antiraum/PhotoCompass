@@ -492,10 +492,10 @@ public final class FinderActivity extends Activity {
     /**
      * Populate the options menu.
      */
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	menu = OptionsMenu.populateMenu(menu);
-        return true;
-    }
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//    	menu = OptionsMenu.populateMenu(menu);
+//        return true;
+//    }
 
     /**
      * Handles the option menu item selections.
