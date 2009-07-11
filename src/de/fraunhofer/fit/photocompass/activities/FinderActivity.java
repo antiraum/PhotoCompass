@@ -303,6 +303,8 @@ public final class FinderActivity extends Activity {
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
+        _photosModel.initialize(this);
+        
         // initialize views
         final FinderView finderView = new FinderView(this);
         final int availableHeight = PhotoCompassApplication.DISPLAY_HEIGHT - PhotoCompassApplication.STATUSBAR_HEIGHT;

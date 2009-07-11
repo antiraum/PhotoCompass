@@ -298,6 +298,8 @@ public final class PhotoMapActivity extends MapActivity {
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
+        _photosModel.initialize(this);
+        
         // map view
 		_mapView = new MapView(this, MAPS_API_KEY);
 		_mapView.setClickable(false); // disable panning

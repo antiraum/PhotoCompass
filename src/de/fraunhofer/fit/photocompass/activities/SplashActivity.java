@@ -127,7 +127,7 @@ public final class SplashActivity extends Activity {
         PhotoCompassApplication.DISPLAY_HEIGHT = display.getHeight();
         
         // initialize photos model
-        Photos.getInstance().initialize(this);
+//        Photos.getInstance().initialize(this);
     	
         // connect to orientation service
     	final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
