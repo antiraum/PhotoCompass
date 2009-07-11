@@ -216,5 +216,13 @@ public final class Photo {
 		_date = (_date + other._date) / 2;
 		
 		// TODO merge images
+		// possible strategy:
+		// is portrait + other is portrait -> clip next to each other as landscape
+		// is portrait + other is landscape -> do nothing & save other img for future merge
+		// is landscape + other is landscape -> clip together as portrait
+		// is landscape + other is portrait -> do nothing & save other img for future merge
+		// if there is a saved img, these combinations can be made:
+		// portrait + portrait + landscape -> portraits next to each other / landscape on bottom -> portrait
+		// portrait + landscape + landscape -> landscapes upon each other / portrait next to it -> landscape
 	}
 }
