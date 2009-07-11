@@ -317,4 +317,8 @@ public abstract class DoubleSeekBar extends View {
 	public final void setCallback(IDoubleSeekBarCallback callback) {
 		this.callback = callback;
 	}
+	
+	public final void updatePhotoMarks(final float[] marks) {
+		// TODO
+	}
 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.RemoteException;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
+import de.fraunhofer.fit.photocompass.model.IPhotosCallback;
+import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.views.controls.DoubleSeekBar;
 import de.fraunhofer.fit.photocompass.views.controls.HorizontalDoubleSeekBar;
 import de.fraunhofer.fit.photocompass.views.controls.IDoubleSeekBarCallback;
@@ -145,5 +147,18 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 			}
 		);
 
+		// register as a callback at the photos model
+		Photos.getInstance().registerCallback(
+			new IPhotosCallback.Stub() {
+
+			    public void onPhotosDistancesChange(final float[] photoDistances) {
+			    	if (distanceSlider != null) distanceSlider.updatePhotoMarks(photoDistances);
+			    }
+
+			    public void onPhotosAgesChange(final float[] photoAges) {
+			    	if (ageSlider != null) ageSlider.updatePhotoMarks(photoAges);
+			    }
+			}
+		);
 	}
 }
