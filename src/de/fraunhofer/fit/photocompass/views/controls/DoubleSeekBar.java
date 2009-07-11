@@ -97,6 +97,8 @@ public abstract class DoubleSeekBar extends View {
 	protected IDoubleSeekBarCallback callback;
 
 	private boolean _lightBackground = false;
+	
+	protected float[] _photoMarks; 
 
 	/**
 	 * Creates a new {@link DoubleSeekBar}.
@@ -124,6 +126,7 @@ public abstract class DoubleSeekBar extends View {
 		this.paint.setStyle(Style.FILL);
 		this.paint.setAntiAlias(true);
 		this.paint.setTextSize(this.labelSize);
+		this.paint.setStrokeWidth(2.1F);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 	}
@@ -144,6 +147,22 @@ public abstract class DoubleSeekBar extends View {
 		// paint.setColor(PhotoCompassApplication.ORANGE);
 		paint.setShader(selectionGradient);
 		canvas.drawRect(this.selectionRect, paint);
+		
+		// draw photo marks
+		paint.setShader(null);
+		paint.setColor(PhotoCompassApplication.RED);
+		float pos;
+		for (float mark : _photoMarks) {
+			// TODO sorry for the if statement, quick'n'dirty, please improve
+			if (backgroundRect.height() > backgroundRect.width()) { // vertical
+				pos = backgroundRect.top + startOffset + mark * size;
+				canvas.drawLine(backgroundRect.left, pos, backgroundRect.right, pos, paint);
+			} else { // horizontal
+				pos = backgroundRect.left + startOffset + mark * size;
+				canvas.drawLine(pos, backgroundRect.top, pos, backgroundRect.bottom, paint);
+			}
+//			Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: draw: mark = "+mark+", pos = "+pos);
+		}
 
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
@@ -318,7 +337,7 @@ public abstract class DoubleSeekBar extends View {
 		this.callback = callback;
 	}
 	
-	public final void updatePhotoMarks(final float[] marks) {
-		// TODO
+	public final void setPhotoMarks(final float[] photoMarks) {
+		_photoMarks = photoMarks;
 	}
 }

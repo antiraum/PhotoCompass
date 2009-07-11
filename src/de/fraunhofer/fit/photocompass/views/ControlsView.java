@@ -152,11 +152,11 @@ public final class ControlsView extends SimpleAbsoluteLayout {
 			new IPhotosCallback.Stub() {
 
 			    public void onPhotosDistancesChange(final float[] photoDistances) {
-			    	if (distanceSlider != null) distanceSlider.updatePhotoMarks(photoDistances);
+			    	if (distanceSlider != null) distanceSlider.setPhotoMarks(photoDistances);
 			    }
 
 			    public void onPhotosAgesChange(final float[] photoAges) {
-			    	if (ageSlider != null) ageSlider.updatePhotoMarks(photoAges);
+			    	if (ageSlider != null) ageSlider.setPhotoMarks(photoAges);
 			    }
 			}
 		);

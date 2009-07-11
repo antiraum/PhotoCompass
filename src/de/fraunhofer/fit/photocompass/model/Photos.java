@@ -200,7 +200,7 @@ public final class Photos {
      * Merges photos close to each other.
      */
     private void _mergePhotos() {
-        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+" #dummies "+_dummies.size());
+        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+", #dummies = "+_dummies.size());
     	int numPhotos, numOthers, numMerged, photoId, otherId;
     	Photo photo, other;
     	final SparseArray<Photo> toMergeWith = new SparseArray<Photo>();

@@ -37,6 +37,7 @@ public final class PhotoCompassApplication extends Application {
 	public static final int DARK_GREY = Color.parseColor("#5a5a5a");
     public static final int ORANGE = Color.parseColor("#ffd300");
     public static final int DARK_ORANGE = Color.parseColor("#ffb600");
+    public static final int RED = Color.parseColor("#f00000");
     
     // tap interaction constants
     public static final int MIN_TAP_SIZE = 40; // minimum size of an area that can be tapped on
