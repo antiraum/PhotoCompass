@@ -126,7 +126,7 @@ public abstract class DoubleSeekBar extends View {
 		this.paint.setStyle(Style.FILL);
 		this.paint.setAntiAlias(true);
 		this.paint.setTextSize(this.labelSize);
-		this.paint.setStrokeWidth(2.1F);
+		this.paint.setStrokeWidth(1.1F);
 
 		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
 	}
@@ -203,17 +203,16 @@ public abstract class DoubleSeekBar extends View {
 	}
 
 	public final void updateStartValue(float newValue) {
-		Log.d(PhotoCompassApplication.LOG_TAG,
-				"DoubleSeekBar.updateStartValue()");
+//		Log.d(PhotoCompassApplication.LOG_TAG,
+//			  "DoubleSeekBar.updateStartValue()");
 		this.setStartValue(newValue);
 		this.startLabel = this.callback.getMinLabel();
 		this.updateStartBounds();
 	}
 
 	public final void updateEndValue(final float newValue) {
-		Log
-				.d(PhotoCompassApplication.LOG_TAG,
-						"DoubleSeekBar.updateEndValue()");
+//		Log.d(PhotoCompassApplication.LOG_TAG,
+//			  "DoubleSeekBar.updateEndValue()");
 		this.setEndValue(newValue);
 		this.endLabel = this.callback.getMaxLabel();
 		this.updateEndBounds();

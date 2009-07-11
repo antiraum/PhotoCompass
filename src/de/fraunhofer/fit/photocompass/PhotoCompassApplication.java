@@ -43,7 +43,7 @@ public final class PhotoCompassApplication extends Application {
     public static final int MIN_TAP_SIZE = 40; // minimum size of an area that can be tapped on
 	
     // dummy location settings (enable for development when a fixed location is needed)
-    public static final boolean USE_DUMMY_LOCATION = true;
+    public static final boolean USE_DUMMY_LOCATION = false;
     public static Location dummyLocation;
     
     // dummy photo settings (enable for development when a fixed set of photos is needed)

@@ -325,7 +325,7 @@ public final class Photos {
 		if (limitByAge &&
 			photoAge < appModel.minAge || photoAge > appModel.maxAge) { // photo is too young or too old
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photo is too young or too old");
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photoAge = "+photoAge+", minAge = "+minAge+", maxAge = "+maxAge);
+//	    	Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _isPhotoVisible: photoAge = "+photoAge+", minAge = "+appModel.minAge+", maxAge = "+appModel.maxAge);
 			return false;
 		}
 		return true;

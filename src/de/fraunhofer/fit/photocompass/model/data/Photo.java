@@ -165,7 +165,7 @@ public final class Photo {
 		_lastUpdateLng = currentLng;
 		_lastUpdateAlt = currentAlt;
 		
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: id = "+getId()+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
 	}
 	
 	/**
@@ -208,10 +208,13 @@ public final class Photo {
 	 * @param other Photo to merge with.
 	 */
 	public void mergeWith(final Photo other) {
+		
+		// merge data
 		lat = (lat + other.lat) / 2;
 		lng = (lng + other.lng) / 2;
 		_alt = (_alt + other._alt) / 2;
 		_date = (_date + other._date) / 2;
+		
 		// TODO merge images
 	}
 }
