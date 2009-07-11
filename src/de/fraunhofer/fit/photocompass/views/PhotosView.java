@@ -265,6 +265,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 
     	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: addPhotos: newPhotos.size() = "+newPhotos.size());
     	
+    	boolean sizeChanged, xPosChanged, yPosChanged;
 		for (int id : newPhotos) {
 			if (_photosModel.getPhoto(id) == null) continue;
 	    	
@@ -293,7 +294,10 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 			photos.add(id);
 	    	
     		// update size and position and redraw if changed and wanted
-			if (doRedraw && (_updatePhotoSize(id) || _updatePhotoXPosition(id) || _updatePhotoYPosition(id)))
+			sizeChanged = _updatePhotoSize(id);
+			xPosChanged = _updatePhotoXPosition(id);
+			yPosChanged = _updatePhotoYPosition(id);
+			if (doRedraw && (sizeChanged || xPosChanged || yPosChanged))
 				redrawPhoto(id);
 		}
 		
@@ -429,11 +433,17 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 		final PhotoMetrics metrics = _photoMetrics.get(id);
 		if (metrics == null || photo == null) return false;
         
-        // calculate the x position of the photo
-		final double directionOffset = photo.direction - _direction;
+		// normalize direction and photo direction (direction set to 180 and photo direction correspondingly)
+		final double normalizeOffset = 180 - _direction;
+		double photoDirection = photo.direction + normalizeOffset;
+		while (photoDirection >= 360) photoDirection -= 360;
+		while (photoDirection <= -360) photoDirection += 360;
+		
+		// calculate direction offset and x position
+		double directionOffset = photoDirection - 180;
         final int photoX = (int) Math.round(AVAILABLE_WIDTH / 2 + directionOffset * DEGREE_WIDTH - metrics.width / 2);
         
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoXPosition: directionOffset = "+directionOffset+", photoX = "+photoX);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _uPXP: dir = "+_direction+", photoDir = "+photo.direction+", dirOff = "+directionOffset+", photoX = "+photoX);
 
         if (metrics.left == photoX) return false;
         
