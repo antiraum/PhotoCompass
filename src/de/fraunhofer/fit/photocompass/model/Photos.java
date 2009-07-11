@@ -200,7 +200,8 @@ public final class Photos {
      * Merges photos close to each other.
      */
     private void _mergePhotos() {
-        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+", #dummies = "+_dummies.size());
+        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos");
+//        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+", #dummies = "+_dummies.size());
     	int numPhotos, numOthers, numMerged, photoId, otherId;
     	Photo photo, other;
     	final SparseArray<Photo> toMergeWith = new SparseArray<Photo>();
@@ -226,7 +227,7 @@ public final class Photos {
 		            }
 		    	}
 		    	if (toMergeWith.size() == 0) continue;
-	            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: "+photoId+" merge with "+toMergeWith.size()+" other(s)");
+//	            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: "+photoId+" merge with "+toMergeWith.size()+" other(s)");
 	    		numMerged = toMergeWith.size();
 	            for (int k = 0; k < numMerged; k++) {
 	            	photo.mergeWith(toMergeWith.valueAt(k));
@@ -239,7 +240,7 @@ public final class Photos {
         		photos.delete(mergedId);
         	}
     	}
-        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+" #dummies "+_dummies.size());
+//        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+" #dummies "+_dummies.size());
     }
     
     /**
