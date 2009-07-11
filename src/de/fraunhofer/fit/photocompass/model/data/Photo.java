@@ -20,7 +20,7 @@ public final class Photo {
 	private int _photoId = 0; // MediaStore.Images.Thumbnails.IMAGE_ID of the photo
 	public double lat; // Latitude of the photo
 	public double lng; // Longitude of the photo
-	private double _alt = 0;
+	private double _alt;
 	private long _date; // The date & time that the image was taken in units of milliseconds since January 1, 1970
 	public Uri thumbUri; // URI of the Thumbnail file
 	
@@ -200,5 +200,18 @@ public final class Photo {
 	 */
 	public String getFormattedAge() {
 		return OutputFormatter.formatAge(System.currentTimeMillis() - _date);
+	}
+	
+	/**
+	 * Merges the photo with another photo.
+	 * 
+	 * @param other Photo to merge with.
+	 */
+	public void mergeWith(final Photo other) {
+		lat = (lat + other.lat) / 2;
+		lng = (lng + other.lng) / 2;
+		_alt = (_alt + other._alt) / 2;
+		_date = (_date + other._date) / 2;
+		// TODO merge images
 	}
 }

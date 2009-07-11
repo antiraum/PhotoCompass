@@ -26,7 +26,9 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
  * This is a Singleton.
  */
 public final class Photos {
-
+	
+	private static final int PHOTO_MERGE_RADIUS = 5; // radius within photos will be merged into one (in meters)
+	
     private static final Photos _instance = new Photos();
 	private boolean _initialized = false;
     
@@ -187,9 +189,57 @@ public final class Photos {
 	    // replace the existing _photos
 	    _photos = _photosNew;
 	    
+	    _mergePhotos();
+	    
 	    // broadcast the photo distances and ages
 	    _broadcastPhotoDistances();
 	    _broadcastPhotoAges();
+    }
+    
+    /**
+     * Merges photos close to each other.
+     */
+    private void _mergePhotos() {
+        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+" #dummies "+_dummies.size());
+    	int numPhotos, numOthers, numMerged, photoId, otherId;
+    	Photo photo, other;
+    	final SparseArray<Photo> toMergeWith = new SparseArray<Photo>();
+		final float[] distanceData = new float[1];
+		final ArrayList<Integer> mergedPhotos = new ArrayList<Integer>();
+    	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
+    		numPhotos = photos.size();
+            for (int i = 0; i < numPhotos; i++) {
+            	photoId = photos.keyAt(i);
+    			if (mergedPhotos.contains(photoId)) continue;
+            	photo = photos.valueAt(i);
+            	toMergeWith.clear();
+		    	for (SparseArray<Photo> others : new SparseArray[] {_photos, _dummies}) {
+		    		numOthers = others.size();
+		            for (int j = 0; j < numOthers; j++) {
+		            	otherId = others.keyAt(j);
+			    		if (otherId == photoId ||
+			    			mergedPhotos.contains(otherId)) continue;
+			    		other = others.valueAt(j);
+						Location.distanceBetween(photo.lat, photo.lng, other.lat, other.lng, distanceData);
+						if (distanceData[0] > PHOTO_MERGE_RADIUS) continue;
+						toMergeWith.append(others.keyAt(j), other);
+		            }
+		    	}
+		    	if (toMergeWith.size() == 0) continue;
+	            Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: "+photoId+" merge with "+toMergeWith.size()+" other(s)");
+	    		numMerged = toMergeWith.size();
+	            for (int k = 0; k < numMerged; k++) {
+	            	photo.mergeWith(toMergeWith.valueAt(k));
+	            	mergedPhotos.add(toMergeWith.keyAt(k));
+	            }
+            }
+	    }
+    	for (int mergedId : mergedPhotos) {
+        	for (SparseArray<Photo> photos : new SparseArray[] {_photos, _dummies}) {
+        		photos.delete(mergedId);
+        	}
+    	}
+        Log.d(PhotoCompassApplication.LOG_TAG, "Photos: _mergePhotos: #photos = "+_photos.size()+" #dummies "+_dummies.size());
     }
     
     /**

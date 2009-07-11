@@ -114,7 +114,7 @@ public final class FinderActivity extends Activity {
 			
 			// Check the distance between last and new location and only update if greater than the minimum
         	// update distance. Otherwise we get too many updates because of invalid altitude values. 
-			float[] results = new float[1];
+			final float[] results = new float[1];
 			Location.distanceBetween(currentLat, currentLng, lat, lng, results);
 			if (results[0] < LocationService.MIN_LOCATION_UPDATE_DISTANCE) return;
         	
