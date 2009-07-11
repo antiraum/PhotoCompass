@@ -155,7 +155,7 @@ public abstract class DoubleSeekBar extends View {
 		for (float mark : _photoMarks) {
 			// TODO sorry for the if statement, quick'n'dirty, please improve
 			if (backgroundRect.height() > backgroundRect.width()) { // vertical
-				pos = backgroundRect.top + startOffset + mark * size;
+				pos = backgroundRect.top + backgroundRect.height() - endOffset - mark * size;
 				canvas.drawLine(backgroundRect.left, pos, backgroundRect.right, pos, paint);
 			} else { // horizontal
 				pos = backgroundRect.left + startOffset + mark * size;
