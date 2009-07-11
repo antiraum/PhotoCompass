@@ -1,9 +1,7 @@
 package de.fraunhofer.fit.photocompass.views.overlays;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -27,10 +25,8 @@ public final class ViewingDirectionOverlay extends Overlay {
 	private GeoPoint _location; // current location
 	private float _direction; // in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	private boolean _directionSet = false;
-	private Bitmap _bmp; // arrow bitmap
 
 	private final Point _point = new Point();
-	private final Matrix _matrix = new Matrix();
 	private final Paint _borderPaint = new Paint();
 	private final Paint _fillPaint = new Paint();
 	
@@ -73,20 +69,10 @@ public final class ViewingDirectionOverlay extends Overlay {
 		// transform current position to point on canvas
 		final Projection projection = mapView.getProjection();
 		projection.toPixels(_location, _point);
- 
-		// create bitmap
-//		if (_bmp == null) {
-//	        _bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_direction_arrow);
-//		}
 		
 		canvas.rotate(_direction, _point.x, _point.y);
 		
 		// draw the marker
-//		_matrix.reset();
-//		_matrix.postTranslate(_point.x - _bmp.getWidth() / 2, _point.y - _bmp.getHeight() / 2);
-//		_matrix.postRotate(_direction, _point.x, _point.y);
-//        canvas.drawBitmap(_bmp, _matrix, null);
-
 		Path path = new Path();
 		path.moveTo(_point.x, _point.y);
 		path.lineTo(_point.x + OVERLAY_HALF_WIDTH, _point.y - OVERLAY_HEIGHT);
