@@ -444,7 +444,6 @@ public final class PhotoMapActivity extends MapActivity {
 			_mapController.animateTo(currentLocation);
 			
 			// update overlays
-			_photosOverlay.updateLocation(currentLocation);
 			_viewDirOverlay.updateLocation(currentLocation);
 			_customMyLocOverlay.update(currentLocation);
     	}

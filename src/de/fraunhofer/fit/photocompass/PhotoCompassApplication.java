@@ -46,7 +46,7 @@ public final class PhotoCompassApplication extends Application {
     public static Location dummyLocation;
     
     // dummy photo settings (enable for development when a fixed set of photos is needed)
-    public static final boolean USE_DUMMY_PHOTOS = false;
+    public static final boolean USE_DUMMY_PHOTOS = true;
     
     public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds)
 	
