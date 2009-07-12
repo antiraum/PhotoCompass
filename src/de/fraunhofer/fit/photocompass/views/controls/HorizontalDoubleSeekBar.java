@@ -104,6 +104,16 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
+	protected void drawPhotoMarks(Canvas canvas) {
+		float pos;
+		for (float mark : _photoMarks) {
+			pos = backgroundRect.left + startOffset + mark * size;
+			canvas.drawLine(pos, backgroundRect.top, pos,
+					backgroundRect.bottom, paint);
+		}
+	}
+
+	@Override
 	protected void drawLabels(Canvas canvas) {
 		// float slWidth2 = this.paint.measureText(this.startLabel) / 2;
 		// float elWidth2 = this.paint.measureText(this.endLabel) / 2;
@@ -129,23 +139,31 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 				this.paint.setTextSize(this.labelSize);
 			} else {
 				elWidth2 = this.paint.measureText(this.endLabel) / 2;
-
 			}
 		}
 
-		if (elX - slX + slWidth2 + elWidth2 + LABEL_PADDING <= this.getWidth()) {
+		if (2 * slWidth2 + 2 * elWidth2 + LABEL_PADDING <= this.getWidth()) {
 			if ((elX - elWidth2) - (slX + slWidth2) < LABEL_PADDING) {
 				float offset = ((slWidth2 + elWidth2 + LABEL_PADDING) - (elX - slX)) / 2;
-				slX -= offset;
-				elX += offset;
+				float startOffset = offset;
+				float endOffset = offset;
+				if (offset > slWidth2 - (float) MINIMUM_THUMB_OFFSET / 2 + (float) LABEL_PADDING/2) {
+					startOffset = slWidth2 - (float) MINIMUM_THUMB_OFFSET / 2 + (float) LABEL_PADDING/2;
+					endOffset = offset + (offset - startOffset);
+				} else if (offset > elWidth2 - (float) MINIMUM_THUMB_OFFSET / 2 + (float) LABEL_PADDING/2) {
+					endOffset = elWidth2 - (float) MINIMUM_THUMB_OFFSET / 2 + (float) LABEL_PADDING/2;
+					startOffset = offset + (offset - endOffset);
+				}
+				slX -= startOffset;
+				elX += endOffset;
 			}
 			if (slX - slWidth2 < 0) {
 				slX = slWidth2;
-				elX = Math.min(elX, slX + slWidth2 + elWidth2 + LABEL_PADDING);
+				elX = Math.max(elX, slX + slWidth2 + elWidth2 + LABEL_PADDING);
 			}
 			if (elX + elWidth2 > this.getWidth()) {
 				elX = this.getWidth() - elWidth2;
-				slX = Math.max(slX, elX - elWidth2 - slWidth2 - LABEL_PADDING);
+				slX = Math.min(slX, elX - elWidth2 - slWidth2 - LABEL_PADDING);
 			}
 		} else {
 			// TODO Labels too big for screen - should not really happen...
@@ -157,11 +175,9 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 					- (this.labelSizeHighlight - this.labelSize) / 2,
 					this.paint);
 			this.paint.setTextSize(this.labelSize);
-			canvas.drawText(this.endLabel, elX, this.endLabelY,
-					this.paint);
+			canvas.drawText(this.endLabel, elX, this.endLabelY, this.paint);
 		} else {
-			canvas.drawText(this.startLabel, slX,
-					this.startLabelY, this.paint);
+			canvas.drawText(this.startLabel, slX, this.startLabelY, this.paint);
 			if (this.thumbDown == END) {
 				this.paint.setTextSize(this.labelSizeHighlight);
 				canvas.drawText(this.endLabel, elX, this.endLabelY
@@ -169,8 +185,7 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
 						this.paint);
 				this.paint.setTextSize(this.labelSize);
 			} else {
-				canvas.drawText(this.endLabel, elX, this.endLabelY,
-						this.paint);
+				canvas.drawText(this.endLabel, elX, this.endLabelY, this.paint);
 			}
 		}
 

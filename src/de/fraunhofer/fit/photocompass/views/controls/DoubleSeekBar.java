@@ -40,7 +40,7 @@ public abstract class DoubleSeekBar extends View {
 	/**
 	 * Minimum offset of the positions of the two thumbs, in pixels.
 	 */
-	private final static int MINIMUM_THUMB_OFFSET = 15;
+	protected final static int MINIMUM_THUMB_OFFSET = 15;
 
 	protected int barThickness = 22;
 	protected int barPadding = 4;
@@ -152,23 +152,9 @@ public abstract class DoubleSeekBar extends View {
 		// draw photo marks
 		paint.setShader(null);
 		paint.setColor(PhotoCompassApplication.RED);
-		float pos;
-		for (float mark : _photoMarks) {
-			// TODO sorry for the if statement, quick'n'dirty, please improve
-			if (backgroundRect.height() > backgroundRect.width()) { // vertical
-				pos = backgroundRect.top + backgroundRect.height() - endOffset
-						- mark * size;
-				canvas.drawLine(backgroundRect.left, pos, backgroundRect.right,
-						pos, paint);
-			} else { // horizontal
-				pos = backgroundRect.left + startOffset + mark * size;
-				canvas.drawLine(pos, backgroundRect.top, pos,
-						backgroundRect.bottom, paint);
-			}
-			// Log.d(PhotoCompassApplication.LOG_TAG,
-			// "DoubleSeekBar: draw: mark = "+mark+", pos = "+pos);
-		}
 
+		this.drawPhotoMarks(canvas);
+		
 		startThumb.draw(canvas);
 		endThumb.draw(canvas);
 
@@ -181,6 +167,8 @@ public abstract class DoubleSeekBar extends View {
 		// paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
 	}
+	
+	protected abstract void drawPhotoMarks(Canvas canvas);
 
 	protected abstract void drawLabels(Canvas canvas);
 

@@ -98,6 +98,17 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
 	}
 
 	@Override
+	protected void drawPhotoMarks(Canvas canvas) {
+		float pos;
+		for (float mark : _photoMarks) {
+			pos = backgroundRect.top + backgroundRect.height() - endOffset
+					- mark * size;
+			canvas.drawLine(backgroundRect.left, pos, backgroundRect.right,
+					pos, paint);
+		}
+	}
+
+	@Override
 	protected void drawLabels(Canvas canvas) {
 		if (this.thumbDown == START) {
 			this.paint.setTextSize(this.labelSizeHighlight);
