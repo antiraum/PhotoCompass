@@ -7,7 +7,6 @@ import android.graphics.LinearGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Paint.Align;
-import android.util.Log;
 import android.view.MotionEvent;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;

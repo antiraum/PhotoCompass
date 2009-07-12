@@ -20,7 +20,7 @@ public final class Photo {
 	private int _photoId = 0; // MediaStore.Images.Thumbnails.IMAGE_ID of the photo
 	public double lat; // Latitude of the photo
 	public double lng; // Longitude of the photo
-	private double _alt = 0;
+	private double _alt;
 	private long _date; // The date & time that the image was taken in units of milliseconds since January 1, 1970
 	public Uri thumbUri; // URI of the Thumbnail file
 	
@@ -165,7 +165,7 @@ public final class Photo {
 		_lastUpdateLng = currentLng;
 		_lastUpdateAlt = currentAlt;
 		
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: resourceId = "+_resourceId+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: id = "+getId()+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
 	}
 	
 	/**
@@ -200,5 +200,29 @@ public final class Photo {
 	 */
 	public String getFormattedAge() {
 		return OutputFormatter.formatAge(System.currentTimeMillis() - _date);
+	}
+	
+	/**
+	 * Merges the photo with another photo.
+	 * 
+	 * @param other Photo to merge with.
+	 */
+	public void mergeWith(final Photo other) {
+		
+		// merge data
+		lat = (lat + other.lat) / 2;
+		lng = (lng + other.lng) / 2;
+		_alt = (_alt + other._alt) / 2;
+		_date = (_date + other._date) / 2;
+		
+		// TODO merge images
+		// possible strategy:
+		// is portrait + other is portrait -> clip next to each other as landscape
+		// is portrait + other is landscape -> do nothing & save other img for future merge
+		// is landscape + other is landscape -> clip together as portrait
+		// is landscape + other is portrait -> do nothing & save other img for future merge
+		// if there is a saved img, these combinations can be made:
+		// portrait + portrait + landscape -> portraits next to each other / landscape on bottom -> portrait
+		// portrait + landscape + landscape -> landscapes upon each other / portrait next to it -> landscape
 	}
 }

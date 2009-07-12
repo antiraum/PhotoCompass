@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
@@ -115,7 +114,7 @@ public final class FinderActivity extends Activity {
 			
 			// Check the distance between last and new location and only update if greater than the minimum
         	// update distance. Otherwise we get too many updates because of invalid altitude values. 
-			float[] results = new float[1];
+			final float[] results = new float[1];
 			Location.distanceBetween(currentLat, currentLng, lat, lng, results);
 			if (results[0] < LocationService.MIN_LOCATION_UPDATE_DISTANCE) return;
         	
@@ -182,6 +181,7 @@ public final class FinderActivity extends Activity {
      */
     final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
+    	private float _pitch;
 		private float _roll;
 
 		/**
@@ -193,14 +193,15 @@ public final class FinderActivity extends Activity {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: received event from orientation service");
         	
         	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-
-	    	// roll value has changed
-        	// TODO make this activity represent changing pitch values
-	    	if (roll != _roll) {
+        	
+        	// pitch or roll value has changed
+	    	if (pitch != _pitch || roll != _roll) {
+	    		_pitch = pitch;
 		    	_roll = roll;
             
 	            // switch to activity based on orientation
-	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.FINDER_ACTIVITY);
+	        	final int activity =
+	        		PhotoCompassApplication.getActivityForOrientation(_pitch, _roll, PhotoCompassApplication.FINDER_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.MAP_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "FinderActivity: switching to map activity");
 		    		ProgressDialog.show(finderActivity, "",  "Switching to map view. Please wait...", true);
@@ -301,6 +302,8 @@ public final class FinderActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
+        _photosModel.initialize(this);
         
         // initialize views
         final FinderView finderView = new FinderView(this);
@@ -492,10 +495,10 @@ public final class FinderActivity extends Activity {
     /**
      * Populate the options menu.
      */
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	menu = OptionsMenu.populateMenu(menu);
-        return true;
-    }
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//    	menu = OptionsMenu.populateMenu(menu);
+//        return true;
+//    }
 
     /**
      * Handles the option menu item selections.

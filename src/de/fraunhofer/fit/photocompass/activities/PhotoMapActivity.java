@@ -14,7 +14,6 @@ import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
@@ -188,6 +187,7 @@ public final class PhotoMapActivity extends MapActivity {
      */
     final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
 		
+    	private float _pitch;
 		private float _roll;
 
 		/**
@@ -199,11 +199,13 @@ public final class PhotoMapActivity extends MapActivity {
         	
         	if (isFinishing()) return; // activity is finishing, we don't do anything anymore
         	
-	    	if (roll != _roll) {
+	    	if (pitch != _pitch || roll != _roll) {
+	    		_pitch = pitch;
 		    	_roll = roll;
 	            
 	            // switch to activity based on orientation
-	        	final int activity = PhotoCompassApplication.getActivityForRoll(_roll, PhotoCompassApplication.MAP_ACTIVITY);
+	        	final int activity =
+	        		PhotoCompassApplication.getActivityForOrientation(_pitch, _roll, PhotoCompassApplication.MAP_ACTIVITY);
 		    	if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
 		    		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
 		    		ProgressDialog.show(mapActivity, "",  "Switching to camera view. Please wait...", true);
@@ -295,6 +297,8 @@ public final class PhotoMapActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
+        _photosModel.initialize(this);
         
         // map view
 		_mapView = new MapView(this, MAPS_API_KEY);
@@ -442,7 +446,6 @@ public final class PhotoMapActivity extends MapActivity {
 			_mapController.animateTo(currentLocation);
 			
 			// update overlays
-			_photosOverlay.updateLocation(currentLocation);
 			_viewDirOverlay.updateLocation(currentLocation);
 			_customMyLocOverlay.update(currentLocation);
     	}
@@ -478,10 +481,10 @@ public final class PhotoMapActivity extends MapActivity {
     /**
      * Populate the options menu.
      */
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	menu = OptionsMenu.populateMenu(menu);
-        return true;
-    }
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//    	menu = OptionsMenu.populateMenu(menu);
+//        return true;
+//    }
 
     /**
      * Handles the option menu item selections.

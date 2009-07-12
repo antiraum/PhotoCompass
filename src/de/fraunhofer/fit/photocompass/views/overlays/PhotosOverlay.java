@@ -35,8 +35,7 @@ public final class PhotosOverlay extends Overlay {
 //	private static final float ARROW_WIDTH = 15;
 	private static final float ARROW_HEIGHT = 18;
 	private static final float BORDER_WIDTH = 2.1F; // stroke width of the border
-	
-	private GeoPoint _location; // current location
+
 	private float _direction; // in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West).
 	private boolean _directionSet = false;
 	
@@ -134,14 +133,6 @@ public final class PhotosOverlay extends Overlay {
 	}
 	
 	/**
-	 * Update current location.
-	 * @param location
-	 */
-	public void updateLocation(final GeoPoint location) {
-		_location = location;
-	}
-	
-	/**
 	 * Update viewing direction.
 	 * @param direction
 	 */
@@ -151,7 +142,6 @@ public final class PhotosOverlay extends Overlay {
 	}
 	
 	// variables for draw
-	private final Point _locationPoint = new Point();
 	private final Point _point = new Point();
 //	private final Path _drawPath = new Path();
 	private final Matrix _matrix = new Matrix();
@@ -164,20 +154,15 @@ public final class PhotosOverlay extends Overlay {
     public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
     	super.draw(canvas, mapView, shadow);
     	
-		if (_location == null || ! _directionSet) return;
-		
-		// transform current position to point on canvas
-		final Projection projection = mapView.getProjection();
-		projection.toPixels(_location, _locationPoint);
+		if (! _directionSet) return;
     	
 //    	if (_borderBmp == null) _borderBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_border);
     	if (_arrowBmp == null) _arrowBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_arrow);
-    	
-		canvas.rotate(_direction, _locationPoint.x, _locationPoint.y);
 
 		Photo photo;
 		Bitmap bmp;
 		float width, height, xScale, yScale, scale;
+		final Projection projection = mapView.getProjection();
 		PhotoMetrics metrics;
 //		Path path;
 		float bmpXPos, bmpYPos;
@@ -214,6 +199,8 @@ public final class PhotosOverlay extends Overlay {
 			// get position and dimension
 			width = bmp.getWidth();
 			height = _minimizedPhotos.contains(id) ? PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT : bmp.getHeight();
+			
+			// transform current position to point on canvas
 			projection.toPixels(photo.getGeoPoint(), _point);
 			
 			metrics = _photoMetrics.get(id);
@@ -229,6 +216,8 @@ public final class PhotosOverlay extends Overlay {
 			metrics.setTop(Math.round(_point.y - (height + ARROW_HEIGHT + BORDER_WIDTH)));
 			metrics.setWidth(Math.round(width + BORDER_WIDTH));
 			metrics.setHeight(Math.round(height + BORDER_WIDTH));
+	    	
+			canvas.rotate(_direction, _point.x, _point.y);
 
 //			path = _minimizedPhotos.contains(id) ? _minimizedBorderPaths.get(id) : _borderPaths.get(id);
 //			if (path == null) {
@@ -269,8 +258,9 @@ public final class PhotosOverlay extends Overlay {
 			_matrix.postTranslate(bmpXPos, bmpYPos);
 			if (_minimizedPhotos.contains(id)) _matrix.postScale(1, height / bmp.getHeight(), bmpXPos, bmpYPos);
 			canvas.drawBitmap(bmp, _matrix, null);
+			
+			canvas.rotate(-_direction, _point.x, _point.y);
         }
-		canvas.rotate(-_direction, _locationPoint.x, _locationPoint.y);
     }
     
     /**
@@ -293,6 +283,7 @@ public final class PhotosOverlay extends Overlay {
      * 		   <code>false</code> if the tap was not handled with.
      */
     public boolean onTap(final GeoPoint geoPoint, final MapView mapView) {
+    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: onTap");
 
     	// translate geopoint
 		final Projection projection = mapView.getProjection();
