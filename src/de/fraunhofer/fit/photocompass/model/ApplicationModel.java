@@ -295,7 +295,7 @@ public final class ApplicationModel {
 	public void setRelativeMinAge(final float relativeMinAge) {
 		// Log.d(PhotoCompassApplication.LOG_TAG,
 		// "ApplicationModel: setRelativeMinAge = "+relativeMinAge);
-		setMinAge(Math.round(relativeMinAge * MAX_MAX_AGE));
+		setMinAge(Math.round((double) relativeMinAge * MAX_MAX_AGE));
 	}
 
 	/**
