@@ -59,7 +59,8 @@ public abstract class DoubleSeekBar extends View {
 	protected int startOffset;
 	protected int endOffset;
 	/**
-	 * Size of the bar (not of the entire control, excluding start and end offset)
+	 * Size of the bar (not of the entire control, excluding start and end
+	 * offset)
 	 */
 	protected int size;
 
@@ -97,8 +98,8 @@ public abstract class DoubleSeekBar extends View {
 	protected IDoubleSeekBarCallback callback;
 
 	private boolean _lightBackground = false;
-	
-	protected float[] _photoMarks; 
+
+	protected float[] _photoMarks;
 
 	/**
 	 * Creates a new {@link DoubleSeekBar}.
@@ -147,7 +148,7 @@ public abstract class DoubleSeekBar extends View {
 		// paint.setColor(PhotoCompassApplication.ORANGE);
 		paint.setShader(selectionGradient);
 		canvas.drawRect(this.selectionRect, paint);
-		
+
 		// draw photo marks
 		paint.setShader(null);
 		paint.setColor(PhotoCompassApplication.RED);
@@ -155,13 +156,17 @@ public abstract class DoubleSeekBar extends View {
 		for (float mark : _photoMarks) {
 			// TODO sorry for the if statement, quick'n'dirty, please improve
 			if (backgroundRect.height() > backgroundRect.width()) { // vertical
-				pos = backgroundRect.top + backgroundRect.height() - endOffset - mark * size;
-				canvas.drawLine(backgroundRect.left, pos, backgroundRect.right, pos, paint);
+				pos = backgroundRect.top + backgroundRect.height() - endOffset
+						- mark * size;
+				canvas.drawLine(backgroundRect.left, pos, backgroundRect.right,
+						pos, paint);
 			} else { // horizontal
 				pos = backgroundRect.left + startOffset + mark * size;
-				canvas.drawLine(pos, backgroundRect.top, pos, backgroundRect.bottom, paint);
+				canvas.drawLine(pos, backgroundRect.top, pos,
+						backgroundRect.bottom, paint);
 			}
-//			Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: draw: mark = "+mark+", pos = "+pos);
+			// Log.d(PhotoCompassApplication.LOG_TAG,
+			// "DoubleSeekBar: draw: mark = "+mark+", pos = "+pos);
 		}
 
 		startThumb.draw(canvas);
@@ -170,8 +175,8 @@ public abstract class DoubleSeekBar extends View {
 		paint.setShader(null);
 		paint.setColor(_lightBackground ? Color.DKGRAY : Color.WHITE);
 		// paint.setTextSize(10);
-//		Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: text size "
-//				+ paint.getTextSize());
+		// Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar: text size "
+		// + paint.getTextSize());
 		this.drawLabels(canvas);
 		// paint.setColor(Color.RED);
 		// canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
@@ -194,17 +199,21 @@ public abstract class DoubleSeekBar extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
-	protected final void updateStartValueWithCallback(float newValue) {
+	protected final void callbackStartValue(float newValue) {
+//		Log.d(PhotoCompassApplication.LOG_TAG,
+//				"DoubleSeekBar.callbackStartValue(" + newValue + ")");
 		this.callback.onMinValueChange(this.tryStartValue(newValue));
 	}
 
-	protected final void updateEndValueWithCallback(final float newValue) {
+	protected final void callbackEndValue(final float newValue) {
+//		Log.d(PhotoCompassApplication.LOG_TAG,
+//				"DoubleSeekBar.callbackEndValue(" + newValue + ")");
 		this.callback.onMaxValueChange(this.tryEndValue(newValue));
 	}
 
 	public final void updateStartValue(float newValue) {
 //		Log.d(PhotoCompassApplication.LOG_TAG,
-//			  "DoubleSeekBar.updateStartValue()");
+//				"DoubleSeekBar.updateStartValue() to " + newValue);
 		this.setStartValue(newValue);
 		this.startLabel = this.callback.getMinLabel();
 		this.updateStartBounds();
@@ -212,7 +221,7 @@ public abstract class DoubleSeekBar extends View {
 
 	public final void updateEndValue(final float newValue) {
 //		Log.d(PhotoCompassApplication.LOG_TAG,
-//			  "DoubleSeekBar.updateEndValue()");
+//				"DoubleSeekBar.updateEndValue() to " + newValue);
 		this.setEndValue(newValue);
 		this.endLabel = this.callback.getMaxLabel();
 		this.updateEndBounds();
@@ -246,32 +255,32 @@ public abstract class DoubleSeekBar extends View {
 				// distance to start is less than distance to end
 				this.thumbDown = START;
 				this.startThumb = this.startThumbActive;
-				this.updateStartValueWithCallback(newValue);
+				this.callbackStartValue(newValue);
 			} else {
 				// distance to end is less than to start
 				this.thumbDown = END;
 				this.endThumb = this.endThumbActive;
-				this.updateEndValueWithCallback(newValue);
+				this.callbackEndValue(newValue);
 			}
 			this.invalidate(); // TODO determine "dirty" region
 		} else if (action == MotionEvent.ACTION_MOVE && this.thumbDown != NONE) {
 			if (this.thumbDown == START
 					&& ((Math.abs(this.startValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE)) {
-				this.updateStartValueWithCallback(newValue);
+				this.callbackStartValue(newValue);
 				this.invalidate();
 			} else if (this.thumbDown == END
 					&& (Math.abs(this.endValue - newValue) * this.size) > DoubleSeekBar.TOUCH_MOVE_TOLERANCE) {
-				this.updateEndValueWithCallback(newValue);
+				this.callbackEndValue(newValue);
 				this.invalidate();
 			}
 		} else {
 			if (action == MotionEvent.ACTION_UP && this.thumbDown != NONE) {
 				if (this.thumbDown == START) {
 					this.startThumb = this.startThumbNormal;
-					this.updateStartValueWithCallback(newValue);
+					this.callbackStartValue(newValue);
 				} else {
 					this.endThumb = this.endThumbNormal;
-					this.updateEndValueWithCallback(newValue);
+					this.callbackEndValue(newValue);
 				}
 				this.thumbDown = NONE;
 				this.invalidate();
@@ -335,7 +344,7 @@ public abstract class DoubleSeekBar extends View {
 	public final void setCallback(IDoubleSeekBarCallback callback) {
 		this.callback = callback;
 	}
-	
+
 	public final void setPhotoMarks(final float[] photoMarks) {
 		_photoMarks = photoMarks;
 	}
