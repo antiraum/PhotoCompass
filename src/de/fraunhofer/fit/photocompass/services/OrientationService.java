@@ -97,7 +97,7 @@ public final class OrientationService extends Service {
 	        SensorManager.getOrientation(_rotationMatrix, _orientation);
 	        
 	        // set parameters
-	        _yaw = (_orientation[0] * _rad2deg + 90) % 360;
+	        _yaw = (_orientation[0] * _rad2deg + 90) % 360; // fix for 90 degree wrong values
 	        _pitch = _orientation[1] * _rad2deg;
 	        _roll = _orientation[2] * _rad2deg;
 	        
