@@ -435,9 +435,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         
 		// normalize direction and photo direction (direction set to 180 and photo direction correspondingly)
 		final double normalizeOffset = 180 - _direction;
-		double photoDirection = photo.direction + normalizeOffset;
-		while (photoDirection >= 360) photoDirection -= 360;
-		while (photoDirection <= -360) photoDirection += 360;
+		double photoDirection = (photo.direction + normalizeOffset) % 360;
 		
 		// calculate direction offset and x position
 		double directionOffset = photoDirection - 180;
