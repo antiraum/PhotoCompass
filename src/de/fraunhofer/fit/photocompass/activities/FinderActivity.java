@@ -50,8 +50,8 @@ public final class FinderActivity extends Activity {
     private PhotosView _photosView;
     private long _lastCompassViewUpdate;
 	private long _lastPhotoViewUpdate;
-	private static final int COMPASS_VIEW_UPDATE_IVAL = 350; // in milliseconds
-	private static final int PHOTO_VIEW_UPDATE_IVAL = 350; // in milliseconds
+	private static final int COMPASS_VIEW_UPDATE_IVAL = 300; // in milliseconds
+	private static final int PHOTO_VIEW_UPDATE_IVAL = 300; // in milliseconds
 
     ILocationService locationService = null; // package scoped for faster access by inner classes
     private boolean _boundToLocationService = false;
