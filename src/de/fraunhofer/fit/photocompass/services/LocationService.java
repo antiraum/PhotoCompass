@@ -178,7 +178,9 @@ public final class LocationService extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         	
     	// setup criteria for choosing the location provider
-    	_criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//    	_criteria.setAccuracy(Criteria.ACCURACY_FINE);
+    	_criteria.setAccuracy(Criteria.ACCURACY_COARSE); // changed to enable switch to network provider at FIT
+    													 // TODO re-check the strategy
 //    	_criteria.setAltitudeRequired(true);
     	_criteria.setAltitudeRequired(false); // disabled altitude support in this release
     	_criteria.setBearingRequired(false);

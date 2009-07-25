@@ -2,8 +2,6 @@ package de.fraunhofer.fit.photocompass.views;
 
 import android.content.Context;
 import android.os.RemoteException;
-import android.util.Log;
-import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.model.ApplicationModel;
 import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
 import de.fraunhofer.fit.photocompass.model.IPhotosCallback;
