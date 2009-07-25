@@ -7,26 +7,32 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Container for the map view of the {@link de.fraunhofer.fit.photocompass.activities.PhotoMapActivity}. 
- * Taken from com.example.android.apis.view.MapViewCompassDemo.
+ * Container for the map view of the {@link de.fraunhofer.fit.photocompass.activities.PhotoMapActivity}. Taken from
+ * com.example.android.apis.view.MapViewCompassDemo.
  */
 public final class RotateView extends ViewGroup {
-	
+    
     private static final float SQ2 = 1.414213562373095f;
     private final SmoothCanvas _canvas = new SmoothCanvas();
     private float _heading = 0;
+    
+    
+    public RotateView(final Context context) {
 
-    public RotateView(Context context) {
         super(context);
     }
     
+
     public void setHeading(final float value) {
-    	_heading = value;
+
+        _heading = value;
         invalidate();
     }
+    
 
     @Override
     protected void dispatchDraw(final Canvas canvas) {
+
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
         canvas.translate(0, 80); // move current location to bottom
         canvas.rotate(-_heading, getWidth() * 0.5f, getHeight() * 0.5f);
@@ -34,9 +40,11 @@ public final class RotateView extends ViewGroup {
         super.dispatchDraw(_canvas);
         canvas.restore();
     }
+    
 
     @Override
     protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b) {
+
         final int width = getWidth();
         final int height = getHeight();
         final int count = getChildCount();
@@ -49,26 +57,28 @@ public final class RotateView extends ViewGroup {
             view.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
         }
     }
+    
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        int w = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        int h = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+
+        final int w = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        final int h = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
         int sizeSpec;
-        if (w > h) {
+        if (w > h)
             sizeSpec = MeasureSpec.makeMeasureSpec((int) (w * SQ2), MeasureSpec.EXACTLY);
-        } else {
+        else
             sizeSpec = MeasureSpec.makeMeasureSpec((int) (h * SQ2), MeasureSpec.EXACTLY);
-        }
         final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
             getChildAt(i).measure(sizeSpec, sizeSpec);
-        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
+    
 
     @Override
     public boolean dispatchTouchEvent(final MotionEvent event) {
+
         // TODO rotate events too
         return super.dispatchTouchEvent(event);
     }
