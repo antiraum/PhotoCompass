@@ -16,23 +16,31 @@ public final class RotateView extends ViewGroup {
     private final SmoothCanvas _canvas = new SmoothCanvas();
     private float _heading = 0;
     
-    
+    /**
+     * Constructor
+     * 
+     * @param context Application context
+     */
     public RotateView(final Context context) {
-
+        
         super(context);
     }
     
-
+    
+    /**
+     * Set the heading (rotation).
+     * 
+     * @param value
+     */
     public void setHeading(final float value) {
-
+        
         _heading = value;
         invalidate();
     }
     
-
     @Override
     protected void dispatchDraw(final Canvas canvas) {
-
+        
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
         canvas.translate(0, 80); // move current location to bottom
         canvas.rotate(-_heading, getWidth() * 0.5f, getHeight() * 0.5f);
@@ -41,10 +49,9 @@ public final class RotateView extends ViewGroup {
         canvas.restore();
     }
     
-
     @Override
     protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b) {
-
+        
         final int width = getWidth();
         final int height = getHeight();
         final int count = getChildCount();
@@ -58,10 +65,9 @@ public final class RotateView extends ViewGroup {
         }
     }
     
-
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-
+        
         final int w = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         final int h = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
         int sizeSpec;
@@ -75,10 +81,9 @@ public final class RotateView extends ViewGroup {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
-
     @Override
     public boolean dispatchTouchEvent(final MotionEvent event) {
-
+        
         // TODO rotate events too
         return super.dispatchTouchEvent(event);
     }

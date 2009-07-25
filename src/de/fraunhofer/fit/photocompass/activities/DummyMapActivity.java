@@ -31,7 +31,6 @@ public final class DummyMapActivity extends Activity {
     IOrientationService orientationService = null; // package scoped for faster access by inner classes
     private boolean _boundToOrientationService = false;
     
-
     /**
      * Connection object for the connection with the {@link OrientationService}.
      */
@@ -58,7 +57,6 @@ public final class DummyMapActivity extends Activity {
             }
         }
         
-
         /**
          * Gets called when the service connection is closed down. Frees {@link #orientationService}.
          */
@@ -69,7 +67,6 @@ public final class DummyMapActivity extends Activity {
         }
     };
     
-
     /**
      * Callback object for the {@link OrientationService}. Gets registered and unregistered at the
      * {@link #orientationService} object. Package scoped for faster access by inner classes.
@@ -78,7 +75,6 @@ public final class DummyMapActivity extends Activity {
         
         private float _pitch;
         private float _roll;
-        
         
         /**
          * Gets called when new data is provided by the {@link OrientationService}. Initiates switch to
@@ -111,7 +107,6 @@ public final class DummyMapActivity extends Activity {
         }
     };
     
-    
     /**
      * Constructor.
      */
@@ -121,7 +116,6 @@ public final class DummyMapActivity extends Activity {
         mapActivity = this;
     }
     
-
     /**
      * Called when the activity is first created. Initializes the views.
      */
@@ -137,7 +131,6 @@ public final class DummyMapActivity extends Activity {
         setContentView(R.layout.dummymap_layout);
     }
     
-
     /**
      * Called before the activity becomes visible. Connects to the {@link OrientationService}.
      */
@@ -155,7 +148,6 @@ public final class DummyMapActivity extends Activity {
             Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
     }
     
-
     /**
      * Called when the activity is no longer visible. Unregisters the {@link #orientationServiceCallback} from the
      * {@link OrientationService} and then disconnects from the {@link OrientationService}.
@@ -186,7 +178,6 @@ public final class DummyMapActivity extends Activity {
         super.onStop();
     }
     
-
     /**
      * Populate the options menu.
      */
@@ -197,7 +188,6 @@ public final class DummyMapActivity extends Activity {
         return true;
     }
     
-
     /**
      * Handles the option menu item selections.
      */
@@ -207,7 +197,6 @@ public final class DummyMapActivity extends Activity {
         return OptionsMenu.handleMenuItemSelection(item, this);
     }
     
-
     /**
      * Gets called when a started {@link Activity} returns a result.
      */

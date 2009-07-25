@@ -20,7 +20,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
     private final int topPadding = 29;
     private static final int LABEL_PADDING = 5;
     
-    
     /**
      * Creates a new HorizontalDoubleSeekBar using the application's Context and a custom callback that is used to
      * retrieve the labels as well as to notify the application model about changes.
@@ -57,7 +56,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         endLabelY = topPadding - 4;
     }
     
-
     @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
 
@@ -66,7 +64,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         super.onSizeChanged(w, h, oldw, oldh);
     }
     
-
     @Override
     protected void updateStartBounds() {
 
@@ -77,7 +74,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         startLabelX = startThumb.getBounds().centerX();
     }
     
-
     @Override
     protected void updateEndBounds() {
 
@@ -88,7 +84,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         endLabelX = endThumb.getBounds().centerX();
     }
     
-
     @Override
     protected int convertToConcrete(final float abstractValue) {
 
@@ -96,7 +91,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         
     }
     
-
     @Override
     protected float convertToAbstract(final float concreteValue) {
 
@@ -104,14 +98,12 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         
     }
     
-
     @Override
     protected float getEventCoordinate(final MotionEvent event) {
 
         return event.getX();
     }
     
-
     @Override
     protected void drawPhotoMarks(final Canvas canvas) {
 
@@ -122,7 +114,6 @@ public final class HorizontalDoubleSeekBar extends DoubleSeekBar {
         }
     }
     
-
     @Override
     protected void drawLabels(final Canvas canvas) {
 

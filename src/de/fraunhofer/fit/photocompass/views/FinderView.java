@@ -16,7 +16,6 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
     private final SurfaceHolder _surfaceHolder;
     private Camera _camera;
     
-    
     /**
      * Constructor. Initializes the surface holder.
      * 
@@ -35,7 +34,6 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
         _surfaceHolder.addCallback(this);
     }
     
-
     /**
      * This is called after the surface is first created. Acquires the camera and tells it where to draw.
      */
@@ -51,7 +49,6 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
         }
     }
     
-
     /**
      * This is called before a surface is being destroyed. Stops the preview and releases the camera.
      */
@@ -67,7 +64,6 @@ public final class FinderView extends SurfaceView implements SurfaceHolder.Callb
         _camera = null;
     }
     
-
     /**
      * This is called after any structural changes (format or size) have been made to the surface. Sets up the camera to
      * the surface size and starts the preview.

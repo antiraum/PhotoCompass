@@ -11,12 +11,16 @@ import android.widget.RemoteViews.RemoteView;
 @RemoteView
 public class SimpleAbsoluteLayout extends ViewGroup {
     
+    /**
+     * Constructor
+     * 
+     * @param context Application context
+     */
     public SimpleAbsoluteLayout(final Context context) {
 
         super(context);
     }
     
-
     @Override
     protected final void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
 
@@ -46,7 +50,6 @@ public class SimpleAbsoluteLayout extends ViewGroup {
         setMeasuredDimension(resolveSize(maxWidth, widthMeasureSpec), resolveSize(maxHeight, heightMeasureSpec));
     }
     
-
     @Override
     protected final ViewGroup.LayoutParams generateDefaultLayoutParams() {
 
@@ -54,7 +57,6 @@ public class SimpleAbsoluteLayout extends ViewGroup {
                                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 0, 0);
     }
     
-
     @Override
     protected final void onLayout(final boolean changed, final int left, final int top, final int right,
                                   final int bottom) {
@@ -87,7 +89,6 @@ public class SimpleAbsoluteLayout extends ViewGroup {
          * The vertical, or Y, location of the child within the view group.
          */
         public int y;
-        
         
         /**
          * Creates a new set of layout parameters with the specified width, height and location.

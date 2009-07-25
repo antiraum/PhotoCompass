@@ -29,7 +29,9 @@ public final class ViewingDirectionOverlay extends Overlay {
     private final Paint _borderPaint = new Paint();
     private final Paint _fillPaint = new Paint();
     
-    
+    /**
+     * Constructor
+     */
     public ViewingDirectionOverlay() {
 
         _borderPaint.setStrokeWidth(2.1F);
@@ -39,7 +41,6 @@ public final class ViewingDirectionOverlay extends Overlay {
         _fillPaint.setStyle(Paint.Style.FILL);
     }
     
-
     /**
      * Update current location.
      * 
@@ -51,7 +52,6 @@ public final class ViewingDirectionOverlay extends Overlay {
         _location = location;
     }
     
-
     /**
      * Update viewing direction.
      * 
@@ -64,7 +64,6 @@ public final class ViewingDirectionOverlay extends Overlay {
         _directionSet = true;
     }
     
-
     /**
      * Draws the overlay.
      */

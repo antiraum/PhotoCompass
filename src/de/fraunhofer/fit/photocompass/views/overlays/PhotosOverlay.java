@@ -61,36 +61,37 @@ public final class PhotosOverlay extends Overlay {
 //	 * Border paths for currently and previously used photos (key is photo/resource id).
 //	 */
 //	private final SparseArray<Path> _borderPaths = new SparseArray<Path>();
-//	
+//
 //	/**
 //	 * Minimized border paths for currently and previously used photos (key is photo/resource id).
 //	 */
 //	private final SparseArray<Path> _minimizedBorderPaths = new SparseArray<Path>();
     
-    private final Photos _photosModel = Photos.getInstance();
+    final Photos photosModel = Photos.getInstance(); // package scoped for faster access by inner classes
     private final Paint _borderPaint = new Paint();
 //	private Bitmap _borderBmp;
     private Bitmap _arrowBmp;
     
-    
+    /**
+     * Constructor
+     */
     public PhotosOverlay() {
-
+        
         // setup border paint
         _borderPaint.setStrokeWidth(BORDER_WIDTH);
         _borderPaint.setColor(PhotoCompassApplication.ORANGE);
         _borderPaint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
     
-
     /**
      * Adds photos to the list of currently used photos.
      * 
      * @param newPhotos ArrayList of photo/resource ids of the photos to add.
      */
     public void addPhotos(final ArrayList<Integer> newPhotos) {
-
+        
         if (newPhotos.size() == 0) return; // nothing to do
-            
+        
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: addPhotos: newPhotos.size() = " + newPhotos.size());
         
         // add to list of currently used photos
@@ -100,16 +101,15 @@ public final class PhotosOverlay extends Overlay {
         _sortPhotos();
     }
     
-
     /**
      * Removes photos from the list of currently used photos.
      * 
      * @param oldPhotos ArrayList of photo/resource ids of the photos to remove.
      */
     public void removePhotos(final ArrayList<Integer> oldPhotos) {
-
+        
         if (oldPhotos.size() == 0) return; // nothing to do
-            
+        
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: removePhotos: oldPhotos.size() = " + oldPhotos.size());
         
         // remove from list of currently used photos
@@ -119,18 +119,17 @@ public final class PhotosOverlay extends Overlay {
         _sortPhotos();
     }
     
-
     /**
-     * Sorts ({@link #_photos}) based on their latitude. North to south.
+     * Sorts ({@link #photos}) based on their latitude. North to south.
      */
     private void _sortPhotos() {
-
+        
         Collections.sort(photos, new Comparator<Integer>() {
             
             public int compare(final Integer id1, final Integer id2) {
-
-                final Photo photo1 = _photosModel.getPhoto(id1);
-                final Photo photo2 = _photosModel.getPhoto(id2);
+                
+                final Photo photo1 = photosModel.getPhoto(id1);
+                final Photo photo2 = photosModel.getPhoto(id2);
                 if (photo1 == null || photo2 == null) return 0;
                 if (photo1.getGeoPoint().getLatitudeE6() > photo2.getGeoPoint().getLatitudeE6()) return -1;
                 return 1;
@@ -138,14 +137,13 @@ public final class PhotosOverlay extends Overlay {
         });
     }
     
-
     /**
      * Update viewing direction.
      * 
      * @param direction
      */
     public void updateDirection(final float direction) {
-
+        
         _direction = direction;
         _directionSet = true;
     }
@@ -155,14 +153,13 @@ public final class PhotosOverlay extends Overlay {
 //	private final Path _drawPath = new Path();
     private final Matrix _matrix = new Matrix();
     
-    
     /**
      * Draws the photos and their borders on the canvas. For photos that have not been drawn before, a pre-scaled bitmap
      * is created and cached.
      */
     @Override
     public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
-
+        
         super.draw(canvas, mapView, shadow);
         
         if (!_directionSet) return;
@@ -182,7 +179,7 @@ public final class PhotosOverlay extends Overlay {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: draw: id = "+id);
             
             // get photo
-            photo = _photosModel.getPhoto(id);
+            photo = photosModel.getPhoto(id);
             if (photo == null) continue;
             
             bmp = _photoBitmaps.get(id);
@@ -230,7 +227,7 @@ public final class PhotosOverlay extends Overlay {
             
 //			path = _minimizedPhotos.contains(id) ? _minimizedBorderPaths.get(id) : _borderPaths.get(id);
 //			if (path == null) {
-//			
+//
 //				// create border path
 //				path = new Path();
 //				path.rLineTo(width + BORDER_WIDTH, 0); // top border
@@ -240,7 +237,7 @@ public final class PhotosOverlay extends Overlay {
 //				path.rLineTo(-1 * ARROW_WIDTH / 2, -1 * ARROW_HEIGHT); // arrow left border
 //				path.rLineTo(-1 * (width + BORDER_WIDTH - ARROW_WIDTH) / 2, 0); // bottom border
 //				path.close(); // left border
-//				
+//
 //				// save path
 //				if (_minimizedPhotos.contains(id)) {
 //					_minimizedBorderPaths.append(id, path);
@@ -272,12 +269,11 @@ public final class PhotosOverlay extends Overlay {
         }
     }
     
-
     /**
      * Removes the currently not needed bitmaps to save memory.
      */
     public void clearUnneededBitmaps() {
-
+        
         final int numBmps = _photoBitmaps.size();
         int photoId;
         for (int i = 0; i < numBmps; i++) {
@@ -287,7 +283,6 @@ public final class PhotosOverlay extends Overlay {
         }
     }
     
-
     /**
      * Handle a tap event. A tap on a photo minimizes it. A tap on a minimized photo restores it.
      * 
@@ -296,7 +291,7 @@ public final class PhotosOverlay extends Overlay {
      */
     @Override
     public boolean onTap(final GeoPoint geoPoint, final MapView mapView) {
-
+        
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: onTap");
         
         // translate geopoint
@@ -319,13 +314,13 @@ public final class PhotosOverlay extends Overlay {
             id = lit.previous();
             metrics = _photoMetrics.get(id);
             if (metrics.left < _point.x && metrics.getRight() > _point.x && // on the photo in horizontal direction
-                metrics.top - y_tap_tolerance < _point.y && metrics.getBottom() + y_tap_tolerance > _point.y) { // on the photo in vertical direction
+                    metrics.top - y_tap_tolerance < _point.y && metrics.getBottom() + y_tap_tolerance > _point.y) { // on the photo in vertical direction
                 tappedPhoto = id;
                 break;
             }
         }
         if (tappedPhoto == 0) return false; // no photo matched
-            
+        
         // minimize/restore photo
         if (_minimizedPhotos.contains(tappedPhoto))
             _minimizedPhotos.remove(tappedPhoto);

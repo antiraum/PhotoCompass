@@ -43,7 +43,6 @@ public final class Photos {
     
     private final RemoteCallbackList<IPhotosCallback> _remoteCallbacks = new RemoteCallbackList<IPhotosCallback>();
     
-    
     /**
      * Constructor. Private because Singleton. Use {@link #getInstance()}.
      */
@@ -51,7 +50,6 @@ public final class Photos {
 
     }
     
-
     /**
      * @return The instance of this Singleton model.
      */
@@ -60,7 +58,6 @@ public final class Photos {
         return _instance;
     }
     
-
     /**
      * Initialization. Populates the photos and dummies (if {@link PhotoCompassApplication#USE_DUMMY_PHOTOS} is
      * <code>true</code>) arrays. This needs to run only once.
@@ -78,7 +75,6 @@ public final class Photos {
         _initialized = true;
     }
     
-
     /**
      * Register a callback object.
      * 
@@ -89,7 +85,6 @@ public final class Photos {
         if (cb != null) _remoteCallbacks.register(cb);
     }
     
-
     /**
      * Unregister a callback object.
      * 
@@ -100,7 +95,6 @@ public final class Photos {
         if (cb != null) _remoteCallbacks.unregister(cb);
     }
     
-
     /**
      * Checks if the photos array is up-to-date with the photos stores on the device. Should be called by activities
      * after they become active again, as the user could have added or removed photos in the meantime. Populates the
@@ -120,10 +114,7 @@ public final class Photos {
         final Uri mediaUris[] = {Media.INTERNAL_CONTENT_URI, Media.EXTERNAL_CONTENT_URI};
         final Uri thumbUris[] = {Thumbnails.INTERNAL_CONTENT_URI, Thumbnails.EXTERNAL_CONTENT_URI};
         final String mediaColumns[] = {
-            BaseColumns._ID,
-            ImageColumns.LATITUDE,
-            ImageColumns.LONGITUDE,
-            ImageColumns.DATE_TAKEN};
+            BaseColumns._ID, ImageColumns.LATITUDE, ImageColumns.LONGITUDE, ImageColumns.DATE_TAKEN};
         final String thumbColumns[] = {Thumbnails.DATA};
         Cursor mediaCursor, thumbCursor;
         int idCol, latCol, lngCol, dateCol, thumbCol;
@@ -207,7 +198,6 @@ public final class Photos {
         _broadcastPhotoAges();
     }
     
-
     /**
      * Merges photos close to each other.
      */
@@ -252,7 +242,6 @@ public final class Photos {
                 photos.delete(mergedId);
     }
     
-
     /**
      * Get a {@link Photo} object for a photo/resource id.
      * 
@@ -266,7 +255,6 @@ public final class Photos {
         return photo;
     }
     
-
     /**
      * Determines which photos are newly visible for the current viewing settings.
      * 
@@ -291,7 +279,6 @@ public final class Photos {
         return results;
     }
     
-
     /**
      * Determines which photos are no longer visible for the current viewing settings.
      * 
@@ -314,7 +301,6 @@ public final class Photos {
         return results;
     }
     
-
     /**
      * Checks if a photo is visible with the current settings.
      * 
@@ -336,7 +322,6 @@ public final class Photos {
         return true;
     }
     
-
     /**
      * Updates distance, direction, and altitude offset of all photos stored in the model.
      * 
@@ -355,7 +340,6 @@ public final class Photos {
         updateAppModelMaxValues();
     }
     
-
     /**
      * Updates the maximum limits of the {@link ApplicationModel} for distance and age according to the data of the used
      * photos.
@@ -387,7 +371,6 @@ public final class Photos {
         if (appModel.setMaxMaxAge(maxAge)) _broadcastPhotoAges();
     }
     
-
     /**
      * Broadcasts a list with the distances of all photos used by the application. The distances are translated into
      * relative values.
@@ -430,7 +413,6 @@ public final class Photos {
         _remoteCallbacks.finishBroadcast();
     }
     
-
     /**
      * Broadcasts a list with the age of all photos used by the application to the registered callbacks. The ages are
      * translated into relative values.
@@ -473,7 +455,6 @@ public final class Photos {
         _remoteCallbacks.finishBroadcast();
     }
     
-
     private boolean _isPhotoUsed(final Photo photo) {
 
         final ApplicationModel appModel = ApplicationModel.getInstance();
@@ -481,7 +462,6 @@ public final class Photos {
         return true;
     }
     
-
     private static float[] _listToPrimitives(final ArrayList<Float> list) {
 
         final int size = list.size();
@@ -491,7 +471,6 @@ public final class Photos {
         return array;
     }
     
-
     /**
      * Populates {@link #_dummies}.
      */

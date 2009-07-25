@@ -26,7 +26,10 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 public final class LocationService extends Service {
     
     private static long MIN_LOCATION_UPDATE_TIME = 2 * 60 * 1000L; // in milliseconds
-    public static float MIN_LOCATION_UPDATE_DISTANCE = 10F; // in meters
+    /**
+     * Minimum distance the current location must change to update the UI. In meters.
+     */
+    public static float MIN_LOCATION_UPDATE_DISTANCE = 10F;
     
     private static final long CHECK_FOR_BETTER_PROVIDER_IVAL = 5 * 60 * 1000L; // in milliseconds
     private final Handler _providerCheckHandler = new Handler();
@@ -66,7 +69,6 @@ public final class LocationService extends Service {
                                                                          : null);
         }
         
-
         public void unregisterCallback(final ILocationServiceCallback cb) {
 
             if (cb != null) remoteCallbacks.unregister(cb);
@@ -117,7 +119,6 @@ public final class LocationService extends Service {
             remoteCallbacks.finishBroadcast();
         }
         
-
         /**
          * Called when the provider is disabled by the user. Re-choose the location provider.
          */
@@ -127,7 +128,6 @@ public final class LocationService extends Service {
             chooseLocationProvider(null); // choose new provider
         }
         
-
         /**
          * Called when the provider is enabled by the user.
          */
@@ -136,7 +136,6 @@ public final class LocationService extends Service {
             Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onProviderEnabled: provider = " + provider);
         }
         
-
         /**
          * Called when the provider status changes. If the status changes to {@link LocationProvider#OUT_OF_SERVICE} a
          * new location provider gets chosen. If the status changes to {@link LocationProvider#TEMPORARILY_UNAVAILABLE}
@@ -156,13 +155,15 @@ public final class LocationService extends Service {
                 
                 Log.d(PhotoCompassApplication.LOG_TAG, "LocationService: onStatusChanged: provider = " + provider +
                                                        ", status = TEMPORARILY_UNAVAILABLE");
-                chooseLocationProvider(locationProvider); // look for better provider 
+                chooseLocationProvider(locationProvider); // look for better provider
                 // TODO make a time limit for TEMPORARILY_UNAVAILABLE / if exceeded switch to any other available provider
             }
         }
     };
     
-    
+    /**
+     * Constructor.
+     */
     public LocationService() {
 
         // the emulator is always getting new locations with a great variety
@@ -172,7 +173,6 @@ public final class LocationService extends Service {
         }
     }
     
-
     /**
      * Called by the system when the service is first created. Initializes the {@link #locationManager}, sets up the
      * {@link #locationProvider} criteria, chooses and starts listening to the initial location provider, and starts the
@@ -211,7 +211,6 @@ public final class LocationService extends Service {
         checkForBetterProvider();
     }
     
-
     /**
      * Regularly called method that checks if a better location provider than the current one is available. The method
      * schedules its next call by itself. Package scoped for faster access by inner classes.
@@ -227,7 +226,6 @@ public final class LocationService extends Service {
         _providerCheckHandler.postDelayed(_providerCheckCaller, CHECK_FOR_BETTER_PROVIDER_IVAL);
     }
     
-
     /**
      * Chooses a location provider and starts getting updates from it. First stops listening to the current provider,
      * then tries to find the best possible provider, and starts listening to it. Package scoped for faster access by
@@ -276,7 +274,6 @@ public final class LocationService extends Service {
                                                MIN_LOCATION_UPDATE_DISTANCE, locationListener, getMainLooper());
     }
     
-
     /**
      * Called when an activity connects to the service.
      * 
@@ -289,7 +286,6 @@ public final class LocationService extends Service {
         return _binder;
     }
     
-
     /**
      * Called by the system to notify a Service that it is no longer used and is being removed. Shuts down the service.
      */

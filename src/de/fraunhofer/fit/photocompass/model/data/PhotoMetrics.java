@@ -9,17 +9,34 @@ import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout.LayoutP
  */
 public final class PhotoMetrics {
     
-    public static final int MINIMIZED_PHOTO_HEIGHT = 30; // height of a minimized photo in the PhotosView 
-    public static final int MAPS_MINIMIZED_PHOTO_HEIGHT = 20; // height of a minimized photo in the PhotosOverlay
+    /**
+     * Height of a minimized photo in the PhotosView
+     */
+    public static final int MINIMIZED_PHOTO_HEIGHT = 30;
+    /**
+     * Height of a minimized photo in the PhotosOverlay
+     */
+    public static final int MAPS_MINIMIZED_PHOTO_HEIGHT = 20;
     
-    public int left = 0; // Left position
-    public int top = 0; // Top position
+    /**
+     * Left/X position
+     */
+    public int left = 0;
+    /**
+     * Top/Y position
+     */
+    public int top = 0;
+    /**
+     * Width
+     */
     public int width = 0;
+    /**
+     * Height
+     */
     public int height = 0;
     private LayoutParams _layoutParams; // layout parameters for SimpleAbsoluteLayout
     private LayoutParams _minimizedLayoutParams; // layout parameters for SimpleAbsoluteLayout
     
-
     /**
      * @param value Left position.
      */
@@ -30,7 +47,6 @@ public final class PhotoMetrics {
         _setMinimizedLayoutParams();
     }
     
-
     /**
      * @param value Top position.
      */
@@ -40,7 +56,6 @@ public final class PhotoMetrics {
         _setLayoutParams();
     }
     
-
     /**
      * @param value Width.
      */
@@ -51,7 +66,6 @@ public final class PhotoMetrics {
         _setMinimizedLayoutParams();
     }
     
-
     /**
      * @param value Height.
      */
@@ -61,7 +75,6 @@ public final class PhotoMetrics {
         _setLayoutParams();
     }
     
-
     /**
      * @return Right position.
      */
@@ -70,7 +83,6 @@ public final class PhotoMetrics {
         return left + width;
     }
     
-
     /**
      * @return Bottom position.
      */
@@ -79,13 +91,11 @@ public final class PhotoMetrics {
         return top + height;
     }
     
-
     private void _setLayoutParams() {
 
         _layoutParams = new LayoutParams(width, height, left, top);
     }
     
-
     /**
      * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout}.
      */
@@ -94,14 +104,12 @@ public final class PhotoMetrics {
         return _layoutParams;
     }
     
-
     private void _setMinimizedLayoutParams() {
 
         // minimized photos are displayed with unchanged width and MINIMIZED_PHOTO_HEIGHT
         _minimizedLayoutParams = new LayoutParams(width, MINIMIZED_PHOTO_HEIGHT, left, 0);
     }
     
-
     /**
      * @param availableHeight Height at which bottom the minimized photos should be displayed.
      * @return {@link LayoutParams} for an {@link SimpleAbsoluteLayout} for a photo in minimized state.

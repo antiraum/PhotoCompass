@@ -62,7 +62,6 @@ public final class FinderActivity extends Activity {
     private final Photos _photosModel = Photos.getInstance();
     private final ApplicationModel _appModel = ApplicationModel.getInstance();
     
-
     /**
      * Connection object for the connection with the {@link LocationService}.
      */
@@ -89,7 +88,6 @@ public final class FinderActivity extends Activity {
             }
         }
         
-
         /**
          * Gets called when the service connection is closed down. Frees {@link #locationService}.
          */
@@ -100,7 +98,6 @@ public final class FinderActivity extends Activity {
         }
     };
     
-
     /**
      * Callback object for the {@link LocationService}. Gets registered and unregistered at the {@link #locationService}
      * object. Package scoped for faster access by inner classes.
@@ -143,7 +140,6 @@ public final class FinderActivity extends Activity {
         }
     };
     
-
     /**
      * Connection object for the connection with the {@link OrientationService}.
      */
@@ -170,7 +166,6 @@ public final class FinderActivity extends Activity {
             }
         }
         
-
         /**
          * Gets called when the service connection is closed down. Frees {@link #orientationService}.
          */
@@ -181,7 +176,6 @@ public final class FinderActivity extends Activity {
         }
     };
     
-
     /**
      * Callback object for the {@link OrientationService}. Gets registered and unregistered at the
      * {@link #orientationService} object. Package scoped for faster access by inner classes.
@@ -190,7 +184,6 @@ public final class FinderActivity extends Activity {
         
         private float _pitch;
         private float _roll;
-        
         
         /**
          * Gets called when new data is provided by the {@link OrientationService}. Initiates switch to
@@ -240,7 +233,6 @@ public final class FinderActivity extends Activity {
         }
     };
     
-
     /**
      * Callback object for the {@link ApplicationModel}. Gets registered and unregistered at the {@link #_appModel}
      * object.
@@ -258,7 +250,6 @@ public final class FinderActivity extends Activity {
             updatePhotoView(false, false, false, false, true, true);
         }
         
-
         /**
          * Gets called when the maximum distance in the {@link ApplicationModel} changes. Initiates a update of
          * {@link #_photosView}.
@@ -270,7 +261,6 @@ public final class FinderActivity extends Activity {
             updatePhotoView(false, false, false, false, true, true);
         }
         
-
         /**
          * Gets called when the minimum age in the {@link ApplicationModel} changes. Initiates a update of
          * {@link #_photosView}.
@@ -282,7 +272,6 @@ public final class FinderActivity extends Activity {
             updatePhotoView(false, false, false, false, true, true);
         }
         
-
         /**
          * Gets called when the maximum age in the {@link ApplicationModel} changes. Initiates a update of
          * {@link #_photosView}.
@@ -294,7 +283,6 @@ public final class FinderActivity extends Activity {
             updatePhotoView(false, false, false, false, true, true);
         }
     };
-    
     
     /**
      * Constructor.
@@ -308,7 +296,6 @@ public final class FinderActivity extends Activity {
         _appModel.registerCallback(_appModelCallback);
     }
     
-
     /**
      * Called when the activity is first created. Initializes the views.
      */
@@ -339,7 +326,6 @@ public final class FinderActivity extends Activity {
         addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
     }
     
-
     /**
      * Called before the activity becomes visible. Connects to the {@link LocationService} and the
      * {@link OrientationService}. Initiates a update of the {@link Photos} model.
@@ -366,7 +352,6 @@ public final class FinderActivity extends Activity {
         _photosModel.updatePhotos(this);
     }
     
-
     /**
      * Called when the activity is no longer visible. Unregisters the callbacks from the services and then disconnects
      * from the services.
@@ -413,7 +398,6 @@ public final class FinderActivity extends Activity {
         super.onStop();
     }
     
-
     /**
      * This is called when the overall system is running low on memory, and would like actively running process to try
      * to tighten their belt. We are nice and clear the unneeded photo and border views in the photos view.
@@ -425,7 +409,6 @@ public final class FinderActivity extends Activity {
         _photosView.clearUnneededViews();
     }
     
-
     /**
      * Updates the compass view based on the current viewing direction.
      */
@@ -438,7 +421,6 @@ public final class FinderActivity extends Activity {
         _compassView.update(currentYaw);
     }
     
-
     /**
      * Updates the photo view based on the current location and phone orientation as well as the settings in the
      * {@link ApplicationModel}. Package scoped for faster access by inner classes.
@@ -506,7 +488,6 @@ public final class FinderActivity extends Activity {
         }
     }
     
-
     /**
      * Updates distance, direction, and altitude offset of the photos currently used by the photos view.
      */
@@ -520,7 +501,6 @@ public final class FinderActivity extends Activity {
         _photosModel.updateAppModelMaxValues();
     }
     
-
     /**
      * Populate the options menu.
      */
@@ -538,7 +518,6 @@ public final class FinderActivity extends Activity {
         return OptionsMenu.handleMenuItemSelection(item, this);
     }
     
-
     /**
      * Gets called when a started {@link Activity} returns a result.
      */

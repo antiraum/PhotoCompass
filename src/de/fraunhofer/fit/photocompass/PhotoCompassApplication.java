@@ -51,7 +51,6 @@ public final class PhotoCompassApplication extends Application {
     
     public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds)
     
-
     /**
      * Constructor.
      */
@@ -71,7 +70,6 @@ public final class PhotoCompassApplication extends Application {
         }
     }
     
-
     /**
      * Returns the activity constant for the pitch and roll values from the orientation service. Is used by the
      * activities to determine when they have to switch to another activity.

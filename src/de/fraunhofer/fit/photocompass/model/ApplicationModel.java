@@ -75,7 +75,6 @@ public final class ApplicationModel {
     
     private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
     
-    
     /**
      * Constructor. Private because Singleton. Use {@link #getInstance()}.
      */
@@ -83,7 +82,6 @@ public final class ApplicationModel {
 
     }
     
-
     /**
      * @return The instance of this Singleton model.
      */
@@ -92,7 +90,6 @@ public final class ApplicationModel {
         return _instance;
     }
     
-
     /**
      * Register a callback object.
      * 
@@ -103,7 +100,6 @@ public final class ApplicationModel {
         if (cb != null) _remoteCallbacks.register(cb);
     }
     
-
     /**
      * Unregister a callback object.
      * 
@@ -114,7 +110,6 @@ public final class ApplicationModel {
         if (cb != null) _remoteCallbacks.unregister(cb);
     }
     
-
     /**
      * Set the maximum value for maximum distance. Call this from the {@link Photos} model when the photos are read of
      * the device.
@@ -133,7 +128,6 @@ public final class ApplicationModel {
         return (oldValue == MAX_MAX_DISTANCE) ? false : true;
     }
     
-
     /**
      * Set the maximum value for maximum age. Call this from the {@link Photos} model when the photos are read of the
      * device.
@@ -151,7 +145,6 @@ public final class ApplicationModel {
         return (oldValue == MAX_MAX_AGE) ? false : true;
     }
     
-
     /**
      * @param value The new minimum distance for photos to be displayed. In meters.
      */
@@ -178,7 +171,6 @@ public final class ApplicationModel {
         _remoteCallbacks.finishBroadcast();
     }
     
-
     /**
      * @param value The new minimum distance for photos to be displayed. From 0..1.
      */
@@ -187,7 +179,6 @@ public final class ApplicationModel {
         setMinDistance(value * MAX_MAX_DISTANCE);
     }
     
-
     /**
      * @param value The new maximum distance for photos to be displayed.
      */
@@ -214,7 +205,6 @@ public final class ApplicationModel {
         _remoteCallbacks.finishBroadcast();
     }
     
-
     /**
      * Translates an absolute distance in meters to a relative distance (0..1).
      * 
@@ -226,7 +216,6 @@ public final class ApplicationModel {
         return (MAX_MAX_DISTANCE == 0) ? 0F : absoluteDistance / MAX_MAX_DISTANCE;
     }
     
-
     /**
      * @param value The new maximum distance for photos to be displayed. From 0..1.
      */
@@ -235,7 +224,6 @@ public final class ApplicationModel {
         setMaxDistance(value * MAX_MAX_DISTANCE);
     }
     
-
     /**
      * @param value The new minimum age for photos to be displayed. In milliseconds.
      */
@@ -259,7 +247,6 @@ public final class ApplicationModel {
         _remoteCallbacks.finishBroadcast();
     }
     
-
     /**
      * @param value The new minimum age for photos to be displayed. From 0..1.
      */
@@ -270,7 +257,6 @@ public final class ApplicationModel {
         setMinAge(Math.round((double) value * MAX_MAX_AGE));
     }
     
-
     /**
      * @param value The new maximum age for photos to be displayed.
      */
@@ -297,7 +283,6 @@ public final class ApplicationModel {
         _remoteCallbacks.finishBroadcast();
     }
     
-
     /**
      * Translates an absolute age in milliseconds to a relative age (0..1).
      * 
@@ -309,7 +294,6 @@ public final class ApplicationModel {
         return (MAX_MAX_AGE == 0) ? 0F : (float) absoluteAge / (float) MAX_MAX_AGE;
     }
     
-
     /**
      * @param value The new maximum age for photos to be displayed. From 0..1.
      */

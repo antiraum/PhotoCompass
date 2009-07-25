@@ -28,7 +28,6 @@ final class PhotoBorderView extends View {
     private int _height = 0;
     private final Paint _paint = new Paint();
     
-    
     /**
      * Constructor. Initializes the paint object.
      * 
@@ -41,7 +40,6 @@ final class PhotoBorderView extends View {
         _paint.setStrokeWidth(BORDER_WIDTH);
     }
     
-
     /**
      * Set the number of photo occluding the one this border belongs to. The more occlusions, the lower the alpha value
      * of the paint is set.
@@ -57,7 +55,6 @@ final class PhotoBorderView extends View {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoBorderView: setNumberOfOcclusions: alpha = "+alpha+", strokeWidth = "+strokeWidth);
     }
     
-
     /**
      * Called when the view should render its content. All drawing is done here.
      */
@@ -70,7 +67,6 @@ final class PhotoBorderView extends View {
         canvas.drawLine(0, _height, 0, 0, _paint);
     }
     
-
     /**
      * Called to determine the size requirements for this view and all of its children.
      */
@@ -80,7 +76,6 @@ final class PhotoBorderView extends View {
         setMeasuredDimension(_width, _height);
     }
     
-
     /**
      * Called by the {@link PhotosView} when the view is repositioned or resized. We intercept to get the new
      * dimensions.

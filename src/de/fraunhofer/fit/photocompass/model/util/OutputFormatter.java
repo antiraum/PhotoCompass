@@ -38,7 +38,6 @@ public final class OutputFormatter {
         return str;
     }
     
-
     /**
      * Formats an age value for display.
      * 
@@ -110,7 +109,6 @@ public final class OutputFormatter {
         return str;
     }
     
-
     /**
      * Formats an altitude offset for display.
      * 

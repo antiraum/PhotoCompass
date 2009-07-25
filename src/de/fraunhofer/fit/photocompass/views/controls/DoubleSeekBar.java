@@ -95,7 +95,6 @@ public abstract class DoubleSeekBar extends View {
     
     protected float[] _photoMarks;
     
-    
     /**
      * Creates a new {@link DoubleSeekBar}.
      * 
@@ -105,7 +104,7 @@ public abstract class DoubleSeekBar extends View {
      *        <code>false</code>) background
      */
     public DoubleSeekBar(final Context context, final IDoubleSeekBarCallback callback, final boolean lightBackground) {
-
+        
         super(context);
         this.callback = callback;
         _lightBackground = lightBackground;
@@ -124,17 +123,15 @@ public abstract class DoubleSeekBar extends View {
         Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar initialized");
     }
     
-
     protected final void initialize() {
-
+        
         startOffset = halfAThumb;
         endOffset = halfAThumb;
     }
     
-
     @Override
     protected final void onDraw(final Canvas canvas) {
-
+        
         // this.updateAllBounds();
         
         super.onDraw(canvas);
@@ -164,20 +161,17 @@ public abstract class DoubleSeekBar extends View {
         // canvas.drawCircle(this.touchX, this.touchY, 4, this.paint);
     }
     
-
     protected abstract void drawPhotoMarks(Canvas canvas);
     
-
     protected abstract void drawLabels(Canvas canvas);
     
-
     /**
      * Updates size-dependent positions and values upon resizing. backgroundRect and size have to be updated beforehand
      * by the subclass.
      */
     @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
-
+        
         Log.d(PhotoCompassApplication.LOG_TAG, "DoubleSeekBar.onSizeChanged(), new size " + size);
         minOffset = (float) MINIMUM_THUMB_OFFSET / size;
         updateStartBounds();
@@ -185,25 +179,26 @@ public abstract class DoubleSeekBar extends View {
         super.onSizeChanged(w, h, oldw, oldh);
     }
     
-
     protected final void callbackStartValue(final float newValue) {
-
+        
 //		Log.d(PhotoCompassApplication.LOG_TAG,
 //				"DoubleSeekBar.callbackStartValue(" + newValue + ")");
         callback.onMinValueChange(tryStartValue(newValue));
     }
     
-
     protected final void callbackEndValue(final float newValue) {
-
+        
 //		Log.d(PhotoCompassApplication.LOG_TAG,
 //				"DoubleSeekBar.callbackEndValue(" + newValue + ")");
         callback.onMaxValueChange(tryEndValue(newValue));
     }
     
-
+    
+    /**
+     * @param newValue
+     */
     public final void updateStartValue(final float newValue) {
-
+        
 //		Log.d(PhotoCompassApplication.LOG_TAG,
 //				"DoubleSeekBar.updateStartValue() to " + newValue);
         setStartValue(newValue);
@@ -211,9 +206,12 @@ public abstract class DoubleSeekBar extends View {
         updateStartBounds();
     }
     
-
+    
+    /**
+     * @param newValue
+     */
     public final void updateEndValue(final float newValue) {
-
+        
 //		Log.d(PhotoCompassApplication.LOG_TAG,
 //				"DoubleSeekBar.updateEndValue() to " + newValue);
         setEndValue(newValue);
@@ -221,16 +219,13 @@ public abstract class DoubleSeekBar extends View {
         updateEndBounds();
     }
     
-
     protected abstract void updateStartBounds();
     
-
     protected abstract void updateEndBounds();
     
-
     @Override
     public final boolean onTouchEvent(final MotionEvent event) {
-
+        
         // TODO check GestureDetector
         final int action = event.getAction();
         // Log.d(PhotoCompassApplication.LOG_TAG,
@@ -241,9 +236,9 @@ public abstract class DoubleSeekBar extends View {
         if (action == MotionEvent.ACTION_DOWN) {
             // ignore if distance to bar larger than tolerance constant
             if ((backgroundRect.left - touchX) > TOUCH_DOWN_TOLERANCE ||
-                (touchX - backgroundRect.right) > TOUCH_DOWN_TOLERANCE ||
-                (backgroundRect.top - touchY) > TOUCH_DOWN_TOLERANCE ||
-                (touchY - backgroundRect.bottom) > TOUCH_DOWN_TOLERANCE) {
+                    (touchX - backgroundRect.right) > TOUCH_DOWN_TOLERANCE ||
+                    (backgroundRect.top - touchY) > TOUCH_DOWN_TOLERANCE ||
+                    (touchY - backgroundRect.bottom) > TOUCH_DOWN_TOLERANCE) {
                 thumbDown = NONE;
                 return false;
             }
@@ -294,66 +289,63 @@ public abstract class DoubleSeekBar extends View {
         return true;
     }
     
-
     /**
      * @return the start value (left slider thumb), as a float from the range [0,1].
      */
     public final float getStartValue() {
-
+        
         return startValue;
     }
     
-
     /**
      * @return the end value (right slider thumb), as a float from the range [0,1].
      */
     public final float getEndValue() {
-
+        
         return endValue;
     }
     
-
     protected final float setStartValue(final float newValue) {
-
+        
         return startValue = tryStartValue(newValue);
     }
     
-
     protected final float setEndValue(final float newValue) {
-
+        
         return endValue = tryEndValue(newValue);
     }
     
-
     private final float tryStartValue(final float newValue) {
-
+        
         return Math.max(0f, Math.min(newValue, endValue - minOffset));
     }
     
-
     private final float tryEndValue(final float newValue) {
-
+        
         return Math.min(1f, Math.max(newValue, startValue + minOffset));
     }
     
-
     protected abstract float getEventCoordinate(final MotionEvent event);
     
-
     protected abstract int convertToConcrete(final float abstractValue);
     
-
     protected abstract float convertToAbstract(final float concreteValue);
     
-
+    
+    /**
+     * @param callback
+     */
     public final void setCallback(final IDoubleSeekBarCallback callback) {
-
+        
         this.callback = callback;
     }
     
-
+    
+    /**
+     * @param photoMarks
+     */
     public final void setPhotoMarks(final float[] photoMarks) {
-
+        
         _photoMarks = photoMarks;
     }
 }

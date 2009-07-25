@@ -22,7 +22,6 @@ public final class CustomMyLocationOverlay extends Overlay {
     
     private final Point _point = new Point();
     
-    
     /**
      * Update current location.
      * 
@@ -34,7 +33,6 @@ public final class CustomMyLocationOverlay extends Overlay {
         _location = location;
     }
     
-
     /**
      * Draws the overlay.
      */

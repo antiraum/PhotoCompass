@@ -19,7 +19,6 @@ public interface IDoubleSeekBarCallback {
      */
     public void onMinValueChange(float newValue);
     
-
     /**
      * Called by the {@link DoubleSeekBar} to announce updates of the slider for the maximum value. The update, however,
      * will not be displayed automatically. Therefore, the implementation of this method needs to make sure that the
@@ -31,7 +30,6 @@ public interface IDoubleSeekBarCallback {
      */
     public void onMaxValueChange(float newValue);
     
-
     /**
      * Gets the current relative minimum value. This value should be retrieved from a model or be stored internally
      * (initial default value would be 0, updated by {@link IDoubleSeekBarCallback#onMinValueChange(float)} method).
@@ -40,7 +38,6 @@ public interface IDoubleSeekBarCallback {
      */
     public float getMinValue();
     
-
     /**
      * Gets the current relative maximum value. This value should be retrieved from a model or be stored internally
      * (initial default value would be 1, updated by {@link IDoubleSeekBarCallback#onMaxValueChange(float)} method).
@@ -49,7 +46,6 @@ public interface IDoubleSeekBarCallback {
      */
     public float getMaxValue();
     
-
     /**
      * Gets the current label for the minimum value. To be retrieved from a model or to be formatted internally.
      * 
@@ -57,7 +53,6 @@ public interface IDoubleSeekBarCallback {
      */
     public String getMinLabel();
     
-
     /**
      * Gets the current label for the maximum value. To be retrieved from a model or to be formatted internally.
      * 

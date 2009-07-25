@@ -58,7 +58,6 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         
     }
     
-
     @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
 
@@ -67,7 +66,6 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         super.onSizeChanged(w, h, oldw, oldh);
     }
     
-
     @Override
     protected void updateStartBounds() {
 
@@ -77,7 +75,6 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         startLabelY = startThumb.getBounds().centerY() + 4;
     }
     
-
     @Override
     protected void updateEndBounds() {
 
@@ -88,7 +85,6 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         endLabelY = endThumb.getBounds().centerY() + 4;
     }
     
-
     @Override
     protected int convertToConcrete(final float abstractValue) {
 
@@ -96,7 +92,6 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         
     }
     
-
     @Override
     protected float convertToAbstract(final float concreteValue) {
 
@@ -104,14 +99,12 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         
     }
     
-
     @Override
     protected float getEventCoordinate(final MotionEvent event) {
 
         return event.getY();
     }
     
-
     @Override
     protected void drawPhotoMarks(final Canvas canvas) {
 
@@ -122,7 +115,6 @@ public final class VerticalDoubleSeekBar extends DoubleSeekBar {
         }
     }
     
-
     @Override
     protected void drawLabels(final Canvas canvas) {
 

@@ -57,7 +57,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     
     private static float DEGREE_WIDTH; // width of one degree direction
     
-    private final Photos _photosModel = Photos.getInstance();
+    final Photos photosModel = Photos.getInstance(); // package scoped for faster access by inner classes
     
     /**
      * Layer containing the {@link #photoViews}.
@@ -178,7 +178,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             return true;
         }
         
-
         /**
          * Gets called when a single tap gesture is completed. Determines if the gesture was performed on an minimized
          * photo restores it.
@@ -228,7 +227,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         }
     };
     
-    
     /**
      * Constructor. Sets constants and creates the layers for photo and border views.
      * 
@@ -263,7 +261,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         _gestureDetector = new GestureDetector(_gestureListener);
     }
     
-
     /**
      * Adds photos to the list of currently used photos. If a photo has been used before its views are set to
      * {@link View#VISIBLE} and updated. If a photo has not been used before, metrics and views are created and updated.
@@ -280,7 +277,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         
         boolean sizeChanged, xPosChanged, yPosChanged;
         for (final int id : newPhotos) {
-            if (_photosModel.getPhoto(id) == null) continue;
+            if (photosModel.getPhoto(id) == null) continue;
             
             if (_photoMetrics.get(id) != null) { // has been used before
             
@@ -326,7 +323,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         setBorderOcclusions();
     }
     
-
     /**
      * Removes photos from the list of currently used photos. The views of the photos are set to {@link View#GONE} and
      * their minimized state is reset. The photos are removed {@link #photos}.
@@ -361,9 +357,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         setBorderOcclusions();
     }
     
-
     /**
-     * Sorts ({@link #_photos}) based on their distance. Farthest to nearest.
+     * Sorts ({@link #photos}) based on their distance. Farthest to nearest.
      */
     private void _sortPhotos() {
 
@@ -371,8 +366,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             
             public int compare(final Integer id1, final Integer id2) {
 
-                final Photo photo1 = _photosModel.getPhoto(id1);
-                final Photo photo2 = _photosModel.getPhoto(id2);
+                final Photo photo1 = photosModel.getPhoto(id1);
+                final Photo photo2 = photosModel.getPhoto(id2);
                 if (photo1 == null || photo2 == null) return 0;
                 if (photo1.distance > photo2.distance) return -1;
                 return 1;
@@ -380,7 +375,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         });
     }
     
-
     /**
      * Sets the number of occluding photos for every border view. The border view decreases it's alpha value for every
      * photo that occludes the photo it belongs to. Package scoped for faster access by inner classes.
@@ -409,7 +403,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         }
     }
     
-
     /**
      * Updates the text overlay on the photo views.
      * 
@@ -423,7 +416,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             photoViews.get(id).updateText();
     }
     
-
     /**
      * Updates the x position of all photos and redraws the ones that changed.
      * 
@@ -440,7 +432,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             if (_updatePhotoXPosition(id) && doRedraw) redrawPhoto(id);
     }
     
-
     /**
      * Updates the x position of a photo.
      * 
@@ -449,7 +440,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     private boolean _updatePhotoXPosition(final int id) {
 
-        final Photo photo = _photosModel.getPhoto(id);
+        final Photo photo = photosModel.getPhoto(id);
         final PhotoMetrics metrics = _photoMetrics.get(id);
         if (metrics == null || photo == null) return false;
         
@@ -470,7 +461,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         return true;
     }
     
-
     /**
      * Updates the y position of all photos and redraws the ones that changed.
      * 
@@ -484,7 +474,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             if (_updatePhotoYPosition(id) && doRedraw) redrawPhoto(id);
     }
     
-
     /**
      * Updates the y position of a photo. The y position of the photo is determined by calculating the ratio between the
      * altitude offset of the photo and the maximum visible height at the distance of the photo. This ratio is then
@@ -495,7 +484,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     private boolean _updatePhotoYPosition(final int id) {
 
-        final Photo photo = _photosModel.getPhoto(id);
+        final Photo photo = photosModel.getPhoto(id);
         final PhotoMetrics metrics = _photoMetrics.get(id);
         if (metrics == null || photo == null) return false;
         
@@ -525,7 +514,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         return true;
     }
     
-
     /**
      * Updates the sizes of all photos and redraws the ones that changed.
      * 
@@ -543,7 +531,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             }
     }
     
-
     /**
      * Updates the size of a photo. The photo height is a linear mapping of the ratio between photo distance and maximum
      * visible distance to the range between minimum photo height and maximum photo height. To calculate the photo width
@@ -554,7 +541,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     private boolean _updatePhotoSize(final int id) {
 
-        final Photo photo = _photosModel.getPhoto(id);
+        final Photo photo = photosModel.getPhoto(id);
         final PhotoMetrics metrics = _photoMetrics.get(id);
         if (metrics == null || photo == null) return false;
         
@@ -584,7 +571,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         return true;
     }
     
-
     /**
      * Redraws the photo and border view for a photo by updating its {@link SimpleAbsoluteLayout.LayoutParams}. Package
      * scoped for faster access by inner classes.
@@ -615,7 +601,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         _borderViews.get(id).setLayoutParams(layoutParams);
     }
     
-
     /**
      * Clears the currently not needed photo and border views to save memory.
      */
@@ -634,7 +619,6 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         }
     }
     
-
     /**
      * Gets called when a touch events occurs. Passes the event on to the gesture detector.
      */

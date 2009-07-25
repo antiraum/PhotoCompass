@@ -18,7 +18,6 @@ import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
  */
 public final class ControlsView extends SimpleAbsoluteLayout {
     
-    
     /**
      * padding at the top of the distance control and at the right of the age control
      */
@@ -47,7 +46,6 @@ public final class ControlsView extends SimpleAbsoluteLayout {
     DoubleSeekBar distanceSlider = null; // package scoped for faster access by inner classes
     DoubleSeekBar ageSlider = null; // package scoped for faster access by inner classes
     
-
     /**
      * Constructor. Sets up the controls and registers as a callback at the application model.
      * 
@@ -70,37 +68,31 @@ public final class ControlsView extends SimpleAbsoluteLayout {
                 
                 final ApplicationModel model = ApplicationModel.getInstance();
                 
-                
                 public String getMaxLabel() {
 
                     return model.maxDistanceStr;
                 }
                 
-
                 public float getMaxValue() {
 
                     return model.maxDistanceRel;
                 }
                 
-
                 public String getMinLabel() {
 
                     return model.minDistanceStr;
                 }
                 
-
                 public float getMinValue() {
 
                     return model.minDistanceRel;
                 }
                 
-
                 public void onMaxValueChange(final float newValue) {
 
                     model.setRelativeMaxDistance(newValue);
                 }
                 
-
                 public void onMinValueChange(final float newValue) {
 
                     model.setRelativeMinDistance(newValue);
@@ -121,37 +113,31 @@ public final class ControlsView extends SimpleAbsoluteLayout {
                 
                 final ApplicationModel model = ApplicationModel.getInstance();
                 
-                
                 public String getMaxLabel() {
 
                     return model.maxAgeStr;
                 }
                 
-
                 public float getMaxValue() {
 
                     return model.maxAgeRel;
                 }
                 
-
                 public String getMinLabel() {
 
                     return model.minAgeStr;
                 }
                 
-
                 public float getMinValue() {
 
                     return model.minAgeRel;
                 }
                 
-
                 public void onMaxValueChange(final float newValue) {
 
                     model.setRelativeMaxAge(newValue);
                 }
                 
-
                 public void onMinValueChange(final float newValue) {
 
                     model.setRelativeMinAge(newValue);
@@ -172,19 +158,16 @@ public final class ControlsView extends SimpleAbsoluteLayout {
                 if (ageSlider != null) ageSlider.updateEndValue(maxAgeRel);
             }
             
-
             public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) throws RemoteException {
 
                 if (distanceSlider != null) distanceSlider.updateEndValue(maxDistanceRel);
             }
             
-
             public void onMinAgeChange(final long minAge, final float minAgeRel) throws RemoteException {
 
                 if (ageSlider != null) ageSlider.updateStartValue(minAgeRel);
             }
             
-
             public void onMinDistanceChange(final float minDistance, final float minDistanceRel) throws RemoteException {
 
                 if (distanceSlider != null) distanceSlider.updateStartValue(minDistanceRel);
@@ -199,7 +182,6 @@ public final class ControlsView extends SimpleAbsoluteLayout {
                 if (distanceSlider != null) distanceSlider.setPhotoMarks(photoDistances);
             }
             
-
             public void onPhotosAgesChange(final float[] photoAges) {
 
                 if (ageSlider != null) ageSlider.setPhotoMarks(photoAges);

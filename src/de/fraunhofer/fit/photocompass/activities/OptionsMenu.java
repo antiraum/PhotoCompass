@@ -19,7 +19,6 @@ public final class OptionsMenu {
     // activity returns
     static final int CAMERA_RETURN = 0;
     
-    
     /**
      * Populates the options menu. Call this from {@link Activity#onCreateOptionsMenu(Menu)}.
      * 
@@ -34,7 +33,6 @@ public final class OptionsMenu {
         return menu;
     }
     
-
     /**
      * Handles a menu item selection. Call this from {@link Activity#onOptionsItemSelected(MenuItem)}
      * 

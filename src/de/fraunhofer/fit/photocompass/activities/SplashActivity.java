@@ -29,10 +29,9 @@ public final class SplashActivity extends Activity {
     
     SplashActivity splashActivity; // package scoped for faster access by inner classes
     
-    private IOrientationService orientationService = null; // package scoped for faster access by inner classes
+    IOrientationService orientationService = null; // package scoped for faster access by inner classes
     private boolean _boundToOrientationService = false;
     
-
     /**
      * Connection object for the connection with the {@link OrientationService}.
      */
@@ -55,7 +54,6 @@ public final class SplashActivity extends Activity {
             }
         }
         
-
         public void onServiceDisconnected(final ComponentName name) {
 
             Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: disconnected from orientation service");
@@ -63,7 +61,6 @@ public final class SplashActivity extends Activity {
         }
     };
     
-
     /**
      * Callback object for the {@link OrientationService}. Gets registered and unregistered at the orientation service
      * object. Package scoped for faster access by inner classes.
@@ -72,7 +69,6 @@ public final class SplashActivity extends Activity {
         
         private float _pitch;
         private float _roll;
-        
         
         public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
 
@@ -108,7 +104,6 @@ public final class SplashActivity extends Activity {
         }
     };
     
-    
     /**
      * Constructor.
      */
@@ -118,7 +113,6 @@ public final class SplashActivity extends Activity {
         splashActivity = this;
     }
     
-
     /**
      * Called when the activity is first created. Connects to the {@link OrientationService}. Initializes the photo
      * model. Initializes the view.
@@ -148,7 +142,6 @@ public final class SplashActivity extends Activity {
         setContentView(R.layout.splash_layout);
     }
     
-
     /**
      * Called when the activity is no longer visible. Unregisters the {@link #orientationServiceCallback} from the
      * {@link OrientationService} and then disconnects from the {@link OrientationService}.
@@ -179,7 +172,6 @@ public final class SplashActivity extends Activity {
         super.onStop();
     }
     
-
     /**
      * Populate the options menu.
      */
@@ -197,7 +189,6 @@ public final class SplashActivity extends Activity {
         return OptionsMenu.handleMenuItemSelection(item, this);
     }
     
-
     /**
      * Gets called when a started {@link Activity} returns a result.
      */

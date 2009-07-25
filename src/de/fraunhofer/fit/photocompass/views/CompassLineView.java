@@ -23,7 +23,6 @@ public final class CompassLineView extends View {
     private SparseArray<Integer> _directionPositions; // x positions of the marks
     private final Paint _paint = new Paint();
     
-    
     /**
      * Constructor. Initializes class members.
      * 
@@ -42,7 +41,6 @@ public final class CompassLineView extends View {
         _paint.setStrokeWidth(LINE_WIDTH);
     }
     
-
     /**
      * Updates the x positions of the markers to draw.
      * 
@@ -54,7 +52,6 @@ public final class CompassLineView extends View {
         invalidate(); // TODO dirty rectangle
     }
     
-
     /**
      * Draws the lines.
      */

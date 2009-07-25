@@ -33,7 +33,6 @@ public final class Photo {
     private double _lastUpdateLat;
     private double _lastUpdateLng;
     
-    
 //	private double _lastUpdateAlt;
     
     /**
@@ -57,7 +56,6 @@ public final class Photo {
         this.thumbUri = thumbUri;
     }
     
-
     /**
      * Constructor for a dummy photo.
      * 
@@ -76,7 +74,6 @@ public final class Photo {
         _date = date;
     }
     
-
     /**
      * Get the unique id for the photo.
      * 
@@ -88,7 +85,6 @@ public final class Photo {
         return isDummyPhoto() ? _resourceId : _photoId;
     }
     
-
     /**
      * Used to check if this is a photo from the MediaStore or a dummy photo.
      * 
@@ -100,7 +96,6 @@ public final class Photo {
         return (_photoId == 0) ? true : false;
     }
     
-
     /**
      * @return GeoPoint of the photo location for use in Google maps.
      */
@@ -110,7 +105,6 @@ public final class Photo {
         return _geoPoint;
     }
     
-
     /**
      * Determines the original size of the photo. Loads the bitmap data and sets {@link #origWidth} and
      * {@link #origHeight}. Always call this method before accessing {@link #origWidth} or {@link #origHeight} to ensure
@@ -134,7 +128,6 @@ public final class Photo {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: _origWidth = "+_origWidth+", _origHeight = "+_origHeight);
     }
     
-
     /**
      * Updates {@link #distance}, {@link #direction}, and {@link #altOffset} relative to a given position. Only performs
      * calculations if the position parameters have changed since the last call.
@@ -177,7 +170,6 @@ public final class Photo {
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "Photo: updateDistanceAndDirection: id = "+getId()+", distance = "+distance+", direction = "+direction+", altOffset = "+altOffset);
     }
     
-
     /**
      * Returns the saved distance.
      * 
@@ -188,7 +180,6 @@ public final class Photo {
         return OutputFormatter.formatDistance(distance);
     }
     
-
     /**
      * Returns the saved altitude offset.
      * 
@@ -199,7 +190,6 @@ public final class Photo {
         return OutputFormatter.formatAltOffset(altOffset);
     }
     
-
     /**
      * @return Age of the photo in milliseconds.
      */
@@ -208,7 +198,6 @@ public final class Photo {
         return System.currentTimeMillis() - _date;
     }
     
-
     /**
      * Returns the saved age.
      * 
@@ -219,7 +208,6 @@ public final class Photo {
         return OutputFormatter.formatAge(System.currentTimeMillis() - _date);
     }
     
-
     /**
      * Merges the photo with another photo.
      * 

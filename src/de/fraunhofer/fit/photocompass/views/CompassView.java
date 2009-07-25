@@ -31,7 +31,6 @@ public final class CompassView extends SimpleAbsoluteLayout {
     
     private float _direction;
     
-    
     /**
      * Constructor. Initializes the line and label views. Populates direction labels array.
      * 
@@ -73,7 +72,6 @@ public final class CompassView extends SimpleAbsoluteLayout {
         _directionLabels.get(315).setText("NW");
     }
     
-
     /**
      * Updates the view based on the current viewing direction. Re-calculates the x positions of the direction markers.
      * 

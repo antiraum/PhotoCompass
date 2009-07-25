@@ -37,7 +37,6 @@ public final class OrientationService extends Service {
             if (cb != null) remoteCallbacks.register(cb);
         }
         
-
         public void unregisterCallback(final IOrientationServiceCallback cb) {
 
             if (cb != null) remoteCallbacks.unregister(cb);
@@ -50,7 +49,7 @@ public final class OrientationService extends Service {
     private SensorManager _sensorManager;
     
     /**
-     * {@link SensorListener} for the {@link #_sensorManager}.
+     * {@link SensorEventListener} for the {@link #_sensorManager}.
      */
     private final SensorEventListener _sensorListener = new SensorEventListener() {
         
@@ -65,7 +64,6 @@ public final class OrientationService extends Service {
         private float _yaw = 0;
         private float _pitch = 0;
         private float _roll = 0;
-        
         
         /**
          * Called when sensor values have changed. Broadcasts the new sensor data to all registered callbacks.
@@ -124,7 +122,6 @@ public final class OrientationService extends Service {
             remoteCallbacks.finishBroadcast();
         }
         
-
         /**
          * Called when the accuracy of a sensor has changed.
          */
@@ -133,7 +130,6 @@ public final class OrientationService extends Service {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "OrientationService: onAccuracyChanged: sensor = "+sensor+", accuracy = "+accuracy);
         }
     };
-    
     
     /**
      * Called by the system when the service is first created. Initializes the sensor manager, checks if an orientation
@@ -157,7 +153,6 @@ public final class OrientationService extends Service {
                                         SensorManager.SENSOR_DELAY_GAME);
     }
     
-
     /**
      * Called when an activity connects to the service.
      * 
@@ -170,7 +165,6 @@ public final class OrientationService extends Service {
         return _binder;
     }
     
-
     /**
      * Called by the system to notify a Service that it is no longer used and is being removed. Shuts down the service.
      */

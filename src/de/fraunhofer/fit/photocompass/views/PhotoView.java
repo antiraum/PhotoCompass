@@ -25,7 +25,6 @@ final class PhotoView extends SimpleAbsoluteLayout {
     private int _height; // current height
     private boolean _minimized = false;
     
-    
     /**
      * Constructor. Initializes Image and Text View.
      * 
@@ -51,7 +50,6 @@ final class PhotoView extends SimpleAbsoluteLayout {
         addView(_textView);
     }
     
-
     /**
      * Updates the Text View. Call this when the distance or altitude offset of the photo has changed.
      */
@@ -69,7 +67,6 @@ final class PhotoView extends SimpleAbsoluteLayout {
         _textView.setText(stringBuilder.toString());
     }
     
-
     /**
      * Called by the {@link PhotosView} when the view is repositioned or resized. We intercept to get the new dimensions
      * and pre-scale the bitmap for better performance.
@@ -97,7 +94,6 @@ final class PhotoView extends SimpleAbsoluteLayout {
         super.setLayoutParams(params);
     }
     
-
     /**
      * Changes the minimized state.
      * 
@@ -109,7 +105,6 @@ final class PhotoView extends SimpleAbsoluteLayout {
         _textView.setVisibility(_minimized ? View.GONE : View.VISIBLE);
     }
     
-
     /**
      * Get the minimized state.
      * 
