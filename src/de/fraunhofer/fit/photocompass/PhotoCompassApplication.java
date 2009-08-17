@@ -10,16 +10,24 @@ import android.location.Location;
  */
 public final class PhotoCompassApplication extends Application {
     
-    // tag for logging
+    /**
+     * Tag for log output.
+     */
     public static final String LOG_TAG = "PhotoCompass";
     
-    // running environment constants - change these if you switch between testing on the emulator and the G1
+    /**
+     * Constant to switch between code for emulator and phone environment.
+     */
     public static final boolean RUNNING_ON_EMULATOR = false;
-    public static final int TARGET_PLATFORM = 3; // 1 for 1.1, 2 for 1.5, 3 for 1.5 with Google libraries 
+    /**
+     * Constant to switch between code for the different target platforms. Values: 1 for 1.1, 2 for 1.5, 3 for 1.5 with
+     * Google libraries
+     */
+    public static final int TARGET_PLATFORM = 3;
     
     // activity constants
     public static final int SPLASH_ACTIVITY = 0;
-    public static final int FINDER_ACTIVITY = 1;
+    public static final int CAMERA_ACTIVITY = 1;
     public static final int MAP_ACTIVITY = 2;
     
     // display size constants (get set to measured values by the splash activity)
@@ -43,11 +51,11 @@ public final class PhotoCompassApplication extends Application {
     public static final int MIN_TAP_SIZE = 40; // minimum size of an area that can be tapped on
     
     // dummy location settings (enable for development when a fixed location is needed)
-    public static final boolean USE_DUMMY_LOCATION = false;
+    public static final boolean USE_DUMMY_LOCATION = true;
     public static Location dummyLocation;
     
     // dummy photo settings (enable for development when a fixed set of photos is needed)
-    public static final boolean USE_DUMMY_PHOTOS = false;
+    public static final boolean USE_DUMMY_PHOTOS = true;
     
     public static final long SLEEP_AFTER_TOUCH_EVENT = 25L; // time to sleep after a touch event to avoid event flooding (in milliseconds)
     
@@ -76,23 +84,23 @@ public final class PhotoCompassApplication extends Application {
      * 
      * @param pitch Pitch value of the orientation service (values from -90 to 90).
      * @param roll Roll value of the orientation service (values from -180 to 180).
-     * @param currentActivity Current activity ({@link #FINDER_ACTIVITY} or {@link #MAP_ACTIVITY})
-     * @return Activity constant of the correct activity at this sensor values. {@link #FINDER_ACTIVITY} when the phone
+     * @param currentActivity Current activity ({@link #CAMERA_ACTIVITY} or {@link #MAP_ACTIVITY})
+     * @return Activity constant of the correct activity at this sensor values. {@link #CAMERA_ACTIVITY} when the phone
      *         is held vertically, or {@link #MAP_ACTIVITY} when the phone is held horizontally.
      */
     public static int getActivityForOrientation(final float pitch, final float roll, final int currentActivity) {
 
-        // always show finder activity in portrait mode
-        if (pitch < -45 || pitch > 45) return FINDER_ACTIVITY;
+        // always show camera activity in portrait mode
+        if (pitch < -45 || pitch > 45) return CAMERA_ACTIVITY;
         
         // in landscape mode decide by the roll value and use different switching values for the different transitions
         switch (currentActivity) {
-            case FINDER_ACTIVITY:
-                return (roll > -30 && roll < 30) ? MAP_ACTIVITY : FINDER_ACTIVITY;
+            case CAMERA_ACTIVITY:
+                return (roll > -30 && roll < 30) ? MAP_ACTIVITY : CAMERA_ACTIVITY;
             case MAP_ACTIVITY:
-                return (roll < -60 || roll > 60) ? FINDER_ACTIVITY : MAP_ACTIVITY;
+                return (roll < -60 || roll > 60) ? CAMERA_ACTIVITY : MAP_ACTIVITY;
             default:
-                return (roll > -45 && roll < 45) ? MAP_ACTIVITY : FINDER_ACTIVITY;
+                return (roll > -45 && roll < 45) ? MAP_ACTIVITY : CAMERA_ACTIVITY;
         }
     }
 }

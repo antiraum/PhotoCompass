@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import com.google.android.maps.GeoPoint;
 import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
@@ -12,28 +14,27 @@ import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
 /**
  * This class is a custom data type for photos.
  */
-public final class Photo {
+public final class Photo implements Parcelable {
     
     private int _resourceId = 0;
     private int _photoId = 0; // MediaStore.Images.Thumbnails.IMAGE_ID of the photo
-    public double lat; // Latitude of the photo
-    public double lng; // Longitude of the photo
-    private double _alt;
-    private long _date; // The date & time that the image was taken in units of milliseconds since January 1, 1970
-    public Uri thumbUri; // URI of the Thumbnail file
+    public double lat = 0; // Latitude of the photo
+    public double lng = 0; // Longitude of the photo
+//    private double _alt = 0;
+    private long _date = 0; // The date & time that the image was taken in units of milliseconds since January 1, 1970
+    public Uri thumbUri = null; // URI of the Thumbnail file
     
-    private GeoPoint _geoPoint;
+    private GeoPoint _geoPoint = null;
     public int origWidth = 0; // Original width of the photo
     public int origHeight = 0; // Original height of the photo
     public float distance = 0; // Saved distance in meters
     public double direction = 0; // Saved direction in degrees (0 - 360: 0 = North, 90 = East, 180 = South, 270 = West)
-    public double altOffset = 0; // Saved altitude offset in meters
+//    public double altOffset = 0; // Saved altitude offset in meters
     
     // position on the last updateDistanceAndDirection call
-    private double _lastUpdateLat;
-    private double _lastUpdateLng;
-    
-//	private double _lastUpdateAlt;
+    private double _lastUpdateLat = 0;
+    private double _lastUpdateLng = 0;
+//	private double _lastUpdateAlt = 0;
     
     /**
      * Constructor.
@@ -47,11 +48,11 @@ public final class Photo {
      */
     public Photo(final int photoId, final Uri thumbUri, final double lat, final double lng, final double alt,
                  final long date) {
-
+        
         _photoId = photoId;
         this.lat = lat;
         this.lng = lng;
-        _alt = alt;
+//        _alt = alt;
         _date = date;
         this.thumbUri = thumbUri;
     }
@@ -66,11 +67,11 @@ public final class Photo {
      * @param date The date & time that the image was taken in units of milliseconds since January 1, 1970.
      */
     public Photo(final int resourceId, final double lat, final double lng, final double alt, final long date) {
-
+        
         _resourceId = resourceId;
         this.lat = lat;
         this.lng = lng;
-        _alt = alt;
+//        _alt = alt;
         _date = date;
     }
     
@@ -81,7 +82,7 @@ public final class Photo {
      *         the photo file (if dummy photo).
      */
     public int getId() {
-
+        
         return isDummyPhoto() ? _resourceId : _photoId;
     }
     
@@ -92,7 +93,7 @@ public final class Photo {
      *         MediaStore photo (use photoId and thumbUri to access it).
      */
     public boolean isDummyPhoto() {
-
+        
         return (_photoId == 0) ? true : false;
     }
     
@@ -100,8 +101,10 @@ public final class Photo {
      * @return GeoPoint of the photo location for use in Google maps.
      */
     public GeoPoint getGeoPoint() {
-
-        if (_geoPoint == null) _geoPoint = new GeoPoint((int) (lat * 1E6), (int) (lng * 1E6));
+        
+        if (_geoPoint == null) {
+            _geoPoint = new GeoPoint((int) (lat * 1E6), (int) (lng * 1E6));
+        }
         return _geoPoint;
     }
     
@@ -113,13 +116,14 @@ public final class Photo {
      * @param resources {@link Resources} of the application.
      */
     public void determineOrigSize(final Resources resources) {
-
+        
         if (origWidth != 0 && origHeight != 0) return; // already determined
         Bitmap bmp;
-        if (isDummyPhoto())
+        if (isDummyPhoto()) {
             bmp = BitmapFactory.decodeResource(resources, _resourceId);
-        else
+        } else {
             bmp = BitmapFactory.decodeFile(thumbUri.getPath());
+        }
         if (bmp == null) return;
         origWidth = bmp.getWidth();
         origHeight = bmp.getHeight();
@@ -138,9 +142,9 @@ public final class Photo {
      */
     public void updateDistanceDirectionAndAltitudeOffset(final double currentLat, final double currentLng,
                                                          final double currentAlt) {
-
-        if (_lastUpdateLat != currentLat && _lastUpdateLng != currentLng) { // position has changed
         
+        if (_lastUpdateLat != currentLat && _lastUpdateLng != currentLng) { // position has changed
+            
             // distance calculation
             final float[] results = new float[1];
             Location.distanceBetween(currentLat, currentLng, lat, lng, results);
@@ -152,7 +156,7 @@ public final class Photo {
             final double deltaLonRad = Math.toRadians(lng - currentLng);
             final double y = Math.sin(deltaLonRad) * Math.cos(lat2Rad);
             final double x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) *
-                             Math.cos(deltaLonRad);
+            Math.cos(deltaLonRad);
             direction = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
             // end direction calculation
         }
@@ -162,7 +166,7 @@ public final class Photo {
          * if (_lastUpdateAlt != currentAlt && _alt != 0) { // altitude has changed // altitude offset calculation
          * altOffset = (currentAlt == 0) ? 0 // no valid altitude -> no valid offset possible : _alt - currentAlt; }
          */
-
+        
         _lastUpdateLat = currentLat;
         _lastUpdateLng = currentLng;
 //		_lastUpdateAlt = currentAlt;
@@ -176,7 +180,7 @@ public final class Photo {
      * @return Distance as a formatted string for display.
      */
     public String getFormattedDistance() {
-
+        
         return OutputFormatter.formatDistance(distance);
     }
     
@@ -185,16 +189,16 @@ public final class Photo {
      * 
      * @return Altitude offset as a formatted string for display.
      */
-    public String getFormattedAltOffset() {
-
-        return OutputFormatter.formatAltOffset(altOffset);
-    }
+//    public String getFormattedAltOffset() {
+//
+//        return OutputFormatter.formatAltOffset(altOffset);
+//    }
     
     /**
      * @return Age of the photo in milliseconds.
      */
     public long getAge() {
-
+        
         return System.currentTimeMillis() - _date;
     }
     
@@ -204,7 +208,7 @@ public final class Photo {
      * @return Age as a formatted string for display.
      */
     public String getFormattedAge() {
-
+        
         return OutputFormatter.formatAge(System.currentTimeMillis() - _date);
     }
     
@@ -214,11 +218,11 @@ public final class Photo {
      * @param other Photo to merge with.
      */
     public void mergeWith(final Photo other) {
-
+        
         // merge data
         lat = (lat + other.lat) / 2;
         lng = (lng + other.lng) / 2;
-        _alt = (_alt + other._alt) / 2;
+//        _alt = (_alt + other._alt) / 2;
         _date = (_date + other._date) / 2;
         
         // TODO merge images
@@ -231,4 +235,91 @@ public final class Photo {
         // portrait + portrait + landscape -> portraits next to each other / landscape on bottom -> portrait
         // portrait + landscape + landscape -> landscapes upon each other / portrait next to it -> landscape
     }
+    
+    public int describeContents() {
+        
+        return 0;
+    }
+    
+    public void writeToParcel(final Parcel out, final int flags) {
+        
+        out.writeInt(_resourceId);
+        out.writeInt(_photoId);
+        out.writeDouble(lat);
+        out.writeDouble(lng);
+//        out.writeDouble(alt);
+        out.writeLong(_date);
+        if (thumbUri != null) {
+            out.writeInt(1);
+            thumbUri.writeToParcel(out, 0);
+        } else {
+            out.writeInt(0);
+        }
+        
+        if (_geoPoint != null) {
+            out.writeInt(1);
+            out.writeInt(_geoPoint.getLatitudeE6());
+            out.writeInt(_geoPoint.getLongitudeE6());
+        } else {
+            out.writeInt(0);
+        }
+        out.writeInt(origWidth);
+        out.writeInt(origHeight);
+        out.writeFloat(distance);
+        out.writeDouble(direction);
+//        out.writeDouble(altOffset);
+        
+        out.writeDouble(_lastUpdateLat);
+        out.writeDouble(_lastUpdateLng);
+//        out.writeDouble(_lastUpdateAlt);
+    }
+    
+    
+    public static final Parcelable.Creator<Photo> CREATOR = new Parcelable.Creator<Photo>() {
+        
+        public Photo createFromParcel(final Parcel in) {
+            return new Photo(in);
+        }
+        
+        public Photo[] newArray(final int size) {
+            return new Photo[size];
+        }
+    };
+    
+    
+    /**
+     * Package scoped for faster access by inner classes.
+     * 
+     * @param in
+     */
+    Photo(final Parcel in) {
+
+        _resourceId = in.readInt();
+        _photoId = in.readInt();
+        lat = in.readDouble();
+        lng = in.readDouble();
+//        alt = in.readDouble();
+        _date = in.readLong();
+        if (in.readInt() != 0) {
+            thumbUri = Uri.CREATOR.createFromParcel(in);
+        } else {
+            thumbUri = null;
+        }
+        
+        if (in.readInt() != 0) {
+            _geoPoint = new GeoPoint(in.readInt(), in.readInt());
+        } else {
+            _geoPoint = null;
+        }
+        origWidth = in.readInt();
+        origHeight = in.readInt();
+        distance = in.readFloat();
+        direction = in.readDouble();
+//        altOffset = in.readDouble();
+        
+        _lastUpdateLat = in.readDouble();
+        _lastUpdateLng = in.readDouble();
+//        _lastUpdateAlt = in.readDouble();
+    }
+    
 }

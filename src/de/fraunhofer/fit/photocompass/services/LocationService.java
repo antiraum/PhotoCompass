@@ -9,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -62,7 +61,9 @@ public final class LocationService extends Service {
         
         public void registerCallback(final ILocationServiceCallback cb) {
 
-            if (cb != null) remoteCallbacks.register(cb);
+            if (cb != null) {
+                remoteCallbacks.register(cb);
+            }
             
             // send immediate initial broadcast
             locationListener.onLocationChanged((locationProvider != null) ? locationManager.getLastKnownLocation(locationProvider)
@@ -71,7 +72,9 @@ public final class LocationService extends Service {
         
         public void unregisterCallback(final ILocationServiceCallback cb) {
 
-            if (cb != null) remoteCallbacks.unregister(cb);
+            if (cb != null) {
+                remoteCallbacks.unregister(cb);
+            }
         }
     };
     
@@ -99,7 +102,9 @@ public final class LocationService extends Service {
                 return;
             }
             
-            if (PhotoCompassApplication.USE_DUMMY_LOCATION) location = PhotoCompassApplication.dummyLocation;
+            if (PhotoCompassApplication.USE_DUMMY_LOCATION) {
+                location = PhotoCompassApplication.dummyLocation;
+            }
             
             if (location == null) return;
             
@@ -108,14 +113,13 @@ public final class LocationService extends Service {
             final double lng = location.getLongitude();
             final boolean hasAlt = location.hasAltitude();
             final double alt = location.getAltitude();
-            for (int i = 0; i < numCallbacks; i++)
+            for (int i = 0; i < numCallbacks; i++) {
                 try {
                     remoteCallbacks.getBroadcastItem(i).onLocationEvent(lat, lng, hasAlt, alt);
-                } catch (final DeadObjectException e) {
-                    // the RemoteCallbackList will take care of removing the dead object
                 } catch (final RemoteException e) {
                     Log.w(PhotoCompassApplication.LOG_TAG, "broadcast to callback failed");
                 }
+            }
             remoteCallbacks.finishBroadcast();
         }
         
@@ -245,16 +249,24 @@ public final class LocationService extends Service {
             return;
         
         // second check for any enabled provider
-        if (newProvider == null) newProvider = locationManager.getBestProvider(_fallbackCriteria, true);
+        if (newProvider == null) {
+            newProvider = locationManager.getBestProvider(_fallbackCriteria, true);
+        }
         
         // third check for good not enabled provider
-        if (newProvider == null) newProvider = locationManager.getBestProvider(_criteria, true);
+        if (newProvider == null) {
+            newProvider = locationManager.getBestProvider(_criteria, true);
+        }
         
         // forth check for any not enabled provider
-        if (newProvider == null) newProvider = locationManager.getBestProvider(_fallbackCriteria, true);
+        if (newProvider == null) {
+            newProvider = locationManager.getBestProvider(_fallbackCriteria, true);
+        }
         
         // stop listening to the current provider
-        if (locationProvider != null) locationManager.removeUpdates(locationListener);
+        if (locationProvider != null) {
+            locationManager.removeUpdates(locationListener);
+        }
         
         // upate location provider
         locationProvider = newProvider;

@@ -1,111 +1,28 @@
 package de.fraunhofer.fit.photocompass.activities;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.DeadObjectException;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
-import de.fraunhofer.fit.photocompass.services.IOrientationService;
-import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
-import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.model.Settings;
 
 /**
  * This class is a dummy replacement of the {@link PhotoMapActivity} for running the application on a platform without
  * Google libraries. If this class or {@link PhotoMapActivity} is used is controlled by the
  * {@link PhotoCompassApplication#TARGET_PLATFORM} constant.
  */
-public final class DummyMapActivity extends Activity {
-    
-    DummyMapActivity mapActivity; // package scoped for faster access by inner classes
-    IOrientationService orientationService = null; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService = false;
+public final class DummyMapActivity extends Activity implements IServiceActivity {
     
     /**
-     * Connection object for the connection with the {@link OrientationService}.
+     * Decorator that handles the connections to the service components.
      */
-    private final ServiceConnection _orientationServiceConn = new ServiceConnection() {
-        
-        /**
-         * Gets called when the service connection is established. Creates the {@link #orientationService} object from
-         * the service interface and registers the {@link #orientationServiceCallback}.
-         */
-        public void onServiceConnected(final ComponentName className, final IBinder service) {
-
-            Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: connected to orientation service");
-            
-            // generate service object
-            orientationService = IOrientationService.Stub.asInterface(service);
-            
-            // register at the service
-            try {
-                orientationService.registerCallback(orientationServiceCallback);
-            } catch (final DeadObjectException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: orientation service has crashed");
-            } catch (final RemoteException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to register to orientation service");
-            }
-        }
-        
-        /**
-         * Gets called when the service connection is closed down. Frees {@link #orientationService}.
-         */
-        public void onServiceDisconnected(final ComponentName name) {
-
-            Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: disconnected from orientation service");
-            orientationService = null;
-        }
-    };
-    
-    /**
-     * Callback object for the {@link OrientationService}. Gets registered and unregistered at the
-     * {@link #orientationService} object. Package scoped for faster access by inner classes.
-     */
-    final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
-        
-        private float _pitch;
-        private float _roll;
-        
-        /**
-         * Gets called when new data is provided by the {@link OrientationService}. Initiates switch to
-         * {@link FinderActivity} when the phone is held vertically.
-         */
-        public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
-
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: received event from orientation service");
-            
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            // pitch or roll value has changed
-            if (pitch != _pitch || roll != _roll) {
-                _pitch = pitch;
-                _roll = roll;
-                
-                // switch to activity based on orientation
-                final int activity = PhotoCompassApplication.getActivityForOrientation(
-                                                                                       _pitch,
-                                                                                       _roll,
-                                                                                       PhotoCompassApplication.MAP_ACTIVITY);
-                if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
-                    Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: switching to finder activity");
-                    ProgressDialog.show(mapActivity, "", "Switching to camera view. Please wait...", true);
-                    startActivity(new Intent(mapActivity, FinderActivity.class));
-                    finish(); // close this activity
-                    System.gc(); // good point to run the GC
-                }
-            }
-        }
-    };
+    private final ServiceConnections _serviceConnections = new ServiceConnections(this, this,
+                                                                                  PhotoCompassApplication.MAP_ACTIVITY);
     
     /**
      * Constructor.
@@ -113,7 +30,6 @@ public final class DummyMapActivity extends Activity {
     public DummyMapActivity() {
 
         super();
-        mapActivity = this;
     }
     
     /**
@@ -132,50 +48,121 @@ public final class DummyMapActivity extends Activity {
     }
     
     /**
-     * Called before the activity becomes visible. Connects to the {@link OrientationService}.
+     * Called before the activity becomes visible. Initiates connections to the services.
      */
     @Override
     public void onStart() {
 
-        Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: onStart");
+        Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: onStart");
         super.onStart();
         
-        // connect to orientation service
-        final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
-        _boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn,
-                                                 Context.BIND_AUTO_CREATE);
-        if (!_boundToOrientationService)
-            Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: failed to connect to orientation service");
+        _serviceConnections.connectToServices();
     }
     
     /**
-     * Called when the activity is no longer visible. Unregisters the {@link #orientationServiceCallback} from the
-     * {@link OrientationService} and then disconnects from the {@link OrientationService}.
+     * Called when the activity is no longer visible. Initiates disconnects from the services.
      */
     @Override
     public void onStop() {
 
-        Log.d(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: onStop");
+        Log.d(PhotoCompassApplication.LOG_TAG, "SplashActivity: onStop");
         
-        if (_boundToOrientationService) {
-            
-            // unregister from orientation service
-            if (orientationService != null)
-                try {
-                    orientationService.unregisterCallback(orientationServiceCallback);
-                } catch (final DeadObjectException e) {
-                    Log.e(PhotoCompassApplication.LOG_TAG, "DummyMapActivity: orientation service has crashed");
-                } catch (final RemoteException e) {
-                    Log.w(PhotoCompassApplication.LOG_TAG,
-                          "DummyMapActivity: failed to unregister from orientation service");
-                }
-            
-            // disconnect from orientation service
-            unbindService(_orientationServiceConn);
-            _boundToOrientationService = false;
-        }
+        _serviceConnections.disconnectFromServices();
         
         super.onStop();
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onLocationServiceLocationEvent(double, double,
+     *      boolean, double)
+     */
+    @Override
+    public void onLocationServiceLocationEvent(final double lat, final double lng, final boolean hasAlt,
+                                               final double alt) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onOrientationServiceOrientationEvent(float,
+     *      float, float)
+     */
+    @Override
+    public void onOrientationServiceOrientationEvent(final float yaw, final float pitch, final float roll) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onPhotosServicePhotoAgesChange(float[])
+     */
+    @Override
+    public void onPhotosServicePhotoAgesChange(final float[] photoAges) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onPhotosServicePhotoDistancesChange(float[])
+     */
+    @Override
+    public void onPhotosServicePhotoDistancesChange(final float[] photoDistances) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMaxAgeChange(long, float)
+     */
+    @Override
+    public void onSettingsServiceMaxAgeChange(final long maxAge, final float maxAgeRel) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMaxDistanceChange(float, float)
+     */
+    @Override
+    public void onSettingsServiceMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMinAgeChange(long, float)
+     */
+    @Override
+    public void onSettingsServiceMinAgeChange(final long minAge, final float minAgeRel) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMinDistanceChange(float, float)
+     */
+    @Override
+    public void onSettingsServiceMinDistanceChange(final float minDistance, final float minDistanceRel) {
+
+    // nothing to do here
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#getSettings()
+     */
+    @Override
+    public Settings getSettings() {
+
+        return _serviceConnections.getSettings();
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#updateSettings(de.fraunhofer.fit.photocompass.model.Settings)
+     */
+    @Override
+    public void updateSettings(final Settings settings) {
+
+        _serviceConnections.updateSettings(settings);
     }
     
     /**
@@ -207,9 +194,10 @@ public final class DummyMapActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 // FIXME at the moment the photo isn't saved - either we have to do this on our own, or
                 // we can call the camera application in another way
-//            	Photos.getInstance().updatePhotos(this);
+//              Photos.getInstance().updatePhotos(this);
             }
-        } else
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

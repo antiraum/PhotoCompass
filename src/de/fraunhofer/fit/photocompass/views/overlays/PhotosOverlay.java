@@ -19,7 +19,6 @@ import com.google.android.maps.Projection;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
 import de.fraunhofer.fit.photocompass.activities.PhotoMapActivity;
-import de.fraunhofer.fit.photocompass.model.Photos;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 
@@ -67,7 +66,9 @@ public final class PhotosOverlay extends Overlay {
 //	 */
 //	private final SparseArray<Path> _minimizedBorderPaths = new SparseArray<Path>();
     
-    final Photos photosModel = Photos.getInstance(); // package scoped for faster access by inner classes
+    
+    private final PhotoMapActivity _activity;
+    
     private final Paint _borderPaint = new Paint();
 //	private Bitmap _borderBmp;
     private Bitmap _arrowBmp;
@@ -75,7 +76,9 @@ public final class PhotosOverlay extends Overlay {
     /**
      * Constructor
      */
-    public PhotosOverlay() {
+    public PhotosOverlay(final PhotoMapActivity activity) {
+        
+        _activity = activity;
         
         // setup border paint
         _borderPaint.setStrokeWidth(BORDER_WIDTH);
@@ -128,8 +131,8 @@ public final class PhotosOverlay extends Overlay {
             
             public int compare(final Integer id1, final Integer id2) {
                 
-                final Photo photo1 = photosModel.getPhoto(id1);
-                final Photo photo2 = photosModel.getPhoto(id2);
+                final Photo photo1 = _activity.getPhoto(id1);
+                final Photo photo2 = _activity.getPhoto(id2);
                 if (photo1 == null || photo2 == null) return 0;
                 if (photo1.getGeoPoint().getLatitudeE6() > photo2.getGeoPoint().getLatitudeE6()) return -1;
                 return 1;
@@ -165,8 +168,9 @@ public final class PhotosOverlay extends Overlay {
         if (!_directionSet) return;
         
 //    	if (_borderBmp == null) _borderBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_border);
-        if (_arrowBmp == null)
+        if (_arrowBmp == null) {
             _arrowBmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_photo_arrow);
+        }
         
         Photo photo;
         Bitmap bmp;
@@ -179,18 +183,23 @@ public final class PhotosOverlay extends Overlay {
 //	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosOverlay: draw: id = "+id);
             
             // get photo
-            photo = photosModel.getPhoto(id);
-            if (photo == null) continue;
+            photo = _activity.getPhoto(id);
+            if (photo == null) {
+                continue;
+            }
             
             bmp = _photoBitmaps.get(id);
             if (bmp == null) {
                 
                 // create pre-scaled bitmap
-                if (photo.isDummyPhoto())
+                if (photo.isDummyPhoto()) {
                     bmp = BitmapFactory.decodeResource(mapView.getResources(), id);
-                else
+                } else {
                     bmp = BitmapFactory.decodeFile(photo.thumbUri.getPath());
-                if (bmp == null) continue;
+                }
+                if (bmp == null) {
+                    continue;
+                }
                 width = bmp.getWidth();
                 height = bmp.getHeight();
                 xScale = PHOTO_SIZE / width;
@@ -262,7 +271,9 @@ public final class PhotosOverlay extends Overlay {
             bmpXPos = _point.x - width / 2;
             bmpYPos = _point.y - (height + ARROW_HEIGHT + BORDER_WIDTH / 2);
             _matrix.postTranslate(bmpXPos, bmpYPos);
-            if (_minimizedPhotos.contains(id)) _matrix.postScale(1, height / bmp.getHeight(), bmpXPos, bmpYPos);
+            if (_minimizedPhotos.contains(id)) {
+                _matrix.postScale(1, height / bmp.getHeight(), bmpXPos, bmpYPos);
+            }
             canvas.drawBitmap(bmp, _matrix, null);
             
             canvas.rotate(-_direction, _point.x, _point.y);
@@ -278,7 +289,9 @@ public final class PhotosOverlay extends Overlay {
         int photoId;
         for (int i = 0; i < numBmps; i++) {
             photoId = _photoBitmaps.keyAt(i);
-            if (photos.contains(photoId)) continue; // currently needed
+            if (photos.contains(photoId)) {
+                continue; // currently needed
+            }
             _photoBitmaps.remove(photoId);
         }
     }
@@ -300,8 +313,9 @@ public final class PhotosOverlay extends Overlay {
         
         // tap tolerance
         int y_tap_tolerance = 0;
-        if (PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE)
+        if (PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE) {
             y_tap_tolerance = (PhotoCompassApplication.MIN_TAP_SIZE - PhotoMetrics.MAPS_MINIMIZED_PHOTO_HEIGHT) / 2;
+        }
         
         /*
          * Detect which photo is tapped on.
@@ -322,10 +336,11 @@ public final class PhotosOverlay extends Overlay {
         if (tappedPhoto == 0) return false; // no photo matched
         
         // minimize/restore photo
-        if (_minimizedPhotos.contains(tappedPhoto))
+        if (_minimizedPhotos.contains(tappedPhoto)) {
             _minimizedPhotos.remove(tappedPhoto);
-        else
+        } else {
             _minimizedPhotos.add(tappedPhoto);
+        }
         
         return true;
     }

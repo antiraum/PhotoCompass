@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.services;
 
 import de.fraunhofer.fit.photocompass.services.IPhotosServiceCallback;
+import de.fraunhofer.fit.photocompass.model.Settings;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 
 /**
@@ -8,17 +9,17 @@ import de.fraunhofer.fit.photocompass.model.data.Photo;
  */
 interface IPhotosService {
     
-    void updatePhotos();
+    void initialize(in Settings settings);
     
     Photo getPhoto(int id);
     
-    int[] getNewlyVisiblePhotos(in int[] currentPhotos, boolean limitByDistance, boolean limitByAge);
+    int[] getNewlyVisiblePhotos(in Settings settings, in int[] currentPhotos, boolean limitByDistance, boolean limitByAge);
     
-    int[] getNoLongerVisiblePhotos(in int[] currentPhotos, boolean limitByDistance, boolean limitByAge);
+    int[] getNoLongerVisiblePhotos(in Settings settings, in int[] currentPhotos, boolean limitByDistance, boolean limitByAge);
     
-    void updatePhotoProperties(double lat, double lng, double alt);
+    Settings updatePhotoProperties(in Settings settings, double lat, double lng, double alt);
     
-    void updateAppModelMaxValues();
+    Settings updateAppModelMaxValues(in Settings settings);
 
     void registerCallback(IPhotosServiceCallback cb);
 

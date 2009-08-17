@@ -7,7 +7,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -34,12 +33,16 @@ public final class OrientationService extends Service {
         
         public void registerCallback(final IOrientationServiceCallback cb) {
 
-            if (cb != null) remoteCallbacks.register(cb);
+            if (cb != null) {
+                remoteCallbacks.register(cb);
+            }
         }
         
         public void unregisterCallback(final IOrientationServiceCallback cb) {
 
-            if (cb != null) remoteCallbacks.unregister(cb);
+            if (cb != null) {
+                remoteCallbacks.unregister(cb);
+            }
         }
     };
     
@@ -91,8 +94,9 @@ public final class OrientationService extends Service {
                     // we should not be here.
                     return;
             }
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++) {
                 data[i] = event.values[i];
+            }
             
             // get orientation
             SensorManager.getRotationMatrix(_rotationMatrix, null, _gravityData, _magneticData);
@@ -111,14 +115,13 @@ public final class OrientationService extends Service {
 //	        _lastRoll = _roll;
             
             // broadcast the new orientation to all registered callbacks
-            for (int i = 0; i < numCallbacks; i++)
+            for (int i = 0; i < numCallbacks; i++) {
                 try {
                     remoteCallbacks.getBroadcastItem(i).onOrientationEvent(_yaw, _pitch, _roll);
-                } catch (final DeadObjectException e) {
-                    // the RemoteCallbackList will take care of removing the dead object
                 } catch (final RemoteException e) {
                     Log.e(PhotoCompassApplication.LOG_TAG, "OrientationService: broadcast to callback failed");
                 }
+            }
             remoteCallbacks.finishBroadcast();
         }
         

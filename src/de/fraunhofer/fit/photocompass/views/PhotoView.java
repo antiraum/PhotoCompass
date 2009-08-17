@@ -1,6 +1,5 @@
 package de.fraunhofer.fit.photocompass.views;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.View;
@@ -8,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.model.Photos;
+import de.fraunhofer.fit.photocompass.activities.CameraActivity;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
@@ -28,22 +27,22 @@ final class PhotoView extends SimpleAbsoluteLayout {
     /**
      * Constructor. Initializes Image and Text View.
      * 
-     * @param context
+     * @param activity {@link CameraActivity}
      * @param id Photo/resource id of the photo to display.
      */
-    PhotoView(final Context context, final int id) {
+    PhotoView(final CameraActivity activity, final int id) {
 
-        super(context);
+        super(activity);
         
-        _photo = Photos.getInstance().getPhoto(id);
+        _photo = activity.getPhoto(id);
         
         // image view
-        _imgView = new ImageView(context);
+        _imgView = new ImageView(activity);
 //		_imgView.setScaleType(ImageView.ScaleType.FIT_XY);
         addView(_imgView);
         
         // distance and altitude offset text
-        _textView = new TextView(context);
+        _textView = new TextView(activity);
         updateText();
         _textView.setTextColor(PhotoCompassApplication.ORANGE);
         _textView.setPadding(5, 0, 5, 0);
@@ -81,10 +80,11 @@ final class PhotoView extends SimpleAbsoluteLayout {
             _height = params.height;
             
             Bitmap rawBmp;
-            if (_photo.isDummyPhoto())
+            if (_photo.isDummyPhoto()) {
                 rawBmp = BitmapFactory.decodeResource(getResources(), _photo.getId());
-            else
+            } else {
                 rawBmp = BitmapFactory.decodeFile(_photo.thumbUri.getPath());
+            }
             if (rawBmp == null) return;
             _imgView.setImageBitmap(Bitmap.createScaledBitmap(rawBmp, _width, _height, true));
             rawBmp.recycle();

@@ -2,15 +2,8 @@ package de.fraunhofer.fit.photocompass.activities;
 
 import java.util.List;
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.DeadObjectException;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.MenuItem;
@@ -22,257 +15,45 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.model.ApplicationModel;
-import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
-import de.fraunhofer.fit.photocompass.model.Photos;
-import de.fraunhofer.fit.photocompass.services.ILocationService;
-import de.fraunhofer.fit.photocompass.services.ILocationServiceCallback;
-import de.fraunhofer.fit.photocompass.services.IOrientationService;
-import de.fraunhofer.fit.photocompass.services.IOrientationServiceCallback;
-import de.fraunhofer.fit.photocompass.services.LocationService;
-import de.fraunhofer.fit.photocompass.services.OrientationService;
+import de.fraunhofer.fit.photocompass.model.Settings;
+import de.fraunhofer.fit.photocompass.model.data.Photo;
+import de.fraunhofer.fit.photocompass.services.IPhotosService;
+import de.fraunhofer.fit.photocompass.util.ListArrayConversions;
 import de.fraunhofer.fit.photocompass.views.ControlsView;
 import de.fraunhofer.fit.photocompass.views.layouts.RotateView;
-import de.fraunhofer.fit.photocompass.views.overlays.CustomMyLocationOverlay;
+import de.fraunhofer.fit.photocompass.views.overlays.CurrentLocationOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.PhotosOverlay;
 import de.fraunhofer.fit.photocompass.views.overlays.ViewingDirectionOverlay;
 
 /**
  * This class is the Activity component for the map view screen (phone held horizontally) of the application.
  */
-public final class PhotoMapActivity extends MapActivity {
+public final class PhotoMapActivity extends MapActivity implements IServiceActivity {
     
     private static final String MAPS_API_KEY = "02LUNbs-0sTLfQE-JAZ78GXgqz8fRSthtLjrfBw";
     
-    PhotoMapActivity mapActivity; // package scoped for faster access by inner classes
+    /**
+     * Decorator that handles the connections to the service components.
+     */
+    private final ServiceConnections _serviceConnections = new ServiceConnections(this, this,
+                                                                                  PhotoCompassApplication.MAP_ACTIVITY);
     
-    double currentLat = 0; // package scoped for faster access by inner classes
-    double currentLng = 0; // package scoped for faster access by inner classes
-    double currentAlt = 0; // package scoped for faster access by inner classes
-    float currentYaw = 0; // package scoped for faster access by inner classes
+    private double _currentLat = 0;
+    private double _currentLng = 0;
+    private double _currentAlt = 0;
+    private float _currentYaw = 0;
     
+    // map view
     private RotateView _rotateView;
     private MapView _mapView;
     private MapController _mapController;
     
     // overlays
     private ViewingDirectionOverlay _viewDirOverlay;
-    private CustomMyLocationOverlay _customMyLocOverlay;
+    private CurrentLocationOverlay _customMyLocOverlay;
     private PhotosOverlay _photosOverlay;
     
-    ILocationService locationService = null; // package scoped for faster access by inner classes
-    private boolean _boundToLocationService = false;
-    IOrientationService orientationService = null; // package scoped for faster access by inner classes
-    private boolean _boundToOrientationService = false;
-    
-    private final Photos _photosModel = Photos.getInstance();
-    private final ApplicationModel _appModel = ApplicationModel.getInstance();
-    
-    /**
-     * Connection object for the connection with the {@link LocationService}.
-     */
-    private final ServiceConnection _locationServiceConn = new ServiceConnection() {
-        
-        /**
-         * Gets called when the service connection is established. Creates the {@link #locationService} object from the
-         * service interface and registers the {@link #locationServiceCallback}.
-         */
-        public void onServiceConnected(final ComponentName className, final IBinder service) {
-
-            Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: connected to location service");
-            
-            // generate service object
-            locationService = ILocationService.Stub.asInterface(service);
-            
-            // register at the service
-            try {
-                locationService.registerCallback(locationServiceCallback);
-            } catch (final DeadObjectException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: location service has crashed");
-            } catch (final RemoteException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to register to location service");
-            }
-        }
-        
-        /**
-         * Gets called when the service connection is closed down. Frees {@link #locationService}.
-         */
-        public void onServiceDisconnected(final ComponentName name) {
-
-            Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: disconnected from location service");
-            locationService = null;
-        }
-    };
-    
-    /**
-     * Callback object for the {@link LocationService}. Gets registered and unregistered at the {@link #locationService}
-     * object. Package scoped for faster access by inner classes.
-     */
-    final ILocationServiceCallback locationServiceCallback = new ILocationServiceCallback.Stub() {
-        
-        /**
-         * Gets called when new data is provided by the {@link LocationService}. Stores the new location and initiates
-         * an update of the map view.
-         */
-        public void onLocationEvent(final double lat, final double lng, final boolean hasAlt, final double alt) {
-
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            // Check the distance between last and new location and only update if greater than the minimum
-            // update distance. Otherwise we get too many updates because of invalid altitude values. 
-            final float[] results = new float[1];
-            Location.distanceBetween(currentLat, currentLng, lat, lng, results);
-            if (results[0] < LocationService.MIN_LOCATION_UPDATE_DISTANCE) return;
-            
-            Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: lat = " + lat + ", lng = " +
-                                                   lng + ", alt = " + alt);
-            Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onLocationEvent: changed by " + results[0] +
-                                                   " meters");
-            
-            final boolean latChanged = (lat == currentLat) ? false : true;
-            final boolean lngChanged = (lng == currentLng) ? false : true;
-            
-            // update variables
-            currentLat = lat;
-            currentLng = lng;
-            if (hasAlt) currentAlt = alt;
-            
-            // update map view
-            updateMapView(latChanged, lngChanged, false, false);
-        }
-    };
-    
-    /**
-     * Connection object for the connection with the {@link OrientationService}.
-     */
-    private final ServiceConnection _orientationServiceConn = new ServiceConnection() {
-        
-        /**
-         * Gets called when the service connection is established. Creates the {@link #orientationService} object from
-         * the service interface and registers the {@link #orientationServiceCallback}.
-         */
-        public void onServiceConnected(final ComponentName className, final IBinder service) {
-
-            Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: connected to orientation service");
-            
-            // generate service object
-            orientationService = IOrientationService.Stub.asInterface(service);
-            
-            // register at the service
-            try {
-                orientationService.registerCallback(orientationServiceCallback);
-            } catch (final DeadObjectException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: orientation service has crashed");
-            } catch (final RemoteException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to register to orientation service");
-            }
-        }
-        
-        /**
-         * Gets called when the service connection is closed down. Frees {@link #orientationService}.
-         */
-        public void onServiceDisconnected(final ComponentName name) {
-
-            Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: disconnected from orientation service");
-            orientationService = null;
-        }
-    };
-    
-    /**
-     * Callback object for the {@link OrientationService}. Gets registered and unregistered at the
-     * {@link #orientationService} object. Package scoped for faster access by inner classes.
-     */
-    final IOrientationServiceCallback orientationServiceCallback = new IOrientationServiceCallback.Stub() {
-        
-        private float _pitch;
-        private float _roll;
-        
-        /**
-         * Gets called when new data is provided by the {@link OrientationService}. Initiates switch to
-         * {@link FinderActivity} when the phone is held vertically.
-         */
-        public void onOrientationEvent(final float yaw, final float pitch, final float roll) {
-
-//	    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: received event from orientation service");
-            
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            if (pitch != _pitch || roll != _roll) {
-                _pitch = pitch;
-                _roll = roll;
-                
-                // switch to activity based on orientation
-                final int activity = PhotoCompassApplication.getActivityForOrientation(
-                                                                                       _pitch,
-                                                                                       _roll,
-                                                                                       PhotoCompassApplication.MAP_ACTIVITY);
-                if (activity == PhotoCompassApplication.FINDER_ACTIVITY) {
-                    Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: switching to finder activity");
-                    ProgressDialog.show(mapActivity, "", "Switching to camera view. Please wait...", true);
-                    startActivity(new Intent(mapActivity, FinderActivity.class));
-                    finish(); // close this activity
-                    System.gc(); // good point to run the GC
-                }
-            }
-            
-            final boolean yawChanged = (yaw == currentYaw) ? false : true;
-            
-            // update variables
-            currentYaw = yaw;
-            
-            // update map view
-            updateMapView(false, false, yawChanged, false);
-        }
-    };
-    
-    /**
-     * Callback object for the {@link ApplicationModel}. Gets registered and unregistered at the {@link #_appModel}
-     * object.
-     */
-    private final IApplicationModelCallback _appModelCallback = new IApplicationModelCallback.Stub() {
-        
-        /**
-         * Gets called when the minimum distance in the {@link ApplicationModel} changes. Initiates a update of map
-         * view.
-         */
-        public void onMinDistanceChange(final float minDistance, final float minDistanceRel) {
-
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            updateMapView(false, false, false, true);
-        }
-        
-        /**
-         * Gets called when the maximum distance in the {@link ApplicationModel} changes. Initiates a update of map
-         * view.
-         */
-        public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
-
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            updateMapView(false, false, false, true);
-        }
-        
-        /**
-         * Gets called when the minimum age in the {@link ApplicationModel} changes. Initiates a update of map view.
-         */
-        public void onMinAgeChange(final long minAge, final float minAgeRel) {
-
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            updateMapView(false, false, false, true);
-        }
-        
-        /**
-         * Gets called when the maximum age in the {@link ApplicationModel} changes. Initiates a update of map view.
-         */
-        public void onMaxAgeChange(final long maxAge, final float maxAgeRel) {
-
-            if (isFinishing()) return; // activity is finishing, we don't do anything anymore
-                
-            updateMapView(false, false, false, true);
-        }
-    };
+    private ControlsView _controlsView = null;
     
     /**
      * Constructor.
@@ -280,10 +61,6 @@ public final class PhotoMapActivity extends MapActivity {
     public PhotoMapActivity() {
 
         super();
-        mapActivity = this;
-        
-        // register as application model callback
-        _appModel.registerCallback(_appModelCallback);
     }
     
     /**
@@ -297,8 +74,6 @@ public final class PhotoMapActivity extends MapActivity {
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
-        _photosModel.initialize(this);
-        
         // map view
         _mapView = new MapView(this, MAPS_API_KEY);
         _mapView.setClickable(false); // disable panning
@@ -310,11 +85,10 @@ public final class PhotoMapActivity extends MapActivity {
         setContentView(_rotateView);
         
         // controls view
-        final ControlsView controlsView = new ControlsView(this, PhotoCompassApplication.DISPLAY_WIDTH,
-                                                           PhotoCompassApplication.DISPLAY_HEIGHT -
-                                                                   PhotoCompassApplication.STATUSBAR_HEIGHT, false,
-                                                           true, true);
-        addContentView(controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        _controlsView = new ControlsView(this, this, PhotoCompassApplication.DISPLAY_WIDTH,
+                                         PhotoCompassApplication.DISPLAY_HEIGHT -
+                                                 PhotoCompassApplication.STATUSBAR_HEIGHT, false, true, true);
+        addContentView(_controlsView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         
         // viewing direction overlay
         _viewDirOverlay = new ViewingDirectionOverlay();
@@ -322,11 +96,11 @@ public final class PhotoMapActivity extends MapActivity {
         overlays.add(_viewDirOverlay);
         
         // own current position overlay
-        _customMyLocOverlay = new CustomMyLocationOverlay();
+        _customMyLocOverlay = new CurrentLocationOverlay();
         overlays.add(_customMyLocOverlay);
         
         // photos overlay
-        _photosOverlay = new PhotosOverlay();
+        _photosOverlay = new PhotosOverlay(this);
         overlays.add(_photosOverlay);
         
         // initialize map controller
@@ -335,9 +109,7 @@ public final class PhotoMapActivity extends MapActivity {
     }
     
     /**
-     * Called before the activity becomes visible. Connects to the {@link LocationService} and the
-     * {@link OrientationService}. Initiates a update of the {@link Photos} model. Enables the current location and
-     * compass overlay.
+     * Called before the activity becomes visible. Initiates connections to the services.
      */
     @Override
     public void onStart() {
@@ -345,65 +117,26 @@ public final class PhotoMapActivity extends MapActivity {
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onStart");
         super.onStart();
         
-        // connect to location service
-        final Intent locationServiceIntent = new Intent(this, LocationService.class);
-        _boundToLocationService = bindService(locationServiceIntent, _locationServiceConn, Context.BIND_AUTO_CREATE);
-        if (!_boundToLocationService)
-            Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to connect to location service");
+        _serviceConnections.connectToServices();
         
-        // connect to orientation service
-        final Intent orientationServiceIntent = new Intent(this, OrientationService.class);
-        _boundToOrientationService = bindService(orientationServiceIntent, _orientationServiceConn,
-                                                 Context.BIND_AUTO_CREATE);
-        if (!_boundToOrientationService)
-            Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to connect to orientation service");
-        
-        // let photos model check if the available photos have changed
-        _photosModel.updatePhotos(this);
+        if (_controlsView != null) {
+            updateSettings(_controlsView.registerToSettings(getSettings()));
+        }
     }
     
     /**
-     * Called when the activity is no longer visible. Disables the current location and compass overlay. Unregisters the
-     * callbacks from the services and then disconnects from the services.
+     * Called when the activity is no longer visible. Initiates disconnects from the services.
      */
     @Override
     public void onStop() {
 
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onStop");
         
-        if (_boundToLocationService) {
-            
-            // unregister from location service
-            if (locationService != null) try {
-                locationService.unregisterCallback(locationServiceCallback);
-            } catch (final DeadObjectException e) {
-                Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: location service has crashed");
-            } catch (final RemoteException e) {
-                Log.w(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to unregister from location service");
-            }
-            
-            // disconnect from location service
-            unbindService(_locationServiceConn);
-            _boundToLocationService = false;
+        if (_controlsView != null) {
+            updateSettings(_controlsView.unregisterFromSettings(getSettings()));
         }
         
-        if (_boundToOrientationService) {
-            
-            // unregister from orientation service
-            if (orientationService != null)
-                try {
-                    orientationService.unregisterCallback(orientationServiceCallback);
-                } catch (final DeadObjectException e) {
-                    Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: orientation service has crashed");
-                } catch (final RemoteException e) {
-                    Log.w(PhotoCompassApplication.LOG_TAG,
-                          "PhotoMapActivity: failed to unregister from orientation service");
-                }
-            
-            // disconnect from orientation service
-            unbindService(_orientationServiceConn);
-            _boundToOrientationService = false;
-        }
+        _serviceConnections.disconnectFromServices();
         
         super.onStop();
     }
@@ -440,12 +173,12 @@ public final class PhotoMapActivity extends MapActivity {
     void updateMapView(final boolean latChanged, final boolean lngChanged, final boolean yawChanged,
                        final boolean modelChanged) {
 
-//		Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
+//        Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: updateMapView");
         
         if (latChanged || lngChanged) {
             
             // center map view
-            final GeoPoint currentLocation = new GeoPoint((int) (currentLat * 1E6), (int) (currentLng * 1E6));
+            final GeoPoint currentLocation = new GeoPoint((int) (_currentLat * 1E6), (int) (_currentLng * 1E6));
             _mapController.animateTo(currentLocation);
             
             // update overlays
@@ -461,24 +194,193 @@ public final class PhotoMapActivity extends MapActivity {
         
         if (latChanged || lngChanged || modelChanged) {
             
-            // update photos
-            if (latChanged || lngChanged) _photosModel.updatePhotoProperties(currentLat, currentLng, currentAlt);
-            _photosOverlay.addPhotos(_photosModel.getNewlyVisiblePhotos(_photosOverlay.photos, false, true));
-            _photosOverlay.removePhotos(_photosModel.getNoLongerVisiblePhotos(_photosOverlay.photos, false, true));
+            final IPhotosService photosService = _serviceConnections.getPhotosService();
+            
+            if (photosService == null) {
+                // photos service is not (yet) initialized, this may happen at the beginning of the life cycle
+//                Log.w(PhotoCompassApplication.LOG_TAG,
+//                      "PhotoMapActivity: updatePhotoView: photos service not initialized");
+            } else {
+                
+                // update photos
+                try {
+                    if (latChanged || lngChanged) {
+                        updateSettings(photosService.updatePhotoProperties(getSettings(), _currentLat, _currentLng,
+                                                                           _currentAlt));
+                    }
+                    final int[] newPhotos = photosService.getNewlyVisiblePhotos(
+                                                                                getSettings(),
+                                                                                ListArrayConversions.intListToPrimitives(_photosOverlay.photos),
+                                                                                false, true);
+                    final int[] oldPhotos = photosService.getNoLongerVisiblePhotos(
+                                                                                   getSettings(),
+                                                                                   ListArrayConversions.intListToPrimitives(_photosOverlay.photos),
+                                                                                   false, true);
+                    _photosOverlay.addPhotos(ListArrayConversions.intArrayToList(newPhotos));
+                    _photosOverlay.removePhotos(ListArrayConversions.intArrayToList(oldPhotos));
+                } catch (final RemoteException e) {
+                    Log.w(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to call photos service");
+                }
+            }
         }
         
         if (yawChanged) {
             
             // update overlays
-            _photosOverlay.updateDirection(currentYaw);
-            _viewDirOverlay.updateDirection(currentYaw);
+            _photosOverlay.updateDirection(_currentYaw);
+            _viewDirOverlay.updateDirection(_currentYaw);
         }
         
         // redraw map
         _mapView.postInvalidate();
         
         // rotate
-        if (yawChanged) _rotateView.setHeading(currentYaw);
+        if (yawChanged) {
+            _rotateView.setHeading(_currentYaw);
+        }
+    }
+    
+    /**
+     * Wrapper method to access the getPhoto method of the photo service from the views.
+     * 
+     * @param id Id of the requested photo (photo id for MediaStore photos; resource id for dummy photos).
+     * @return <code>{@link Photo}</code> if the photo is known, or <code>null</code> if the photo is not known.
+     */
+    public Photo getPhoto(final int id) {
+
+        final IPhotosService photosService = _serviceConnections.getPhotosService();
+        
+        if (photosService == null) {
+            Log.e(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: getPhoto: photos service not initialized");
+            return null;
+        }
+        
+        try {
+            return photosService.getPhoto(id);
+        } catch (final RemoteException e) {
+            Log.w(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: failed to call photos service");
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onPhotosServicePhotoDistancesChange(float[])
+     */
+    @Override
+    public void onPhotosServicePhotoDistancesChange(final float[] photoDistances) {
+
+    // no distance slider on the controls view so we don't pass the values to the controls view
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onPhotosServicePhotoAgesChange(float[])
+     */
+    @Override
+    public void onPhotosServicePhotoAgesChange(final float[] photoAges) {
+
+        if (_controlsView == null) return;
+        
+        // pass the values to the controls view
+        _controlsView.setPhotoAges(photoAges);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMinDistanceChange(float, float)
+     */
+    @Override
+    public void onSettingsServiceMinDistanceChange(final float minDistance, final float minDistanceRel) {
+
+        // initiate update of the map view
+        updateMapView(false, false, false, true);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMaxDistanceChange(float, float)
+     */
+    @Override
+    public void onSettingsServiceMaxDistanceChange(final float maxDistance, final float maxDistanceRel) {
+
+        // initiate update of the map view
+        updateMapView(false, false, false, true);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMinAgeChange(long, float)
+     */
+    @Override
+    public void onSettingsServiceMinAgeChange(final long minAge, final float minAgeRel) {
+
+        // initiate update of the map view
+        updateMapView(false, false, false, true);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onSettingsServiceMaxAgeChange(long, float)
+     */
+    @Override
+    public void onSettingsServiceMaxAgeChange(final long maxAge, final float maxAgeRel) {
+
+        // initiate update of the map view
+        updateMapView(false, false, false, true);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onLocationServiceLocationEvent(double, double,
+     *      boolean, double)
+     */
+    @Override
+    public void onLocationServiceLocationEvent(final double lat, final double lng, final boolean hasAlt,
+                                               final double alt) {
+
+        // detect changes
+        final boolean latChanged = (lat == _currentLat) ? false : true;
+        final boolean lngChanged = (lng == _currentLng) ? false : true;
+        
+        // update variables
+        _currentLat = lat;
+        _currentLng = lng;
+        if (hasAlt) {
+            _currentAlt = alt;
+        }
+        
+        // update map view
+        updateMapView(latChanged, lngChanged, false, false);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#onOrientationServiceOrientationEvent(float,
+     *      float, float)
+     */
+    @Override
+    public void onOrientationServiceOrientationEvent(final float yaw, final float pitch, final float roll) {
+
+        // detect changes
+        final boolean yawChanged = (yaw == _currentYaw) ? false : true;
+        
+        // update variables
+        _currentYaw = yaw;
+        
+        // update map view
+        updateMapView(false, false, yawChanged, false);
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#getSettings()
+     */
+    @Override
+    public Settings getSettings() {
+
+        return _serviceConnections.getSettings();
+    }
+    
+    /**
+     * @see de.fraunhofer.fit.photocompass.activities.IServiceActivity#updateSettings(de.fraunhofer.fit.photocompass.model.Settings)
+     */
+    @Override
+    public void updateSettings(final Settings settings) {
+
+        _serviceConnections.updateSettings(settings);
     }
     
     /**
@@ -506,16 +408,18 @@ public final class PhotoMapActivity extends MapActivity {
 
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onActivityResult");
         if (requestCode == OptionsMenu.CAMERA_RETURN) {
-            if (resultCode == RESULT_OK)
+            if (resultCode == RESULT_OK) {
                 Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onActivityResult CAMERA_RETURN RESULT_OK");
-            // FIXME at the moment the photo isn't saved - either we have to do this on our own, or
-            // we can call the camera application in another way
+                // FIXME at the moment the photo isn't saved - either we have to do this on our own, or
+                // we can call the camera application in another way
 //                Bitmap bitmap = (Bitmap) data.getParcelableExtra("data");
 //                if (bitmap != null) {
 //                	Log.d(PhotoCompassApplication.LOG_TAG, "PhotoMapActivity: onActivityResult: we have a bmp");
 //                }
 //            	Photos.getInstance().updatePhotos(this);
-        } else
+            }
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

@@ -2,10 +2,12 @@ package de.fraunhofer.fit.photocompass.views;
 
 import android.content.Context;
 import android.os.RemoteException;
-import de.fraunhofer.fit.photocompass.model.ApplicationModel;
-import de.fraunhofer.fit.photocompass.model.IApplicationModelCallback;
-import de.fraunhofer.fit.photocompass.model.IPhotosCallback;
-import de.fraunhofer.fit.photocompass.model.Photos;
+import android.util.Log;
+import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
+import de.fraunhofer.fit.photocompass.activities.CameraActivity;
+import de.fraunhofer.fit.photocompass.activities.IServiceActivity;
+import de.fraunhofer.fit.photocompass.model.ISettingsCallback;
+import de.fraunhofer.fit.photocompass.model.Settings;
 import de.fraunhofer.fit.photocompass.views.controls.DoubleSeekBar;
 import de.fraunhofer.fit.photocompass.views.controls.HorizontalDoubleSeekBar;
 import de.fraunhofer.fit.photocompass.views.controls.IDoubleSeekBarCallback;
@@ -13,7 +15,7 @@ import de.fraunhofer.fit.photocompass.views.controls.VerticalDoubleSeekBar;
 import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
- * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the UI
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.CameraActivity} and displays the UI
  * controls.
  */
 public final class ControlsView extends SimpleAbsoluteLayout {
@@ -43,13 +45,53 @@ public final class ControlsView extends SimpleAbsoluteLayout {
      */
     public static final int BOTTOM_EXTRA_PADDING = 12;
     
-    DoubleSeekBar distanceSlider = null; // package scoped for faster access by inner classes
-    DoubleSeekBar ageSlider = null; // package scoped for faster access by inner classes
+    /**
+     * Slider control on the left edge of the screen for setting the distance limits. Package scoped for faster access
+     * by inner classes.
+     */
+    DoubleSeekBar distanceSlider = null;
+    /**
+     * Slider control on the bottom edge of the screen for setting the age limits. Package scoped for faster access by
+     * inner classes.
+     */
+    DoubleSeekBar ageSlider = null;
+    
+    private final ISettingsCallback _settingsCallback = new ISettingsCallback.Stub() {
+        
+        @Override
+        public void onMaxAgeChange(final long maxAge, final float maxAgeRel) throws RemoteException {
+
+            if (ageSlider == null) return;
+            ageSlider.updateEndValue(maxAgeRel);
+        }
+        
+        @Override
+        public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) throws RemoteException {
+
+            if (distanceSlider == null) return;
+            distanceSlider.updateEndValue(maxDistanceRel);
+        }
+        
+        @Override
+        public void onMinAgeChange(final long minAge, final float minAgeRel) throws RemoteException {
+
+            if (ageSlider == null) return;
+            ageSlider.updateStartValue(minAgeRel);
+        }
+        
+        @Override
+        public void onMinDistanceChange(final float minDistance, final float minDistanceRel) throws RemoteException {
+
+            if (distanceSlider == null) return;
+            distanceSlider.updateStartValue(minDistanceRel);
+        }
+    };
     
     /**
      * Constructor. Sets up the controls and registers as a callback at the application model.
      * 
      * @param context
+     * @param activity {@link CameraActivity} that uses this view.
      * @param availableWidth Maximum width for this view (the display width).
      * @param availableHeight Maximum height for this view (the display height).
      * @param showDistanceControl Show the distance control.
@@ -57,45 +99,90 @@ public final class ControlsView extends SimpleAbsoluteLayout {
      * @param lightBackground Whether the Controls are drawn on a light ( <code>true</code>) or a dark (
      *        <code>false</code>) background.
      */
-    public ControlsView(final Context context, final int availableWidth, final int availableHeight,
-                        final boolean showDistanceControl, final boolean showAgeControl, final boolean lightBackground) {
+    public ControlsView(final Context context, final IServiceActivity activity, final int availableWidth,
+                        final int availableHeight, final boolean showDistanceControl, final boolean showAgeControl,
+                        final boolean lightBackground) {
 
         super(context);
+        
+        Log.d(PhotoCompassApplication.LOG_TAG, "ControlsView");
         
         // distance slider
         if (showDistanceControl) {
             distanceSlider = new VerticalDoubleSeekBar(context, new IDoubleSeekBarCallback() {
                 
-                final ApplicationModel model = ApplicationModel.getInstance();
-                
                 public String getMaxLabel() {
 
-                    return model.maxDistanceStr;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: VerticalDoubleSeekBar: IDoubleSeekBarCallback: getMaxLabel: settings is null");
+                        return "";
+                    }
+                    
+                    return settings.maxDistanceStr;
                 }
                 
                 public float getMaxValue() {
 
-                    return model.maxDistanceRel;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: VerticalDoubleSeekBar: IDoubleSeekBarCallback: getMaxValue: settings is null");
+                        return 0;
+                    }
+                    
+                    return settings.maxDistanceRel;
                 }
                 
                 public String getMinLabel() {
 
-                    return model.minDistanceStr;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: VerticalDoubleSeekBar: IDoubleSeekBarCallback: getMinLabel: settings is null");
+                        return "";
+                    }
+                    
+                    return settings.minDistanceStr;
                 }
                 
                 public float getMinValue() {
 
-                    return model.minDistanceRel;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: VerticalDoubleSeekBar: IDoubleSeekBarCallback: getMinValue: settings is null");
+                        return 0;
+                    }
+                    
+                    return settings.minDistanceRel;
                 }
                 
                 public void onMaxValueChange(final float newValue) {
 
-                    model.setRelativeMaxDistance(newValue);
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: VerticalDoubleSeekBar: IDoubleSeekBarCallback: onMaxValueChange: settings is null");
+                        return;
+                    }
+                    
+                    settings.setRelativeMaxDistance(newValue);
+                    activity.updateSettings(settings);
                 }
                 
                 public void onMinValueChange(final float newValue) {
 
-                    model.setRelativeMinDistance(newValue);
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: VerticalDoubleSeekBar: IDoubleSeekBarCallback: onMinValueChange: settings is null");
+                        return;
+                    }
+                    
+                    settings.setRelativeMinDistance(newValue);
+                    activity.updateSettings(settings);
                 }
             }, lightBackground);
             final int bottomPadding = showAgeControl ? BOTTOM_LEFT_PADDING : CONTROL_END_PADDING;
@@ -111,36 +198,78 @@ public final class ControlsView extends SimpleAbsoluteLayout {
         if (showAgeControl) {
             ageSlider = new HorizontalDoubleSeekBar(context, new IDoubleSeekBarCallback() {
                 
-                final ApplicationModel model = ApplicationModel.getInstance();
-                
                 public String getMaxLabel() {
 
-                    return model.maxAgeStr;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: HorizontalDoubleSeekBar: IDoubleSeekBarCallback: getMaxLabel: settings is null");
+                        return "";
+                    }
+                    
+                    return settings.maxAgeStr;
                 }
                 
                 public float getMaxValue() {
 
-                    return model.maxAgeRel;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: HorizontalDoubleSeekBar: IDoubleSeekBarCallback: getMaxValue: settings is null");
+                        return 0;
+                    }
+                    
+                    return settings.maxAgeRel;
                 }
                 
                 public String getMinLabel() {
 
-                    return model.minAgeStr;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: HorizontalDoubleSeekBar: IDoubleSeekBarCallback: getMinLabel: settings is null");
+                        return "";
+                    }
+                    
+                    return settings.minAgeStr;
                 }
                 
                 public float getMinValue() {
 
-                    return model.minAgeRel;
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: HorizontalDoubleSeekBar: IDoubleSeekBarCallback: getMinValue: settings is null");
+                        return 0;
+                    }
+                    
+                    return settings.minAgeRel;
                 }
                 
                 public void onMaxValueChange(final float newValue) {
 
-                    model.setRelativeMaxAge(newValue);
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: HorizontalDoubleSeekBar: IDoubleSeekBarCallback: onMaxValueChange: settings is null");
+                        return;
+                    }
+                    
+                    settings.setRelativeMaxAge(newValue);
+                    activity.updateSettings(settings);
                 }
                 
                 public void onMinValueChange(final float newValue) {
 
-                    model.setRelativeMinAge(newValue);
+                    final Settings settings = activity.getSettings();
+                    if (settings == null) {
+                        Log.e(PhotoCompassApplication.LOG_TAG,
+                              "ControlsView: HorizontalDoubleSeekBar: IDoubleSeekBarCallback: onMinValueChange: settings is null");
+                        return;
+                    }
+                    
+                    settings.setRelativeMinAge(newValue);
+                    activity.updateSettings(settings);
                 }
             }, lightBackground);
             final int xPos = showDistanceControl ? BOTTOM_LEFT_PADDING : CONTROL_END_PADDING;
@@ -149,43 +278,41 @@ public final class ControlsView extends SimpleAbsoluteLayout {
                                                              CONTROL_SIDE_PADDING - BOTTOM_EXTRA_PADDING));
             addView(ageSlider);
         }
+    }
+    
+    public Settings registerToSettings(final Settings settings) {
+
+        Log.d(PhotoCompassApplication.LOG_TAG, "ControlsView: registerToSettings");
         
-        // register as a callback at the application model
-        ApplicationModel.getInstance().registerCallback(new IApplicationModelCallback.Stub() {
-            
-            public void onMaxAgeChange(final long maxAge, final float maxAgeRel) throws RemoteException {
-
-                if (ageSlider != null) ageSlider.updateEndValue(maxAgeRel);
-            }
-            
-            public void onMaxDistanceChange(final float maxDistance, final float maxDistanceRel) throws RemoteException {
-
-                if (distanceSlider != null) distanceSlider.updateEndValue(maxDistanceRel);
-            }
-            
-            public void onMinAgeChange(final long minAge, final float minAgeRel) throws RemoteException {
-
-                if (ageSlider != null) ageSlider.updateStartValue(minAgeRel);
-            }
-            
-            public void onMinDistanceChange(final float minDistance, final float minDistanceRel) throws RemoteException {
-
-                if (distanceSlider != null) distanceSlider.updateStartValue(minDistanceRel);
-            }
-        });
+        // FIXME
+//        settings.registerCallback(_settingsCallback);
         
-        // register as a callback at the photos model
-        Photos.getInstance().registerCallback(new IPhotosCallback.Stub() {
-            
-            public void onPhotosDistancesChange(final float[] photoDistances) {
+        return settings;
+    }
+    
+    public Settings unregisterFromSettings(final Settings settings) {
 
-                if (distanceSlider != null) distanceSlider.setPhotoMarks(photoDistances);
-            }
-            
-            public void onPhotosAgesChange(final float[] photoAges) {
+        Log.d(PhotoCompassApplication.LOG_TAG, "ControlsView: unregisterFromSettings");
+        
+        // FIXME
+//        settings.unregisterCallback(_settingsCallback);
+        
+        return settings;
+    }
+    
+    public void setPhotoAges(final float[] photoAges) {
 
-                if (ageSlider != null) ageSlider.setPhotoMarks(photoAges);
-            }
-        });
+        Log.d(PhotoCompassApplication.LOG_TAG, "ControlsView: setPhotoAges");
+        
+        if (ageSlider == null) return;
+        ageSlider.setPhotoMarks(photoAges);
+    }
+    
+    public void setPhotoDistances(final float[] photoDistances) {
+
+        Log.d(PhotoCompassApplication.LOG_TAG, "ControlsView: setPhotoDistances");
+        
+        if (distanceSlider == null) return;
+        distanceSlider.setPhotoMarks(photoDistances);
     }
 }

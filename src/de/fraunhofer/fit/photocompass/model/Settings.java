@@ -1,6 +1,7 @@
 package de.fraunhofer.fit.photocompass.model;
 
-import android.os.DeadObjectException;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
@@ -12,17 +13,15 @@ import de.fraunhofer.fit.photocompass.model.util.OutputFormatter;
  * the controls in the {@link de.fraunhofer.fit.photocompass.views.ControlsView}. This is an active model, where
  * Activities can register as callbacks in order to get updates when the values change. This is a Singleton.
  */
-public final class ApplicationModel {
+public final class Settings {
     
     // minimum & maximum values
-    private final float MIN_DISTANCE_LIMIT = 1000F; // in meters
-    final float MAX_DISTANCE_LIMIT = 5 * 1000F; // in meters
-    float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
-    private final long MIN_AGE_LIMIT = 60 * 60 * 1000L; // in milliseconds
-    final long MAX_AGE_LIMIT = 54 * 7 * 24 * 60 * 60 * 1000L; // in milliseconds
-    long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
-    
-    private static final ApplicationModel _instance = new ApplicationModel();
+    private float MIN_DISTANCE_LIMIT = 1000F; // in meters
+    public float MAX_DISTANCE_LIMIT = 5 * 1000F; // in meters
+    public float MAX_MAX_DISTANCE = MAX_DISTANCE_LIMIT; // in meters
+    private long MIN_AGE_LIMIT = 60 * 60 * 1000L; // in milliseconds
+    public long MAX_AGE_LIMIT = 54 * 7 * 24 * 60 * 60 * 1000L; // in milliseconds
+    public long MAX_MAX_AGE = MAX_AGE_LIMIT; // in milliseconds
     
     /**
      * The current minimum distance for photos to be displayed. In meters.
@@ -73,21 +72,17 @@ public final class ApplicationModel {
      */
     public String maxAgeStr = OutputFormatter.formatAge(maxAge);
     
-    private final RemoteCallbackList<IApplicationModelCallback> _remoteCallbacks = new RemoteCallbackList<IApplicationModelCallback>();
+    /**
+     * List of callbacks that have been registered with the model.
+     */
+    private final RemoteCallbackList<ISettingsCallback> _remoteCallbacks = new RemoteCallbackList<ISettingsCallback>();
     
     /**
-     * Constructor. Private because Singleton. Use {@link #getInstance()}.
+     * Constructor.
      */
-    private ApplicationModel() {
+    public Settings() {
 
-    }
-    
-    /**
-     * @return The instance of this Singleton model.
-     */
-    public static ApplicationModel getInstance() {
-
-        return _instance;
+    // nothing to do here
     }
     
     /**
@@ -95,9 +90,12 @@ public final class ApplicationModel {
      * 
      * @param cb Callback object.
      */
-    public void registerCallback(final IApplicationModelCallback cb) {
+    public void registerCallback(final ISettingsCallback cb) {
 
-        if (cb != null) _remoteCallbacks.register(cb);
+        Log.d(PhotoCompassApplication.LOG_TAG, "Settings: registerCallback");
+        
+        if (cb == null) return;
+        _remoteCallbacks.register(cb);
     }
     
     /**
@@ -105,43 +103,48 @@ public final class ApplicationModel {
      * 
      * @param cb Callback object.
      */
-    public void unregisterCallback(final IApplicationModelCallback cb) {
+    public void unregisterCallback(final ISettingsCallback cb) {
 
-        if (cb != null) _remoteCallbacks.unregister(cb);
+        if (cb == null) return;
+        _remoteCallbacks.unregister(cb);
     }
     
     /**
-     * Set the maximum value for maximum distance. Call this from the {@link Photos} model when the photos are read of
-     * the device.
+     * Set the maximum value for maximum distance. Call this from the {@link PhotosModel} model when the photos are read
+     * of the device.
      * 
      * @param value
      * @return <code>true</code> if {@link #MAX_MAX_DISTANCE} was changed, or <code>false</code> if no change.
      */
     public boolean setMaxMaxDistance(final float value) {
 
-//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxDistance = "+value);
+//		Log.d(PhotoCompassApplication.LOG_TAG, "Settings: setMaxMaxDistance = "+value);
         
         final float oldValue = MAX_MAX_DISTANCE;
         MAX_MAX_DISTANCE = (value > MAX_DISTANCE_LIMIT) ? MAX_DISTANCE_LIMIT
                                                        : (value < MIN_DISTANCE_LIMIT) ? MIN_DISTANCE_LIMIT : value;
-        if (maxDistance != MAX_MAX_DISTANCE) setMaxDistance(MAX_MAX_DISTANCE);
+        if (maxDistance != MAX_MAX_DISTANCE) {
+            setMaxDistance(MAX_MAX_DISTANCE);
+        }
         return (oldValue == MAX_MAX_DISTANCE) ? false : true;
     }
     
     /**
-     * Set the maximum value for maximum age. Call this from the {@link Photos} model when the photos are read of the
-     * device.
+     * Set the maximum value for maximum age. Call this from the {@link PhotosModel} model when the photos are read of
+     * the device.
      * 
      * @param value Maximum value for maximum age. In milliseconds.
      * @return <code>true</code> if {@link #MAX_MAX_DISTANCE} was changed, or <code>false</code> if no change.
      */
     public boolean setMaxMaxAge(final long value) {
 
-//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxMaxAge = "+value);
+//		Log.d(PhotoCompassApplication.LOG_TAG, "Settings: setMaxMaxAge = "+value);
         
         final long oldValue = MAX_MAX_AGE;
         MAX_MAX_AGE = (value > MAX_AGE_LIMIT) ? MAX_AGE_LIMIT : (value < MIN_AGE_LIMIT) ? MIN_AGE_LIMIT : value;
-        if (maxAge != MAX_MAX_AGE) setMaxAge(MAX_MAX_AGE);
+        if (maxAge != MAX_MAX_AGE) {
+            setMaxAge(MAX_MAX_AGE);
+        }
         return (oldValue == MAX_MAX_AGE) ? false : true;
     }
     
@@ -156,18 +159,17 @@ public final class ApplicationModel {
         minDistanceStr = OutputFormatter.formatDistance(minDistance);
         
 //		Log.d(PhotoCompassApplication.LOG_TAG,
-//		      "ApplicationModel: setMaxDistance: minDist = "+minDistance+", maxDist = "+maxDistance);
+//		      "Settings: setMaxDistance: minDist = "+minDistance+", maxDist = "+maxDistance);
         
         // broadcast change
         final int numCallbacks = _remoteCallbacks.beginBroadcast();
-        for (int i = 0; i < numCallbacks; i++)
+        for (int i = 0; i < numCallbacks; i++) {
             try {
                 _remoteCallbacks.getBroadcastItem(i).onMinDistanceChange(minDistance, minDistanceRel);
-            } catch (final DeadObjectException e) {
-                // the RemoteCallbackList will take care of removing the dead object
             } catch (final RemoteException e) {
-                Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+                Log.d(PhotoCompassApplication.LOG_TAG, "Settings: broadcast to callback failed");
             }
+        }
         _remoteCallbacks.finishBroadcast();
     }
     
@@ -190,18 +192,17 @@ public final class ApplicationModel {
         maxDistanceStr = OutputFormatter.formatDistance(maxDistance);
         
 //		Log.d(PhotoCompassApplication.LOG_TAG,
-//		      "ApplicationModel: setMaxDistance: minDist = "+minDistance+", maxDist = "+maxDistance);
+//		      "Settings: setMaxDistance: minDist = "+minDistance+", maxDist = "+maxDistance);
         
         // broadcast change
         final int numCallbacks = _remoteCallbacks.beginBroadcast();
-        for (int i = 0; i < numCallbacks; i++)
+        for (int i = 0; i < numCallbacks; i++) {
             try {
                 _remoteCallbacks.getBroadcastItem(i).onMaxDistanceChange(maxDistance, maxDistanceRel);
-            } catch (final DeadObjectException e) {
-                // the RemoteCallbackList will take care of removing the dead object
             } catch (final RemoteException e) {
-                Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+                Log.d(PhotoCompassApplication.LOG_TAG, "Settings: broadcast to callback failed");
             }
+        }
         _remoteCallbacks.finishBroadcast();
     }
     
@@ -236,14 +237,13 @@ public final class ApplicationModel {
         
         // broadcast change
         final int numCallbacks = _remoteCallbacks.beginBroadcast();
-        for (int i = 0; i < numCallbacks; i++)
+        for (int i = 0; i < numCallbacks; i++) {
             try {
                 _remoteCallbacks.getBroadcastItem(i).onMinAgeChange(minAge, minAgeRel);
-            } catch (final DeadObjectException e) {
-                // the RemoteCallbackList will take care of removing the dead object
             } catch (final RemoteException e) {
-                Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+                Log.d(PhotoCompassApplication.LOG_TAG, "Settings: broadcast to callback failed");
             }
+        }
         _remoteCallbacks.finishBroadcast();
     }
     
@@ -252,7 +252,7 @@ public final class ApplicationModel {
      */
     public void setRelativeMinAge(final float value) {
 
-//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setRelativeMinAge = "+relativeMinAge);
+//		Log.d(PhotoCompassApplication.LOG_TAG, "Settings: setRelativeMinAge = "+relativeMinAge);
         
         setMinAge(Math.round((double) value * MAX_MAX_AGE));
     }
@@ -262,7 +262,7 @@ public final class ApplicationModel {
      */
     public void setMaxAge(final long value) {
 
-//		Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: setMaxAge = "
+//		Log.d(PhotoCompassApplication.LOG_TAG, "Settings: setMaxAge = "
 //				+ value + ", i.e. " + OutputFormatter.formatAge(value));
         
         // update values
@@ -272,14 +272,13 @@ public final class ApplicationModel {
         
         // broadcast change
         final int numCallbacks = _remoteCallbacks.beginBroadcast();
-        for (int i = 0; i < numCallbacks; i++)
+        for (int i = 0; i < numCallbacks; i++) {
             try {
                 _remoteCallbacks.getBroadcastItem(i).onMaxAgeChange(maxAge, maxAgeRel);
-            } catch (final DeadObjectException e) {
-                // the RemoteCallbackList will take care of removing the dead object
             } catch (final RemoteException e) {
-                Log.d(PhotoCompassApplication.LOG_TAG, "ApplicationModel: broadcast to callback failed");
+                Log.d(PhotoCompassApplication.LOG_TAG, "Settings: broadcast to callback failed");
             }
+        }
         _remoteCallbacks.finishBroadcast();
     }
     
@@ -300,5 +299,72 @@ public final class ApplicationModel {
     public void setRelativeMaxAge(final float value) {
 
         setMaxAge(Math.round((double) value * MAX_MAX_AGE));
+    }
+    
+    public int describeContents() {
+
+        return 0;
+    }
+    
+    public void writeToParcel(final Parcel out, final int flags) {
+
+        out.writeFloat(MIN_DISTANCE_LIMIT);
+        out.writeFloat(MAX_DISTANCE_LIMIT);
+        out.writeFloat(MAX_MAX_DISTANCE);
+        out.writeLong(MIN_AGE_LIMIT);
+        out.writeLong(MAX_AGE_LIMIT);
+        out.writeLong(MAX_MAX_AGE);
+        out.writeFloat(minDistance);
+        out.writeFloat(minDistanceRel);
+        out.writeString(minDistanceStr);
+        out.writeFloat(maxDistance);
+        out.writeFloat(maxDistanceRel);
+        out.writeString(maxDistanceStr);
+        out.writeLong(minAge);
+        out.writeFloat(minAgeRel);
+        out.writeString(minAgeStr);
+        out.writeLong(maxAge);
+        out.writeFloat(maxAgeRel);
+        out.writeString(maxAgeStr);
+    }
+    
+    public static final Parcelable.Creator<Settings> CREATOR = new Parcelable.Creator<Settings>() {
+        
+        public Settings createFromParcel(final Parcel in) {
+
+            return new Settings(in);
+        }
+        
+        public Settings[] newArray(final int size) {
+
+            return new Settings[size];
+        }
+    };
+    
+    /**
+     * Package scoped for faster access by inner classes.
+     * 
+     * @param in
+     */
+    Settings(final Parcel in) {
+
+        MIN_DISTANCE_LIMIT = in.readFloat();
+        MAX_DISTANCE_LIMIT = in.readFloat();
+        MAX_MAX_DISTANCE = in.readFloat();
+        MIN_AGE_LIMIT = in.readLong();
+        MAX_AGE_LIMIT = in.readLong();
+        MAX_MAX_AGE = in.readLong();
+        minDistance = in.readFloat();
+        minDistanceRel = in.readFloat();
+        minDistanceStr = in.readString();
+        maxDistance = in.readFloat();
+        maxDistanceRel = in.readFloat();
+        maxDistanceStr = in.readString();
+        minAge = in.readLong();
+        minAgeRel = in.readFloat();
+        minAgeStr = in.readString();
+        maxAge = in.readLong();
+        maxAgeRel = in.readFloat();
+        maxAgeStr = in.readString();
     }
 }

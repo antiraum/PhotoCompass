@@ -22,7 +22,7 @@ public final class CameraView extends SurfaceView implements SurfaceHolder.Callb
      * @param context
      */
     public CameraView(final Context context) {
-
+        
         super(context);
         
         // setup the surface holder
@@ -38,14 +38,14 @@ public final class CameraView extends SurfaceView implements SurfaceHolder.Callb
      * This is called after the surface is first created. Acquires the camera and tells it where to draw.
      */
     public void surfaceCreated(final SurfaceHolder holder) {
-
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceCreated");
+        
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "CameraView: surfaceCreated");
         
         _camera = Camera.open();
         try {
             _camera.setPreviewDisplay(holder);
         } catch (final Exception e) {
-            Log.e(PhotoCompassApplication.LOG_TAG, "FinderView: setting camera preview display failed");
+            Log.e(PhotoCompassApplication.LOG_TAG, "CameraView: setting camera preview display failed");
         }
     }
     
@@ -53,8 +53,8 @@ public final class CameraView extends SurfaceView implements SurfaceHolder.Callb
      * This is called before a surface is being destroyed. Stops the preview and releases the camera.
      */
     public void surfaceDestroyed(final SurfaceHolder holder) {
-
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceDestroyed");
+        
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "CameraView: surfaceDestroyed");
         
         // stop the preview
         _camera.stopPreview();
@@ -69,8 +69,8 @@ public final class CameraView extends SurfaceView implements SurfaceHolder.Callb
      * the surface size and starts the preview.
      */
     public void surfaceChanged(final SurfaceHolder holder, final int format, final int w, final int h) {
-
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "FinderView: surfaceChanged");
+        
+//    	Log.d(PhotoCompassApplication.LOG_TAG, "CameraView: surfaceChanged");
         
         // set up the camera parameters
         final Camera.Parameters parameters = _camera.getParameters();

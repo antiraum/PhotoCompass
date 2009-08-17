@@ -9,7 +9,7 @@ import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
- * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the compass
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.CameraActivity} and displays the compass
  * "horizon". Displays a horizontal line in the middle of the screen. Every 45 degrees a marker is drawn with a text
  * label of the compass direction.
  */

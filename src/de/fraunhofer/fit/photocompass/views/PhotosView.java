@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
-import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -13,15 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
-import de.fraunhofer.fit.photocompass.model.ApplicationModel;
-import de.fraunhofer.fit.photocompass.model.Photos;
+import de.fraunhofer.fit.photocompass.activities.CameraActivity;
+import de.fraunhofer.fit.photocompass.model.Settings;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.model.data.PhotoMetrics;
 import de.fraunhofer.fit.photocompass.views.layouts.SimpleAbsoluteLayout;
 
 /**
  * <p>
- * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.FinderActivity} and displays the currently
+ * This view is used by the {@link de.fraunhofer.fit.photocompass.activities.CameraActivity} and displays the currently
  * visible photos.
  * </p>
  * <p>
@@ -57,7 +56,10 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     
     private static float DEGREE_WIDTH; // width of one degree direction
     
-    final Photos photosModel = Photos.getInstance(); // package scoped for faster access by inner classes
+    /**
+     * {@link CameraActivity} that uses this view. Package scoped for faster access by inner classes.
+     */
+    final CameraActivity activity;
     
     /**
      * Layer containing the {@link #photoViews}.
@@ -142,7 +144,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
                 while (lit.hasPrevious()) { // iterate front to back
                     id = lit.previous();
                     photoView = photoViews.get(id);
-                    if (photoView.isMinimized()) continue; // ignore minimized photos
+                    if (photoView.isMinimized()) {
+                        continue; // ignore minimized photos
+                    }
                     if (photoView.getLeft() < startX && photoView.getRight() > startX && // on the view in horizontal direction
                         photoView.getTop() < startY && photoView.getBottom() > startY && // on the view in vertical direction
                         endY - startY > photoView.getHeight() / 3) { // fling movement should run for at least one third of the photo height
@@ -155,7 +159,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
                 PhotoView photoView;
                 for (final int id : photos) { // back to front
                     photoView = photoViews.get(id);
-                    if (!photoView.isMinimized()) continue; // ignore restored photos
+                    if (!photoView.isMinimized()) {
+                        continue; // ignore restored photos
+                    }
                     if (photoView.getLeft() < startX && photoView.getRight() > startX && // on the view in horizontal direction
                         photoView.getTop() < startY && photoView.getBottom() > startY && // on the view in vertical direction
                         Math.abs(endY - startY) > photoView.getHeight() / 3) { // fling movement should run for at least one third of the photo height
@@ -195,8 +201,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             
             // tap tolerance
             int y_tap_tolerance = 0;
-            if (PhotoMetrics.MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE)
+            if (PhotoMetrics.MINIMIZED_PHOTO_HEIGHT < PhotoCompassApplication.MIN_TAP_SIZE) {
                 y_tap_tolerance = (PhotoCompassApplication.MIN_TAP_SIZE - PhotoMetrics.MINIMIZED_PHOTO_HEIGHT) / 2;
+            }
             
             /*
              * Detect which photo is tapped on.
@@ -205,7 +212,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             PhotoView photoView;
             for (final int id : photos) { // back to front
                 photoView = photoViews.get(id);
-                if (!photoView.isMinimized()) continue; // ignore not minimized photos
+                if (!photoView.isMinimized()) {
+                    continue; // ignore not minimized photos
+                }
                 if (photoView.getLeft() < eventX && photoView.getRight() > eventX && // on the view in horizontal direction
                     photoView.getTop() - y_tap_tolerance < eventY && photoView.getBottom() + y_tap_tolerance > eventY) { // on the view in vertical direction
                     tappedPhoto = id;
@@ -230,35 +239,37 @@ public final class PhotosView extends SimpleAbsoluteLayout {
     /**
      * Constructor. Sets constants and creates the layers for photo and border views.
      * 
-     * @param context
+     * @param activity {@link CameraActivity}
      * @param availableWidth Maximum width for this view (the display width).
      * @param availableHeight Maximum height for this view (the display height minus status bar height and minus the
      *        height of the controls on the bottom)
      */
-    public PhotosView(final Context context, final int availableWidth, final int availableHeight) {
+    public PhotosView(final CameraActivity activity, final int availableWidth, final int availableHeight) {
 
-        super(context);
+        super(activity);
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView");
         
         AVAILABLE_WIDTH = availableWidth;
         AVAILABLE_HEIGHT = availableHeight;
         DEGREE_WIDTH = AVAILABLE_WIDTH / PhotoCompassApplication.CAMERA_HDEGREES;
         
+        this.activity = activity;
+        
         // set height constants
         MAX_PHOTO_HEIGHT = Math.round(MAX_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
         MIN_PHOTO_HEIGHT = Math.round(MIN_PHOTO_HEIGHT_PERCENT * AVAILABLE_HEIGHT);
         
-        _photoLayer = new SimpleAbsoluteLayout(context);
+        _photoLayer = new SimpleAbsoluteLayout(activity);
         _photoLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_photoLayer);
         
-        _borderLayer = new SimpleAbsoluteLayout(context);
+        _borderLayer = new SimpleAbsoluteLayout(activity);
         _borderLayer.setLayoutParams(new LayoutParams(AVAILABLE_WIDTH, AVAILABLE_HEIGHT, 0, 0));
         addView(_borderLayer);
         
 // XXX unknown constructor for 1.1
-//        _gestureDetector = new GestureDetector(context, _gestureListener);
-        _gestureDetector = new GestureDetector(_gestureListener);
+        _gestureDetector = new GestureDetector(activity, _gestureListener);
+//        _gestureDetector = new GestureDetector(_gestureListener);
     }
     
     /**
@@ -277,7 +288,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         
         boolean sizeChanged, xPosChanged, yPosChanged;
         for (final int id : newPhotos) {
-            if (photosModel.getPhoto(id) == null) continue;
+            if (activity.getPhoto(id) == null) {
+                continue;
+            }
             
             if (_photoMetrics.get(id) != null) { // has been used before
             
@@ -291,11 +304,10 @@ public final class PhotosView extends SimpleAbsoluteLayout {
                 _photoMetrics.append(id, new PhotoMetrics());
                 
                 // create views
-                final Context context = getContext();
-                final PhotoView photoView = new PhotoView(context, id);
+                final PhotoView photoView = new PhotoView(activity, id);
                 photoViews.append(id, photoView);
                 _photoLayer.addView(photoView);
-                final PhotoBorderView borderView = new PhotoBorderView(context);
+                final PhotoBorderView borderView = new PhotoBorderView(activity);
                 _borderViews.append(id, borderView);
                 _borderLayer.addView(borderView);
             }
@@ -307,7 +319,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             sizeChanged = _updatePhotoSize(id);
             xPosChanged = _updatePhotoXPosition(id);
             yPosChanged = _updatePhotoYPosition(id);
-            if (doRedraw && (sizeChanged || xPosChanged || yPosChanged)) redrawPhoto(id);
+            if (doRedraw && (sizeChanged || xPosChanged || yPosChanged)) {
+                redrawPhoto(id);
+            }
         }
         
         // sort photo order
@@ -366,8 +380,8 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             
             public int compare(final Integer id1, final Integer id2) {
 
-                final Photo photo1 = photosModel.getPhoto(id1);
-                final Photo photo2 = photosModel.getPhoto(id2);
+                final Photo photo1 = activity.getPhoto(id1);
+                final Photo photo2 = activity.getPhoto(id2);
                 if (photo1 == null || photo2 == null) return 0;
                 if (photo1.distance > photo2.distance) return -1;
                 return 1;
@@ -390,14 +404,19 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             final ListIterator<Integer> lit = photos.listIterator(photos.size());
             while (lit.hasPrevious()) { // iterate front to back
                 resId2 = lit.previous();
-                if (resId1 == resId2) break;
-                if (photoViews.get(resId2).isMinimized() != status) continue; // ignore photos with different status
+                if (resId1 == resId2) {
+                    break;
+                }
+                if (photoViews.get(resId2).isMinimized() != status) {
+                    continue; // ignore photos with different status
+                }
                 met2 = _photoMetrics.get(resId2);
                 if (((met2.top >= met1.top && met2.top <= met1.getBottom()) ||
                      (met2.getBottom() >= met1.top && met2.getBottom() <= met1.getBottom()) || (met2.top < met1.top && met2.getBottom() > met1.getBottom())) &&
                     ((met2.left >= met1.left && met2.left <= met1.getRight()) ||
-                     (met2.getRight() >= met1.left && met2.getRight() <= met1.getRight()) || (met2.left < met1.left && met2.getRight() > met1.getRight())))
+                     (met2.getRight() >= met1.left && met2.getRight() <= met1.getRight()) || (met2.left < met1.left && met2.getRight() > met1.getRight()))) {
                     numOccludingPhotos++;
+                }
             }
             _borderViews.get(resId1).setNumberOfOcclusions(numOccludingPhotos);
         }
@@ -412,8 +431,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateTextInfos");
         
-        for (final int id : photos)
+        for (final int id : photos) {
             photoViews.get(id).updateText();
+        }
     }
     
     /**
@@ -428,8 +448,11 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         
         _direction = direction;
         
-        for (final int id : photos)
-            if (_updatePhotoXPosition(id) && doRedraw) redrawPhoto(id);
+        for (final int id : photos) {
+            if (_updatePhotoXPosition(id) && doRedraw) {
+                redrawPhoto(id);
+            }
+        }
     }
     
     /**
@@ -440,7 +463,7 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     private boolean _updatePhotoXPosition(final int id) {
 
-        final Photo photo = photosModel.getPhoto(id);
+        final Photo photo = activity.getPhoto(id);
         final PhotoMetrics metrics = _photoMetrics.get(id);
         if (metrics == null || photo == null) return false;
         
@@ -470,8 +493,11 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateYPositions");
         
-        for (final int id : photos)
-            if (_updatePhotoYPosition(id) && doRedraw) redrawPhoto(id);
+        for (final int id : photos) {
+            if (_updatePhotoYPosition(id) && doRedraw) {
+                redrawPhoto(id);
+            }
+        }
     }
     
     /**
@@ -484,12 +510,13 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     private boolean _updatePhotoYPosition(final int id) {
 
-        final Photo photo = photosModel.getPhoto(id);
+//        final Photo photo = photosModel.getPhoto(id);
+//        if (photo == null) return false;
         final PhotoMetrics metrics = _photoMetrics.get(id);
-        if (metrics == null || photo == null) return false;
+        if (metrics == null) return false;
         
         // calculate y position
-        // TODO take the roll value of the orientation sensor into account, then the FinderActivity wouldn't need to subtract the
+        // TODO take the roll value of the orientation sensor into account, then the CameraActivity wouldn't need to subtract the
         // BOTTOM_CONTROLS_HEIGHT from the available height anymore -- also see the getPhotos method of the Photo model for this
         final int photoHeight = metrics.height;
         final int photoY = (AVAILABLE_HEIGHT - photoHeight) / 2;
@@ -523,12 +550,15 @@ public final class PhotosView extends SimpleAbsoluteLayout {
 
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: updateSizes");
         
-        for (final int id : photos)
+        for (final int id : photos) {
             if (_updatePhotoSize(id)) {
                 _updatePhotoXPosition(id);
                 _updatePhotoYPosition(id);
-                if (doRedraw) redrawPhoto(id);
+                if (doRedraw) {
+                    redrawPhoto(id);
+                }
             }
+        }
     }
     
     /**
@@ -541,18 +571,18 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     private boolean _updatePhotoSize(final int id) {
 
-        final Photo photo = photosModel.getPhoto(id);
+        final Photo photo = activity.getPhoto(id);
         final PhotoMetrics metrics = _photoMetrics.get(id);
         if (metrics == null || photo == null) return false;
         
         // calculate the photo height
-        final ApplicationModel appModel = ApplicationModel.getInstance();
         // linear scaling
 //        final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) *
 //        								   		 (1 - photo.distance / (appModel.maxDistance - appModel.minDistance)));
         // exponential scaling
-        final double s = (Math.exp(1 - (photo.distance - appModel.minDistance) /
-                                   (appModel.maxDistance - appModel.minDistance)) - 1) /
+        final Settings settings = activity.getSettings();
+        final double s = (Math.exp(1 - (photo.distance - settings.minDistance) /
+                                   (settings.maxDistance - settings.minDistance)) - 1) /
                          Math.E;
 //    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: _updatePhotoSize: distance = "+photo.distance+", scale = "+s);
         final int photoHeight = (int) Math.round(MIN_PHOTO_HEIGHT + (MAX_PHOTO_HEIGHT - MIN_PHOTO_HEIGHT) * s);
@@ -579,9 +609,12 @@ public final class PhotosView extends SimpleAbsoluteLayout {
      */
     void redrawPhoto(final int id) {
 
-        final LayoutParams layoutParams = photoViews.get(id).isMinimized() ? _photoMetrics.get(id).getMinimizedLayoutParams(
-                                                                                                                            AVAILABLE_HEIGHT - 21) // available height minus space for the labels and padding
-                                                                          : _photoMetrics.get(id).getLayoutParams();
+        LayoutParams layoutParams;
+        if (photoViews.get(id).isMinimized()) {
+            layoutParams = _photoMetrics.get(id).getMinimizedLayoutParams(AVAILABLE_HEIGHT - 21); // available height minus space for the labels and padding
+        } else {
+            layoutParams = _photoMetrics.get(id).getLayoutParams();
+        }
         
         // skip if photo has layout parameters, and is not and will not be visible on screen
         if (photoViews.get(id).getLayoutParams() != null &&
@@ -595,7 +628,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         photoViews.get(id).setVisibility(View.VISIBLE);
         _borderViews.get(id).setVisibility(View.VISIBLE);
         
-//    	Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: redrawPhoto: id = "+id+", x = "+layoutParams.x+", y = "+layoutParams.y+", width = "+layoutParams.width+", height = "+layoutParams.height);
+        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: redrawPhoto: id = " + id + ", x = " + layoutParams.x +
+                                               ", y = " + layoutParams.y + ", width = " + layoutParams.width +
+                                               ", height = " + layoutParams.height);
         
         photoViews.get(id).setLayoutParams(layoutParams);
         _borderViews.get(id).setLayoutParams(layoutParams);
@@ -613,7 +648,9 @@ public final class PhotosView extends SimpleAbsoluteLayout {
             numLayers = layer.getChildCount();
             for (int i = 0; i < numLayers; i++) {
                 view = layer.getChildAt(i);
-                if (photos.contains(view.getId())) continue; // is currently needed
+                if (photos.contains(view.getId())) {
+                    continue; // is currently needed
+                }
                 layer.removeView(view);
             }
         }
@@ -631,13 +668,14 @@ public final class PhotosView extends SimpleAbsoluteLayout {
         // pass on to gesture detector
         _gestureDetector.onTouchEvent(event);
         
-        if (action == MotionEvent.ACTION_UP) // sleep to avoid event flooding
+        if (action == MotionEvent.ACTION_UP) {
             try {
 //				Log.d(PhotoCompassApplication.LOG_TAG, "PhotosView: sleep");
                 Thread.sleep(PhotoCompassApplication.SLEEP_AFTER_TOUCH_EVENT);
             } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
+        }
         
         return true;
     }

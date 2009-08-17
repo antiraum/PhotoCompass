@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
-import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -18,7 +17,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import de.fraunhofer.fit.photocompass.PhotoCompassApplication;
 import de.fraunhofer.fit.photocompass.R;
-import de.fraunhofer.fit.photocompass.model.ApplicationModel;
+import de.fraunhofer.fit.photocompass.model.Settings;
 import de.fraunhofer.fit.photocompass.model.data.Photo;
 import de.fraunhofer.fit.photocompass.util.ListArrayConversions;
 
@@ -28,7 +27,10 @@ import de.fraunhofer.fit.photocompass.util.ListArrayConversions;
  */
 public final class PhotosService extends Service {
     
-    private static final int PHOTO_MERGE_RADIUS = 5; // radius within photos will be merged into one (in meters)
+    /**
+     * Radius within photos will be merged into one (in meters).
+     */
+    private static final int PHOTO_MERGE_RADIUS = 5;
     
     /**
      * {@link SparseArray} of all photos usable by the application. Key is photo id, value is {@link Photo} object.
@@ -62,14 +64,15 @@ public final class PhotosService extends Service {
         /**
          * Initiates a rescan of the device's photos.
          */
-        public void updatePhotos() {
-            
+        @Override
+        public void initialize(final Settings settings) throws RemoteException {
+
             // initiate rescan
             readPhotos();
             
             // broadcast the photo distances and ages
-            _broadcastPhotoDistances();
-            _broadcastPhotoAges();
+            _broadcastPhotoDistances(settings);
+            _broadcastPhotoAges(settings);
         }
         
         /**
@@ -78,8 +81,9 @@ public final class PhotosService extends Service {
          * @param id Id of the requested photo (photo id for MediaStore photos; resource id for dummy photos).
          * @return <code>{@link Photo}</code> if the photo is known, or <code>null</code> if the photo is not known.
          */
-        public Photo getPhoto(final int id) {
-            
+        @Override
+        public Photo getPhoto(final int id) throws RemoteException {
+
             Photo photo = photos.get(id);
             if (photo == null) {
                 photo = dummies.get(id);
@@ -95,9 +99,11 @@ public final class PhotosService extends Service {
          * @param limitByAge Consider minimum and maximum age settings.
          * @return Array with photo/resource ids of the newly visible photos.
          */
-        public int[] getNewlyVisiblePhotos(final int[] currentPhotos, final boolean limitByDistance,
-                                           final boolean limitByAge) {
-            
+        @Override
+        public int[] getNewlyVisiblePhotos(final Settings settings, final int[] currentPhotos,
+                                           final boolean limitByDistance, final boolean limitByAge)
+                throws RemoteException {
+
             final ArrayList<Integer> currents = ListArrayConversions.intArrayToList(currentPhotos);
             final ArrayList<Integer> results = new ArrayList<Integer>();
             
@@ -105,8 +111,8 @@ public final class PhotosService extends Service {
             for (final SparseArray<Photo> arr : new SparseArray[] {photos, dummies}) {
                 numPhotos = arr.size();
                 for (int i = 0; i < numPhotos; i++) {
-                    if (_isPhotoVisible(arr.valueAt(i), limitByDistance, limitByAge) &&
-                            !currents.contains(arr.keyAt(i))) {
+                    if (_isPhotoVisible(settings, arr.valueAt(i), limitByDistance, limitByAge) &&
+                        !currents.contains(arr.keyAt(i))) {
                         results.add(arr.keyAt(i));
                     }
                 }
@@ -123,16 +129,18 @@ public final class PhotosService extends Service {
          * @param limitByAge Consider minimum and maximum age settings.
          * @return Array with photo/resource ids of the no longer visible photos.
          */
-        public int[] getNoLongerVisiblePhotos(final int[] currentPhotos, final boolean limitByDistance,
-                                              final boolean limitByAge) {
-            
+        @Override
+        public int[] getNoLongerVisiblePhotos(final Settings settings, final int[] currentPhotos,
+                                              final boolean limitByDistance, final boolean limitByAge)
+                throws RemoteException {
+
             ListArrayConversions.intArrayToList(currentPhotos);
             final ArrayList<Integer> results = new ArrayList<Integer>();
             
             Photo photo;
             for (final int id : currentPhotos) {
                 photo = getPhoto(id);
-                if (photo == null || !_isPhotoVisible(photo, limitByDistance, limitByAge)) {
+                if (photo == null || !_isPhotoVisible(settings, photo, limitByDistance, limitByAge)) {
                     results.add(id);
                 }
             }
@@ -148,14 +156,19 @@ public final class PhotosService extends Service {
          * @param limitByAge Consider minimum and maximum age settings.
          * @return <code>true</code> if photo is visible, or <code>false</code> if photo is not visible.
          */
-        private boolean _isPhotoVisible(final Photo photo, final boolean limitByDistance, final boolean limitByAge) {
+        private boolean _isPhotoVisible(final Settings settings, final Photo photo, final boolean limitByDistance,
+                                        final boolean limitByAge) {
+
+            if (settings == null) {
+                Log.e(PhotoCompassApplication.LOG_TAG, "PhotosService: _isPhotoVisible: settings is null");
+                return true;
+            }
             
-            final ApplicationModel appModel = ApplicationModel.getInstance();
 //          Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _isPhotoVisible: id = "+photo.getId());
-            if (limitByDistance && photo.distance < appModel.minDistance || photo.distance > appModel.maxDistance)
+            if (limitByDistance && photo.distance < settings.minDistance || photo.distance > settings.maxDistance)
                 return false;
             final long photoAge = photo.getAge();
-            if (limitByAge && photoAge < appModel.minAge || photoAge > appModel.maxAge) //              Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _isPhotoVisible: photoAge = "+photoAge+", minAge = "+appModel.minAge+", maxAge = "+appModel.maxAge);
+            if (limitByAge && photoAge < settings.minAge || photoAge > settings.maxAge) //              Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _isPhotoVisible: photoAge = "+photoAge+", minAge = "+appModel.minAge+", maxAge = "+appModel.maxAge);
                 return false;
             return true;
         }
@@ -167,8 +180,10 @@ public final class PhotosService extends Service {
          * @param lng Current longitude.
          * @param alt Current altitude.
          */
-        public void updatePhotoProperties(final double lat, final double lng, final double alt) {
-            
+        @Override
+        public Settings updatePhotoProperties(final Settings settings, final double lat, final double lng,
+                                              final double alt) throws RemoteException {
+
             int numPhotos;
             for (final SparseArray<Photo> arr : new SparseArray[] {photos, dummies}) {
                 numPhotos = arr.size();
@@ -176,17 +191,22 @@ public final class PhotosService extends Service {
                     arr.valueAt(i).updateDistanceDirectionAndAltitudeOffset(lat, lng, alt);
                 }
             }
-            updateAppModelMaxValues();
+            return updateAppModelMaxValues(settings);
         }
         
         /**
-         * Updates the maximum limits of the {@link ApplicationModel} for distance and age according to the data of the
-         * used photos.
+         * Updates the maximum limits of the {@link #settings} for distance and age according to the data of the used
+         * photos.
          */
-        public void updateAppModelMaxValues() {
+        @Override
+        public Settings updateAppModelMaxValues(final Settings settings) throws RemoteException {
+
+            if (settings == null) {
+                Log.e(PhotoCompassApplication.LOG_TAG, "PhotosService: updateAppModelMaxValues: settings is null");
+                return settings;
+            }
             
             Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: updateAppModelMaxValues");
-            final ApplicationModel appModel = ApplicationModel.getInstance();
             float maxDistance = 0;
             long maxAge = 0;
             int numPhotos;
@@ -201,51 +221,51 @@ public final class PhotosService extends Service {
                     if (dist == 0) {
                         continue; // photo properties not set
                     }
-                    if (dist > maxDistance && dist <= appModel.MAX_DISTANCE_LIMIT) {
+                    if (dist > maxDistance && dist <= settings.MAX_DISTANCE_LIMIT) {
                         maxDistance = dist;
                     }
                     age = photo.getAge();
-                    if (age > maxAge && age <= appModel.MAX_AGE_LIMIT) {
+                    if (age > maxAge && age <= settings.MAX_AGE_LIMIT) {
                         maxAge = age;
                     }
                 }
             }
-            if (appModel.setMaxMaxDistance(maxDistance)) {
-                _broadcastPhotoDistances();
+            if (settings.setMaxMaxDistance(maxDistance)) {
+                _broadcastPhotoDistances(settings);
             }
             maxAge += 60 * 60 * 1000; // as the photo age is always calculated from the current time we add a buffer of one hour
             // which should be enough for any usage time of the application
-            if (appModel.setMaxMaxAge(maxAge)) {
-                _broadcastPhotoAges();
+            if (settings.setMaxMaxAge(maxAge)) {
+                _broadcastPhotoAges(settings);
             }
+            
+            return settings;
         }
         
-        public void registerCallback(final IPhotosServiceCallback cb) {
-            
-            if (cb != null) {
-                remoteCallbacks.register(cb);
-                _broadcastValues(cb, ALL_VALUES);
-            }
+        @Override
+        public void registerCallback(final IPhotosServiceCallback cb) throws RemoteException {
+
+            if (cb == null) return;
+            remoteCallbacks.register(cb);
+            _broadcastValues(cb, ALL_VALUES);
         }
         
-        public void unregisterCallback(final IPhotosServiceCallback cb) {
-            
-            if (cb != null) {
-                remoteCallbacks.unregister(cb);
-            }
+        @Override
+        public void unregisterCallback(final IPhotosServiceCallback cb) throws RemoteException {
+
+            if (cb == null) return;
+            remoteCallbacks.unregister(cb);
         }
         
         private void _broadcastValues(final IPhotosServiceCallback cb, final int values) {
-            
+
             try {
                 if (values == ALL_VALUES || values == DISTANCE_VALUES) {
-                    cb.onPhotosDistancesChange(_photoDistances);
+                    cb.onPhotoDistancesChange(_photoDistances);
                 }
                 if (values == ALL_VALUES || values == AGE_VALUES) {
-                    cb.onPhotosDistancesChange(_photoAges);
+                    cb.onPhotoAgesChange(_photoAges);
                 }
-            } catch (final DeadObjectException e) {
-                // the RemoteCallbackList will take care of removing the dead object
             } catch (final RemoteException e) {
                 Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: broadcast to callback failed");
             }
@@ -255,7 +275,12 @@ public final class PhotosService extends Service {
          * Broadcasts a list with the distances of all photos used by the application. The distances are translated into
          * relative values.
          */
-        private void _broadcastPhotoDistances() {
+        private void _broadcastPhotoDistances(final Settings settings) {
+
+            if (settings == null) {
+                Log.e(PhotoCompassApplication.LOG_TAG, "PhotosService: _broadcastPhotoDistances: settings is null");
+                return;
+            }
             
             // check if there are callbacks registered
             final int numCallbacks = remoteCallbacks.beginBroadcast();
@@ -270,15 +295,14 @@ public final class PhotosService extends Service {
             final ArrayList<Float> dists = new ArrayList<Float>();
             int numPhotos;
             Photo photo;
-            final ApplicationModel appModel = ApplicationModel.getInstance();
             for (final SparseArray<Photo> arr : new SparseArray[] {photos, dummies}) {
                 numPhotos = arr.size();
                 for (int i = 0; i < numPhotos; i++) {
                     photo = arr.valueAt(i);
-                    if (!_isPhotoUsed(photo)) {
+                    if (!_isPhotoUsed(settings, photo)) {
                         continue;
                     }
-                    dists.add(appModel.absoluteToRelativeDistance(photo.distance));
+                    dists.add(settings.absoluteToRelativeDistance(photo.distance));
                 }
             }
 //          Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _broadcastPhotoDistances: dists = "+dists.toString());
@@ -295,7 +319,12 @@ public final class PhotosService extends Service {
          * Broadcasts a list with the age of all photos used by the application to the registered callbacks. The ages
          * are translated into relative values.
          */
-        private void _broadcastPhotoAges() {
+        private void _broadcastPhotoAges(final Settings settings) {
+
+            if (settings == null) {
+                Log.e(PhotoCompassApplication.LOG_TAG, "PhotosService: _broadcastPhotoAges: settings is null");
+                return;
+            }
             
             // check if there are callbacks registered
             final int numCallbacks = remoteCallbacks.beginBroadcast();
@@ -305,20 +334,19 @@ public final class PhotosService extends Service {
             }
             
             Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _broadcastPhotoAges");
-
+            
             // collect ages
             final ArrayList<Float> ages = new ArrayList<Float>();
             int numPhotos;
             Photo photo;
-            final ApplicationModel appModel = ApplicationModel.getInstance();
             for (final SparseArray<Photo> arr : new SparseArray[] {photos, dummies}) {
                 numPhotos = arr.size();
                 for (int i = 0; i < numPhotos; i++) {
                     photo = arr.valueAt(i);
-                    if (!_isPhotoUsed(photo)) {
+                    if (!_isPhotoUsed(settings, photo)) {
                         continue;
                     }
-                    ages.add(appModel.absoluteToRelativeAge(photo.getAge()));
+                    ages.add(settings.absoluteToRelativeAge(photo.getAge()));
                 }
             }
 //          Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _broadcastPhotoAges: ages = "+ages.toString());
@@ -331,10 +359,14 @@ public final class PhotosService extends Service {
             remoteCallbacks.finishBroadcast();
         }
         
-        private boolean _isPhotoUsed(final Photo photo) {
+        private boolean _isPhotoUsed(final Settings settings, final Photo photo) {
+
+            if (settings == null) {
+                Log.e(PhotoCompassApplication.LOG_TAG, "PhotosService: _isPhotoUsed: settings is null");
+                return true;
+            }
             
-            final ApplicationModel appModel = ApplicationModel.getInstance();
-            if (photo.distance > appModel.MAX_MAX_DISTANCE || photo.getAge() > appModel.MAX_MAX_AGE) return false;
+            if (photo.distance > settings.MAX_MAX_DISTANCE || photo.getAge() > settings.MAX_MAX_AGE) return false;
             return true;
         }
     };
@@ -343,7 +375,12 @@ public final class PhotosService extends Service {
      * Constructor.
      */
     public PhotosService() {
+
+        if (PhotoCompassApplication.USE_DUMMY_PHOTOS) {
+            _populateDummies(); // populate _dummies
+        }
         
+//        readPhotos(); // populate _photos
     }
     
     /**
@@ -352,16 +389,10 @@ public final class PhotosService extends Service {
      */
     @Override
     public void onCreate() {
-        
+
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: onCreate");
         
         super.onCreate();
-        
-        if (PhotoCompassApplication.USE_DUMMY_PHOTOS) {
-            _populateDummies(); // populate _dummies
-        }
-        
-        readPhotos(); // populate _photos
     }
     
     /**
@@ -371,7 +402,7 @@ public final class PhotosService extends Service {
      * by inner classes.
      */
     void readPhotos() {
-        
+
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: readPhotos");
         
         final SparseArray<Photo> _photosNew = new SparseArray<Photo>();
@@ -471,7 +502,7 @@ public final class PhotosService extends Service {
      * Merges photos close to each other.
      */
     private void _mergePhotos() {
-        
+
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _mergePhotos");
 //        Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: _mergePhotos: #photos = "+_photos.size()+", #dummies = "+_dummies.size());
         int numPhotos, numOthers, numMerged, photoId, otherId;
@@ -528,7 +559,7 @@ public final class PhotosService extends Service {
      */
     @Override
     public IBinder onBind(final Intent intent) {
-        
+
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: onBind");
         return _binder;
     }
@@ -538,7 +569,7 @@ public final class PhotosService extends Service {
      */
     @Override
     public void onDestroy() {
-        
+
         Log.d(PhotoCompassApplication.LOG_TAG, "PhotosService: onDestroy");
         
         // unregister all callbacks
@@ -551,7 +582,7 @@ public final class PhotosService extends Service {
      * Populates {@link #dummies}.
      */
     private void _populateDummies() {
-        
+
         final long dateTime = System.currentTimeMillis();
         
         // dummy photos (stuff near B-IT)

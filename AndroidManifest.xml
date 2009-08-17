@@ -13,7 +13,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
     	</activity>
-        <activity android:name=".activities.FinderActivity"
+        <activity android:name=".activities.CameraActivity"
         		  android:screenOrientation="landscape"
         		  android:launchMode="singleTop"
         		  android:theme="@style/ThemeNoBackground"></activity>
@@ -24,6 +24,8 @@
     	<activity android:name=".activities.DummyMapActivity"
     			  android:screenOrientation="landscape"
         		  android:launchMode="singleTop"></activity>
+        <service android:name=".services.SettingsService"></service>
+        <service android:name=".services.PhotosService"></service>
 		<service android:name=".services.LocationService"></service>
 		<service android:name=".services.OrientationService"></service>
 	</application>

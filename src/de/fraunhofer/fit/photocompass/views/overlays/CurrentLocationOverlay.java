@@ -28,8 +28,8 @@ public final class CurrentLocationOverlay extends Overlay {
      * @param location
      */
     public void update(final GeoPoint location) {
-
-//        Log.d(PhotoCompassApplication.LOG_TAG, "CustomMyLocationOverlay: update");
+        
+//        Log.d(PhotoCompassApplication.LOG_TAG, "CurrentLocationOverlay: update");
         _location = location;
     }
     
@@ -38,18 +38,21 @@ public final class CurrentLocationOverlay extends Overlay {
      */
     @Override
     public void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
-
+        
         super.draw(canvas, mapView, shadow);
         
-        if (_location == null) return;
+        if (_location == null) {
+            return;
+        }
         
         // transform current position to point on canvas
         final Projection projection = mapView.getProjection();
         projection.toPixels(_location, _point);
         
         // create bitmap
-        if (_bmp == null)
+        if (_bmp == null) {
             _bmp = BitmapFactory.decodeResource(mapView.getResources(), R.drawable.maps_current_position);
+        }
         
         // draw the marker
         canvas.drawBitmap(_bmp, _point.x - _bmp.getWidth() / 2, _point.y - _bmp.getHeight() / 2, null);
